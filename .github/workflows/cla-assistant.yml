@@ -3,7 +3,7 @@ on:
   issue_comment:
     types: [created]
   pull_request_target:
-    types: [opened,closed,synchronize]
+    types: [opened, closed, synchronize]
 
 permissions:
   actions: write
@@ -13,8 +13,8 @@ permissions:
 
 jobs:
   CLAAssistant:
+    name: "CLA Assistant"
     runs-on: ubuntu-latest
-    environment: CLA
     steps:
       - name: "CLA Assistant"
         if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
@@ -23,20 +23,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.CLA_ASSISTANT_PAT }}
         with:
-          path-to-signatures: 'signatures/ctfp/v1/cla.json'
-          path-to-document: 'https://github.com/ctfpilot/cla/blob/1a3a56410df569e0672aafd508044da85f194e8b/CLA.md'
+          path-to-signatures: "signatures/ctfp/v1/cla.json"
+          path-to-document: "https://github.com/ctfpilot/cla/blob/1a3a56410df569e0672aafd508044da85f194e8b/CLA.md"
 
           # branch should not be protected
-          branch: 'main'
-          allowlist: ''
+          branch: "main"
+          allowlist: ""
           lock-pullrequest-aftermerge: false
           use-dco-flag: false
 
           # Remote CLA repo
-          remote-organization-name: 'ctfpilot'
-          remote-repository-name: 'cla'
-          create-file-commit-message: 'Creating file for storing CLA Signatures'
-          signed-commit-message: '$contributorName has signed the CLA in $owner/$repo#$pullRequestNo'
+          remote-organization-name: "ctfpilot"
+          remote-repository-name: "cla"
+          create-file-commit-message: "Creating file for storing CLA Signatures"
+          signed-commit-message: "$contributorName has signed the CLA in $owner/$repo#$pullRequestNo"
           custom-notsigned-prcomment: 'Thank you for your contribution! Before we can proceed, please sign the Contributor License Agreement (CLA) by replying to this comment with "I have read the CLA Document and I hereby sign the CLA". You can find the CLA document [here](https://github.com/ctfpilot/cla/blob/1a3a56410df569e0672aafd508044da85f194e8b/CLA.md).'
-          custom-pr-sign-comment: 'I have read the CLA Document and I hereby sign the CLA'
-          custom-allsigned-prcomment: 'All Contributors have signed the CLA. Thank you for your cooperation!'
+          custom-pr-sign-comment: "I have read the CLA Document and I hereby sign the CLA"
+          custom-allsigned-prcomment: "All Contributors have signed the CLA. Thank you for your cooperation!"
