@@ -18,10 +18,15 @@ CTF Pilot started as a CTF Platform project, originating in **[Brunnerne](https:
 
 ## License
 
-CTFp is licensed under the **PolyForm Noncommercial License 1.0.0**.  
-You can find the full license text in the **[LICENSE.md](../LICENSE.md)** file.
+CTFp is licensed under a dual license, the **PolyForm Noncommercial License 1.0.0** for non-commercial use, and a **Commercial License** for commercial use.
+You can find the full license for non-commercial use in the **[LICENSE.md](../LICENSE.md)** file.  
+For commercial licensing, please contact **[The0Mikkel](https://github.com/The0Mikkel)**.
 
-For contribution see the [#CONTRIBUTING.md](../CONTRIBUTING.md) file.
+We encourage all modifications and contributions to be shared back with the community, for example through pull requests to this repository.  
+We also encourage all derivative works to be publicly available under **PolyForm Noncommercial License 1.0.0**.  
+At all times must the license terms be followed.
+
+For information regarding how to contribute, see the [contributing](#contributing) section above.
 
 CTF Pilot is owned and maintained by **[The0Mikkel](https://github.com/The0mikkel)**.  
 Required Notice: Copyright Mikkel Albrechtsen (<https://themikkel.dk>)
