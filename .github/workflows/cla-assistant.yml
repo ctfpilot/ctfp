@@ -36,7 +36,7 @@ jobs:
           remote-organization-name: "ctfpilot"
           remote-repository-name: "cla"
           create-file-commit-message: "Creating file for storing CLA Signatures"
-          signed-commit-message: "$contributorName has signed the CLA in $owner/$repo#$pullRequestNo"
+          signed-commit-message: "$contributorName has signed the CLA in $owner/$repo"
           custom-notsigned-prcomment: 'Thank you for your contribution! Before we can proceed, please sign the Contributor License Agreement (CLA) by replying to this comment with "I have read the CLA Document and I hereby sign the CLA". You can find the CLA document [here](https://github.com/ctfpilot/cla/blob/1a3a56410df569e0672aafd508044da85f194e8b/CLA.md).'
           custom-pr-sign-comment: "I have read the CLA Document and I hereby sign the CLA"
           custom-allsigned-prcomment: "All Contributors have signed the CLA. Thank you for your cooperation!"
