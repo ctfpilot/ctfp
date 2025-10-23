@@ -16,4 +16,12 @@ To administer the CLA signing process, we are using **[CLA assistant lite](https
 
 CTF Pilot started as a CTF Platform project, originating in **[Brunnerne](https://github.com/brunnerne)**.
 
-CTF Pilot is owned and maintained by **[The0Mikkel](https://github.com/The0mikkel)**.
+## License
+
+CTFp is licensed under the **PolyForm Noncommercial License 1.0.0**.  
+You can find the full license text in the **[LICENSE.md](../LICENSE.md)** file.
+
+For contribution see the [#CONTRIBUTING.md](../CONTRIBUTING.md) file.
+
+CTF Pilot is owned and maintained by **[The0Mikkel](https://github.com/The0mikkel)**.  
+Required Notice: Copyright Mikkel Albrechtsen (<https://themikkel.dk>)
