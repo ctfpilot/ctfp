@@ -10,7 +10,8 @@ CTFp is a dual-licensed project. To maintain the ability to distribute contribut
 You can review **[the CLA here](https://github.com/ctfpilot/cla)**. CLA signing happens automatically when you create your first pull request.  
 To administer the CLA signing process, we are using **[CLA assistant lite](https://github.com/marketplace/actions/cla-assistant-lite)**.
 
-*A copy of the CLA document is also included in this repository as `[CLA.md](../CLA.md)`.*
+*A copy of the CLA document is also included in this repository as `[CLA.md](../CLA.md)`.*  
+*Signatures are stored in the [`cla` repository](https://github.com/ctfpilot/cla).*
 
 ## Background
 
