@@ -20,7 +20,7 @@ CTF Pilot started as a CTF Platform project, originating in **[Brunnerne](https:
 ## License
 
 CTFp is licensed under a dual license, the **PolyForm Noncommercial License 1.0.0** for non-commercial use, and a **Commercial License** for commercial use.
-You can find the full license for non-commercial use in the **[LICENSE.md](../LICENSE.md)** file.  
+You can find the full license for non-commercial use in the **[LICENSE.md](LICENSE.md)** file.  
 For commercial licensing, please contact **[The0Mikkel](https://github.com/The0Mikkel)**.
 
 We encourage all modifications and contributions to be shared back with the community, for example through pull requests to this repository.  
