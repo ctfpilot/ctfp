@@ -5,7 +5,7 @@ We appreciate your interest in helping us enhance our platform and tools.
 
 ## Contribution Guidelines
 
-We welcome contributions from the community to enhance CTFPilot.  
+We welcome contributions from the community to enhance CTF Pilot.  
 To ensure a smooth and efficient contribution process, please adhere to the following guidelines:
 
 ### Reporting Issues
@@ -27,7 +27,7 @@ Reference any related issues or pull requests in your commits using appropriate 
 We require all contributors to sign the CLA to ensure that contributions can be legally incorporated into the project.
 8. **Review Process:** Be responsive to feedback during the review process. Address any requested changes to facilitate the merging of your contribution.
 9. **Merging:** Once approved, your changes will be merged into the `develop` branch and subsequently into the `main` branch for release.
-Code merging is done at the discretion of the maintainers. They hold the full right accept or reject any contributions.
+Code merging is done at the discretion of the maintainers. They hold the full right to accept or reject any contributions.
 
 ### Versioning Guidelines
 
@@ -96,4 +96,4 @@ Review our [Code of Conduct](CODE_OF_CONDUCT.md) to understand the expected beha
 ### Need Help?
 
 If you have any questions or need clarification, try opening an issue in the repository. We will be happy to help!  
-We will try to respond as quick as possible, but please be patient.
+We will try to respond as quickly as possible, but please be patient.
