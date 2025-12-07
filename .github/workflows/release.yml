@@ -1,0 +1,21 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  release:
+    name: Release
+    uses: ctfpilot/ci/.github/workflows/release.yml@v1.3.0
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    secrets:
+      RELEASE_GH_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }}
+    with:
+      repository: ctfpilot/ctfp
+      ENVIRONMENT: Release
