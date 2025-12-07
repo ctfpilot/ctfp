@@ -4,14 +4,14 @@
 
 We welcome contributions of all kinds, from **code** and **documentation** to **bug reports** and **feedback**!
 
-CTFp is a dual-licensed project. To maintain the ability to distribute contributions across all our licensing models, **all code contributions require signing a Contributor License Agreement (CLA)**.
-
 Please check the [Contribution Guidelines (`CONTRIBUTING.md`)](/CONTRIBUTING.md) for detailed guidelines on how to contribute.
+
+CTFp is a dual-licensed project. To maintain the ability to distribute contributions across all our licensing models, **all code contributions require signing a Contributor License Agreement (CLA)**.
 
 You can review **[the CLA here](https://github.com/ctfpilot/cla)**. CLA signing happens automatically when you create your first pull request.  
 To administrate the CLA signing process, we are using **[CLA assistant lite](https://github.com/marketplace/actions/cla-assistant-lite)**.
 
-*A copy of the CLA document is also included in this repository as [`CLA.md`](../CLA.md).*  
+*A copy of the CLA document is also included in this repository as [`CLA.md`](CLA.md).*  
 *Signatures are stored in the [`cla` repository](https://github.com/ctfpilot/cla).*
 
 ## Background
