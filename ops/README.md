@@ -4,7 +4,7 @@
 > You are leaving the automated CTF Pilot setup and entering a more advanced manual setup.  
 > This requires knowledge of Kubernetes, Terraform/OpenTofu, and cloud infrastructure management.  
 > If you are not comfortable with these technologies, it is recommended to use the automated setup provided by CTF Pilot.  
-> Learn more about the automated setup in the [CTF Pilot's CTF Platform main README](../README.md).
+> Learn more about the automated setup in the [CTFp main README](../README.md).
 
 This directory contains various operational applications, services and configurations, deployed as a base on top of the Kubernetes cluster.
 

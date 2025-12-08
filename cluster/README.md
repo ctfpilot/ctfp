@@ -4,7 +4,7 @@
 > You are leaving the automated CTF Pilot setup and entering a more advanced manual setup.  
 > This requires knowledge of Kubernetes, Terraform/OpenTofu, and cloud infrastructure management.  
 > If you are not comfortable with these technologies, it is recommended to use the automated setup provided by CTF Pilot.  
-> Learn more about the automated setup in the [CTF Pilot's CTF Platform main README](../README.md).
+> Learn more about the automated setup in the [CTFp main README](../README.md).
 
 This setup uses [Terraform](https://www.terraform.io/) / [OpenTofu](https://opentofu.org) to create and manage a Kubernetes cluster on [Hetzner Cloud](https://www.hetzner.com/cloud), using the [kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). The cluster is configured to use [Cloudflare](https://www.cloudflare.com/) for DNS management.
 
