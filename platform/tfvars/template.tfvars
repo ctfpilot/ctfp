@@ -109,7 +109,7 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 # You can override these values by uncommenting and setting your own images here.
 
 # image_ctfd_manager   = "ghcr.io/ctfpilot/ctfd-manager:1.0.1"     # Docker image for the CTFd Manager deployment
-# image_error_fallback = "ghcr.io/ctfpilot/error-fallback:latest"  # Docker image for the error fallback deployment
+# image_error_fallback = "ghcr.io/ctfpilot/error-fallback:1.2.1"  # Docker image for the error fallback deployment
 # image_filebeat       = "docker.elastic.co/beats/filebeat:8.19.0" # Docker image for Filebeat
 # image_ctfd_exporter  = "ghcr.io/the0mikkel/ctfd-exporter:1.1.1"  # Docker image for the CTFd Exporter
 

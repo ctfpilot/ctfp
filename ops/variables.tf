@@ -122,7 +122,7 @@ variable "grafana_admin_password" {
 variable "image_error_fallback" {
   type        = string
   description = "The docker image for the error fallback deployment. See https://github.com/ctfpilot/error-fallback"
-  default     = "ghcr.io/ctfpilot/error-fallback:latest"
+  default     = "ghcr.io/ctfpilot/error-fallback:1.2.1"
 }
 
 variable "image_filebeat" {
