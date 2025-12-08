@@ -1,5 +1,10 @@
 # CTFp - CTF Pilot's CTF Platform
 
+> [!WARNING]
+>
+> We are currently in the process of publishing the CTFp system.  
+> Meanwhile, some components may not be present or fully functional.
+
 ## Contributing
 
 We welcome contributions of all kinds, from **code** and **documentation** to **bug reports** and **feedback**!
