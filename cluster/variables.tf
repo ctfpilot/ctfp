@@ -20,38 +20,38 @@ variable "ssh_key_public_base64" {
 
 # Cloudflare & DNS variables
 variable "cloudflare_api_token" {
-  sensitive = true # Requires terraform >= 0.14
-  type      = string
+  sensitive   = true # Requires terraform >= 0.14
+  type        = string
   description = "Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
 }
 
 variable "cloudflare_dns_management" {
-  type = string
+  type        = string
   description = "The top level domain (TLD) to use for the DNS records for the management part of the cluster"
 }
 
 variable "cloudflare_dns_platform" {
-  type = string
+  type        = string
   description = "The top level domain (TLD) to use for the DNS records for the platform part of the cluster"
 }
 
 variable "cloudflare_dns_ctf" {
-  type = string
+  type        = string
   description = "The top level domain (TLD) to use for the DNS records for the CTF challenges part of the cluster"
 }
 
 variable "cluster_dns_management" {
-  type = string
+  type        = string
   description = "The specific domain name to use for the DNS records for the management part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_management`"
 }
 
 variable "cluster_dns_platform" {
-  type = string
+  type        = string
   description = "The domain name to use for the DNS records for the platform part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_platform`"
 }
 
 variable "cluster_dns_ctf" {
-  type = string
+  type        = string
   description = "The domain name to use for the DNS records for the CTF challenges part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`"
 }
 
@@ -208,22 +208,22 @@ variable "agent_count_3" {
   }
 }
 
-variable "scale_count" {
+variable "challs_count" {
   type        = number
-  description = "Number of scale nodes"
+  description = "Number of CTF challenge nodes"
   default     = 0
   validation {
-    condition     = var.scale_count >= 0
-    error_message = "Scale count must be at least 0."
+    condition     = var.challs_count >= 0
+    error_message = "CTF challenge count must be at least 0."
   }
 }
 
-variable "scale_min" {
+variable "scale_max" {
   type        = number
-  description = "Minimum number of scale nodes - Only applicable if scale_count > 0"
+  description = "Maximum number of scale nodes. Set to 0 to disable autoscaling (default: 0)"
   default     = 0
-#   validation {
-#     condition     = var.scale_min >= 0 && var.scale_min <= var.scale_count
-#     error_message = "Scale min must be between 0 and the scale count."
-#   }
+  validation {
+    condition     = var.scale_max >= 0
+    error_message = "Scale max must be at least 0."
+  }
 }

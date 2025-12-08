@@ -239,7 +239,7 @@ module "kube-hetzner" {
       taints = [
         "cluster.ctfpilot.com/node=scaler:PreferNoSchedule"
       ]
-      count = var.scale_min
+      count = var.challs_count
       kubelet_args = [
         "kube-reserved=cpu=150m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=300m,memory=750Mi",
@@ -403,8 +403,8 @@ module "kube-hetzner" {
       name        = "autoscaled-challs-nodes"
       server_type = var.scale_type
       location    = var.region_1
-      min_nodes   = 0 # var.scale_count > 0 ? var.scale_min : 0
-      max_nodes   = var.scale_count
+      min_nodes   = 0
+      max_nodes   = var.scale_max
       labels = {
         "ressource-type" : "node",
         "node-type" : "scale",

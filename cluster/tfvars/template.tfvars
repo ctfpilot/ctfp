@@ -69,9 +69,9 @@ control_plane_count_3 = 1 # Number of control plane nodes in group 3
 agent_count_1 = 1 # Number of agent nodes in group 1
 agent_count_2 = 1 # Number of agent nodes in group 2
 agent_count_3 = 1 # Number of agent nodes in group 3
-# Optional - 0 means no scale nodes available to the autoscaler.
-scale_count = 0
-# Minimum number of scale nodes - Only applicable if scale_count > 0
-scale_min = 0
+# Challenge nodes - Nodes dedicated to running CTF challenges. These nodes are tainted to only run challenge workloads.
+challs_count = 0 # Number of challenge nodes.
+# Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
+scale_max = 0 # Maximum number of scale nodes. Set to 0 to disable autoscaling.
 
 load_balancer_type = "lb11" # Load balancer type, see https://www.hetzner.com/cloud/load-balancer
