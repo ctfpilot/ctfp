@@ -20,8 +20,8 @@ ssh_key_public_base64  = "<public_key>"  # The public key to use for SSH access 
 # This is to sepearte the two parts of the cluster, and to allow for different DNS records for the two parts. It may be the same domain. The specific subdomains is set later.
 cloudflare_api_token      = "<api-token>"         # Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)
 cloudflare_dns_management = "<management-domain>" # The top level domain (TLD) to use for the DNS records for the management part of the cluster
-cloudflare_dns_ctf        = "<ctf-domain>"        # The top level domain (TLD) to use for the DNS records for the CTF part of the cluster
 cloudflare_dns_platform   = "<platform-domain>"   # The top level domain (TLD) to use for the DNS records for the platform part of the cluster
+cloudflare_dns_ctf        = "<ctf-domain>"        # The top level domain (TLD) to use for the DNS records for the CTF part of the cluster
 
 # ------------------------
 # DNS information
@@ -29,8 +29,8 @@ cloudflare_dns_platform   = "<platform-domain>"   # The top level domain (TLD) t
 # The cluster uses two domains for the management and CTF parts of the cluster.
 # The following is the actually used subdomains for the two parts of the cluster. They may be either TLD or subdomains.
 cluster_dns_management = "<dns-management-domain>" # The specific domain name to use for the DNS records for the management part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_management`
-cluster_dns_ctf        = "<dns-ctf-domain>"        # The domain name to use for the DNS records for the CTF part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`
 cluster_dns_platform   = "<dns-platform-domain>"   # The domain name to use for the DNS records for the platform part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_platform`
+cluster_dns_ctf        = "<dns-ctf-domain>"        # The domain name to use for the DNS records for the CTF challenges part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`
 
 # ------------------------
 # Cluster configuration
@@ -39,9 +39,9 @@ cluster_dns_platform   = "<dns-platform-domain>"   # The domain name to use for 
 # For uptimal performance, it is recommended to use the same region for all servers.
 # Region 1 is used for scale nodes and loadbalancer.
 # Possible values: fsn1, hel1, nbg1
-region_1 = "fsn1" # Region for subgroup 1
-region_2 = "fsn1" # Region for subgroup 2
-region_3 = "fsn1" # Region for subgroup 3
+region_1     = "fsn1"       # Region for subgroup 1
+region_2     = "fsn1"       # Region for subgroup 2
+region_3     = "fsn1"       # Region for subgroup 3
 network_zone = "eu-central" # Hetzner network zone. Possible values: "eu-central", "us-east", "us-west", "ap-southeast". Regions must be within the network zone.
 
 # Servers

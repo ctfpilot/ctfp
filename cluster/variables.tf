@@ -30,29 +30,29 @@ variable "cloudflare_dns_management" {
   description = "The top level domain (TLD) to use for the DNS records for the management part of the cluster"
 }
 
+variable "cloudflare_dns_platform" {
+  type = string
+  description = "The top level domain (TLD) to use for the DNS records for the platform part of the cluster"
+}
+
+variable "cloudflare_dns_ctf" {
+  type = string
+  description = "The top level domain (TLD) to use for the DNS records for the CTF challenges part of the cluster"
+}
+
 variable "cluster_dns_management" {
   type = string
   description = "The specific domain name to use for the DNS records for the management part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_management`"
 }
 
-variable "cloudflare_dns_ctf" {
+variable "cluster_dns_platform" {
   type = string
-  description = "The top level domain (TLD) to use for the DNS records for the CTF part of the cluster"
-}
-
-variable "cloudflare_dns_platform" {
-  type = string
-  description = "The domain name to use for the DNS records for the CTF part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`"
+  description = "The domain name to use for the DNS records for the platform part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_platform`"
 }
 
 variable "cluster_dns_ctf" {
   type = string
-  description = "The top level domain (TLD) to use for the DNS records for the platform part of the cluster"
-}
-
-variable "cluster_dns_platform" {
-  type = string
-  description = "The domain name to use for the DNS records for the platform part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_platform`"
+  description = "The domain name to use for the DNS records for the CTF challenges part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`"
 }
 
 # Cluster configuration
