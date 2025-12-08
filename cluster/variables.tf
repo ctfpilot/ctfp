@@ -2,6 +2,12 @@
 # Variables
 # ----------------------
 
+variable "kube_hetzner_version" {
+  type = string
+  description = "The version of the Kube-Hetzner module to use. More information at https://github.com/mysticaltech/terraform-hcloud-kube-hetzner"
+  default = "2.18.2"
+}
+
 # Hetzner
 variable "hcloud_token" {
   sensitive   = true

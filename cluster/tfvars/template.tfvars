@@ -75,3 +75,11 @@ challs_count = 0 # Number of challenge nodes.
 scale_max = 0 # Maximum number of scale nodes. Set to 0 to disable autoscaling.
 
 load_balancer_type = "lb11" # Load balancer type, see https://www.hetzner.com/cloud/load-balancer
+
+# ----------------------
+# Versions
+# ----------------------
+# Values are maintained in the variables.tf file.
+# You can override these values by uncommenting and setting your own versions here.
+
+# kube_hetzner_version = "2.18.2" # The version of the Kube-Hetzner module to use. More information at https://github.com/mysticaltech/terraform-hcloud-kube-hetzner
