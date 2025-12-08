@@ -13,6 +13,14 @@ Ops contians elements, that needs to be properly configured and deployed, before
 The following applications/services are included in the Ops:
 
 - [ArgoCD](https://argo-cd.readthedocs.io/) - GitOps continuous delivery tool, used to deploy and manage applications within the Kubernetes cluster.
+- [Cert manager](https://cert-manager.io/) - Certificate management
+- [Descheduler](https://github.com/kubernetes-sigs/descheduler) - Continuously rebalance the cluster
+- [Error fallback](https://github.com/ctfpilot/error-fallback) - CTF Pilot's Error Fallback page
+- [Filebeat](https://www.elastic.co/beats/filebeat) - Log offload to Elasticseach
+- [MariaDB Operator](https://github.com/mariadb-operator/mariadb-operator) - Operator to manage MariaDB within the cluster
+- [Prometheus & Grafana stack](https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack) - Prometheus and Grafana stack for monitoring
+- [Redis operator](https://github.com/OT-CONTAINER-KIT/redis-operator) - Redis operator to manage Redis within the cluster
+- [Traefik](https://traefik.io/traefik) - Configuration of Traefik. This project only deploys additional Helm chart configuration.
 
 ## Pre-requisites
 
@@ -21,7 +29,7 @@ The following software needs to be installed on your local machine:
 - [Terraform](https://www.terraform.io/downloads.html) / [OpenTofu](https://opentofu.org)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (For interacting with the Kubernetes cluster)
 
-The following services are required, in order to deploy the Kubernetes cluster:
+The following services are required, in order to deploy the services to the cluster:
 
 - A Kubernetes cluster (Deployed using the [CTF Pilot's Kubernetes Cluster on Hetzner Cloud](../cluster/README.md) guide or other means)
 - [Cloudflare](https://www.cloudflare.com/) account
