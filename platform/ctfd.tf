@@ -45,7 +45,7 @@ module "ctfd-pull-secret" {
 }
 
 locals {
-  db_name = "ctfd-db-2"
+  db_name = "ctfd-db"
 }
 
 module "db-cluster" {
