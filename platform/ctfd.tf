@@ -61,6 +61,8 @@ module "db-cluster" {
   s3_access_key = var.s3_access_key
   s3_secret_key = var.s3_secret_key
 
+  mariadb_version = var.mariadb_version
+
   depends_on = [
     kubernetes_namespace_v1.ctfd
   ]

@@ -113,3 +113,10 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 # image_filebeat       = "docker.elastic.co/beats/filebeat:8.19.0" # Docker image for Filebeat
 # image_ctfd_exporter  = "ghcr.io/the0mikkel/ctfd-exporter:1.1.1"  # Docker image for the CTFd Exporter
 
+# ----------------------
+# Versions
+# ----------------------
+# Values are maintained in the variables.tf file.
+# You can override these values by uncommenting and setting your own versions here.
+
+# mariadb_version = "25.8.1" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator

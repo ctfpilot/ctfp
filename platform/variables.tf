@@ -271,3 +271,9 @@ variable "image_ctfd_exporter" {
   description = "The docker image for CTFd Exporter"
   default     = "ghcr.io/the0mikkel/ctfd-exporter:1.1.1"
 }
+
+variable "mariadb_version" {
+  type        = string
+  description = "The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator"
+  nullable    = false
+}
