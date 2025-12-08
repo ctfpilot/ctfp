@@ -54,7 +54,7 @@ The [`tfvars/template.tfvars`](tfvars/template.tfvars) file contains further inf
 Run the following command to apply the ressources to the Kubernetes cluster:
 
 ```bash
-tofu init -backend-config=../backend/generated/cluster.hcl
+tofu init -backend-config=../backend/generated/ops.hcl
 tofu apply --var-file tfvars/data.tfvars
 ```
 
