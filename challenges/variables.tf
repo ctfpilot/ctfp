@@ -16,6 +16,12 @@ variable "environment" {
   nullable    = false
 }
 
+variable "cluster_dns_management" {
+  type        = string
+  description = "The specific domain name to use for the DNS records for the management part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_management`"
+  nullable    = false
+}
+
 variable "cluster_dns_ctf" {
   type        = string
   description = "The domain name to use for the DNS records for the CTF challenges part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`"

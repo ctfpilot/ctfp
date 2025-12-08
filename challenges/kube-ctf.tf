@@ -2,9 +2,9 @@ module "kube_ctf" {
   source = "../tf-modules/kubectf"
 
   challenge_dns  = var.cluster_dns_ctf
-  management_dns = var.cluster_dns_ctf
+  management_dns = var.cluster_dns_management
 
-  org_name     = "io"
+  org_name     = "ctfpilot.com"
   cert_manager = "cert-manager-global"
 
   management_auth_secret = var.kubectf_auth_secret

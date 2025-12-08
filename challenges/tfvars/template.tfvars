@@ -7,6 +7,7 @@ kubeconfig = "AA==" # Base64 encoded kubeconfig file
 # Generic information
 # ------------------------
 environment     = "test"  # Environment name for the CTF
+cluster_dns_management = "<dns>" # The specific domain name to use for the DNS records for the management part of the cluster
 cluster_dns_ctf = "<dns>" # The domain name to use for the DNS records for the CTF part of the cluster
 
 # ------------------------
