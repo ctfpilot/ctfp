@@ -86,24 +86,23 @@ class Template:
         
 class Generator:
     args = None
-    parent_parser = None
-
-    def __init__(self, parent_parser = None):
-        self.parent_parser = parent_parser
+    
+    def __init__(self, subparser = None):
+        if not subparser:
+            self.subparser = argparse.ArgumentParser(description="Backend generator for Terraform")
+            self.subparser.set_defaults(func=self.run)
+            return
+                    
+        self.subparser = subparser.add_parser("generate-backend", help="Generate Terraform backend configuration", description="Generate Terraform backend configuration for specified component")
+        self.subparser.set_defaults(func=self.run)
   
     def register_subcommand(self):
-        self.args = Args(self.parent_parser)
+        self.subparser.add_argument("component", help="Component to generate backend for", choices=["cluster", "ops", "platform", "challenges"])
+        self.subparser.add_argument("bucket", help="S3 bucket name for Terraform state storage")
+        self.subparser.add_argument("region", help="Region for S3 bucket")
+        self.subparser.add_argument("endpoint", help="Endpoint URL for S3-compatible storage")
   
-    def run(self):
-        if not self.args:
-            arguments = Args(self.parent_parser)
-            arguments.parse()
-            self.args = arguments
-        else:
-            self.args.parse()
-            
-        args = self.args
-        
+    def run(self, args):
         template = Template(
             component=args.component,
             bucket=args.bucket,
@@ -113,4 +112,14 @@ class Generator:
         template.run()
 
 if __name__ == "__main__":
-    Generator().run()
+    args = Args()
+    if args.parser is None:
+        print("Failed to initialize argument parser")
+        exit(1)
+        
+    generator = Generator()
+    generator.register_subcommand()
+    
+    namespace = args.parser.parse_args()
+    
+    generator.run(namespace)
