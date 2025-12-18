@@ -12,7 +12,6 @@ hcloud_token = "<hetzner-token>" # Hetzner cloud project token (obtained from a 
 ssh_key_private_base64 = "<private_key>" # The private key to use for SSH access to the servers (base64 encoded)
 ssh_key_public_base64  = "<public_key>"  # The public key to use for SSH access to the servers (base64 encoded)
 
-
 # ------------------------
 # Cloudflare variables
 # ------------------------
@@ -51,14 +50,14 @@ network_zone = "eu-central" # Hetzner network zone. Possible values: "eu-central
 # Agents are the servers that run the workloads, and scale is used to scale the cluster up or down dynamically.
 # Scale is automatically scaled agent nodes, which is handled by the cluster autoscaler. It is optional, and can be used to scale the cluster up or down dynamically.
 
-# Server types (e.g., "cx32", "cx42", "cx22") See https://www.hetzner.com/cloud
-control_plane_type_1 = "cx32" # Control plane group 1
-control_plane_type_2 = "cx32" # Control plane group 2
-control_plane_type_3 = "cx32" # Control plane group 3
-agent_type_1         = "cx32" # Agent group 1
-agent_type_2         = "cx32" # Agent group 2
-agent_type_3         = "cx32" # Agent group 3
-scale_type           = "cx32" # Scale group
+# Server types. See https://www.hetzner.com/cloud
+control_plane_type_1 = "cx23" # Control plane group 1
+control_plane_type_2 = "cx23" # Control plane group 2
+control_plane_type_3 = "cx23" # Control plane group 3
+agent_type_1         = "cx33" # Agent group 1
+agent_type_2         = "cx33" # Agent group 2
+agent_type_3         = "cx33" # Agent group 3
+scale_type           = "cx33" # Scale group
 
 # Server count 
 # Minimum of 1 control plane across all groups. 1 in each group is recommended for HA.
@@ -70,7 +69,7 @@ agent_count_1 = 1 # Number of agent nodes in group 1
 agent_count_2 = 1 # Number of agent nodes in group 2
 agent_count_3 = 1 # Number of agent nodes in group 3
 # Challenge nodes - Nodes dedicated to running CTF challenges. These nodes are tainted to only run challenge workloads.
-challs_count = 0 # Number of challenge nodes.
+challs_count = 1 # Number of challenge nodes.
 # Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
 scale_max = 0 # Maximum number of scale nodes. Set to 0 to disable autoscaling.
 
