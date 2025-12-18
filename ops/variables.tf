@@ -79,8 +79,8 @@ variable "filebeat_elasticsearch_password" {
 }
 
 variable "prometheus_storage_size" {
-  type = "string"
-  default = "15Gi"
+  type        = string
+  default     = "15Gi"
   description = "The size of the persistent volume claim for Prometheus data storage. Format: <size><unit> (e.g., 20Gi, 100Gi)"
 }
 
@@ -159,11 +159,11 @@ variable "mariadb_operator_version" {
 variable "kube_prometheus_stack_version" {
   type        = string
   description = "The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/"
-  default = "62.3.1"
+  default     = "62.3.1"
 }
 
 variable "redis_operator_version" {
-  type = string
+  type        = string
   description = "The version of the Redus Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
-  default = "0.22.2"
+  default     = "0.22.2"
 }
