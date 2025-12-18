@@ -10,6 +10,9 @@ import argparse
 import time
 import subprocess
 
+# Terraform parser - https://github.com/amplify-education/python-hcl2
+import hcl2
+
 AUTO_APPLY = True
 ENVIRONMENTS = ["test", "dev", "prod"]
 FLAVOR = "tofu" # Can be "terraform" or "tofu"
@@ -482,7 +485,7 @@ class Deploy(Command):
     def register_subcommand(self):
         # Only run listed parts of the deployment
         self.subparser.add_argument("--cluster", action="store_true", help="Deploy the cluster")
-        self.subparser.add_argument("--content", action="store_true", help="Deploy the content")
+        self.subparser.add_argument("--ops", action="store_true", help="Deploy the ops")
         self.subparser.add_argument("--platform", action="store_true", help="Deploy the platform")
         self.subparser.add_argument("--challenges", action="store_true", help="Deploy the challenges")
         self.subparser.add_argument("--all", action="store_true", help="Deploy all parts of the platform")
@@ -492,11 +495,11 @@ class Deploy(Command):
         return
 
     def run(self, args):
-        if not args.cluster and not args.content and not args.platform and not args.challenges and not args.all:
+        if not args.cluster and not args.ops and not args.platform and not args.challenges and not args.all:
             Logger.error("Please specify which part of the platform to deploy")
             exit(1)
             
-        if args.all and (args.cluster or args.content or args.platform or args.challenges):
+        if args.all and (args.cluster or args.ops or args.platform or args.challenges):
             Logger.error("Please specify only --all or individual parts of the platform")
             exit(1)
 
@@ -509,7 +512,7 @@ class Deploy(Command):
         
         deploy_all = args.all
         deploy_cluster = args.cluster or deploy_all
-        deploy_content = args.content or deploy_all
+        deploy_ops = args.ops or deploy_all
         deploy_platform = args.platform or deploy_all
         deploy_challenges = args.challenges or deploy_all
 
@@ -532,10 +535,10 @@ class Deploy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
         
-        if deploy_content:
+        if deploy_ops:
             start_time = time.time()
-            self.content_deploy()
-            self.times.append(("content", start_time, time.time(), time.time() - start_time))
+            self.ops_deploy()
+            self.times.append(("ops", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
@@ -563,8 +566,8 @@ class Deploy(Command):
         
         if deploy_cluster:
             Logger.info(f"Cluster time: {str(round(Utils.extract_tuple_from_list(self.times, 'cluster')[3], 2))} seconds")
-        if deploy_content:
-            Logger.info(f"Content time: {str(round(Utils.extract_tuple_from_list(self.times, 'content')[3], 2))} seconds")
+        if deploy_ops:
+            Logger.info(f"Ops time: {str(round(Utils.extract_tuple_from_list(self.times, 'ops')[3], 2))} seconds")
         if deploy_platform:
             Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
         if deploy_challenges:
@@ -622,7 +625,7 @@ class Deploy(Command):
         # Ensure no < or > are present in the file
         with open(tfvars_path, "r") as file:
             for line in file:
-                if "<" in line or ">" in line:
+                if "<" in line and ">" in line:
                     Logger.error(f"{self.get_filename_tfvars()} does not seem to be filled out. Please fill out all fields and try again")
                     exit(1)
 
@@ -635,6 +638,7 @@ class Deploy(Command):
         # Configure tfvars file
         tfvars = TFVARS(self.get_path_tfvars(), f"{path}/cluster/data.auto.tfvars")
         tfvars.create(CLUSTER_TFVARS)
+        # tfvars.add("environment", self.environment)
         Logger.space()
         
         # Deploy the cluster
@@ -672,26 +676,28 @@ class Deploy(Command):
         with open(f"{path}/kube-config/kube-config.{self.environment}.b64", "r") as file:
             return file.read()
     
-    def content_deploy(self):
+    def ops_deploy(self):
         path = Utils.get_path_to_script()
-        Logger.info("Deploying the content on the cluster")
+        Logger.info("Deploying the ops on the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/content/data.auto.tfvars")
-        tfvars.create(CONTENT_TFVARS)
-        tfvars.add("kubeconfig", self.get_kubeconfig_b64())
-        tfvars.add("environment", self.environment)
+        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/ops/data.auto.tfvars")
+        tfvars.create(OPS_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
         Logger.space()
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{path}/content")
-            rc = run(f"cd {path}/content && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{path}/ops")
+            rc = run(f"cd {path}/ops && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
-            Logger.error("Content apply failed")
-        Logger.success("Content deployed successfully")
+            Logger.error("Ops apply failed")
+        Logger.success("Ops deployed successfully")
     
     def platform_deploy(self):
         path = Utils.get_path_to_script()
@@ -700,8 +706,10 @@ class Deploy(Command):
         # Configure tfvars file
         tfvars = TFVARS(self.get_path_tfvars(), f"{path}/platform/data.auto.tfvars")
         tfvars.create(PLATFORM_TFVARS)
-        tfvars.add("kubeconfig", self.get_kubeconfig_b64())
-        tfvars.add("environment", self.environment)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
         Logger.space()
         
         # Deploy the cluster
@@ -721,8 +729,10 @@ class Deploy(Command):
         # Configure tfvars file
         tfvars = TFVARS(self.get_path_tfvars(), f"{path}/challenges/data.auto.tfvars")
         tfvars.create(CHALLENGES_TFVARS)
-        tfvars.add("kubeconfig", self.get_kubeconfig_b64())
-        tfvars.add("environment", self.environment)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
         Logger.space()
         
         # Deploy the cluster
@@ -748,7 +758,7 @@ class Destroy(Command):
     def register_subcommand(self):
         # Only run listed parts of the destruction
         self.subparser.add_argument("--cluster", action="store_true", help="Destroy the cluster")
-        self.subparser.add_argument("--content", action="store_true", help="Destroy the content")
+        self.subparser.add_argument("--ops", action="store_true", help="Destroy the ops")
         self.subparser.add_argument("--platform", action="store_true", help="Destroy the platform")
         self.subparser.add_argument("--challenges", action="store_true", help="Destroy the challenges")
         self.subparser.add_argument("--all", action="store_true", help="Destroy all parts of the platform")   
@@ -758,11 +768,11 @@ class Destroy(Command):
         return
 
     def run(self, args):
-        if not args.cluster and not args.content and not args.platform and not args.challenges and not args.all:
+        if not args.cluster and not args.ops and not args.platform and not args.challenges and not args.all:
             Logger.error("Please specify which part of the platform to destroy")
             exit(1)
             
-        if args.all and (args.cluster or args.content or args.platform or args.challenges):
+        if args.all and (args.cluster or args.ops or args.platform or args.challenges):
             Logger.error("Please specify only --all or individual parts of the platform")
             exit(1)
             
@@ -775,7 +785,7 @@ class Destroy(Command):
             
         destroy_all = args.all
         destroy_cluster = args.cluster or destroy_all
-        destroy_content = args.content or destroy_all
+        destroy_ops = args.ops or destroy_all
         destroy_platform = args.platform or destroy_all
         destroy_challenges = args.challenges or destroy_all
         
@@ -805,10 +815,10 @@ class Destroy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
         
-        if destroy_content:
+        if destroy_ops:
             start_time = time.time()
-            self.content_destroy()
-            self.times.append(("content", start_time, time.time(), time.time() - start_time))
+            self.ops_destroy()
+            self.times.append(("ops", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
@@ -829,8 +839,8 @@ class Destroy(Command):
         
         if destroy_cluster:
             Logger.info(f"Cluster time: {str(round(Utils.extract_tuple_from_list(self.times, 'cluster')[3], 2))} seconds")
-        if destroy_content:
-            Logger.info(f"Content time: {str(round(Utils.extract_tuple_from_list(self.times, 'content')[3], 2))} seconds")
+        if destroy_ops:
+            Logger.info(f"Ops time: {str(round(Utils.extract_tuple_from_list(self.times, 'ops')[3], 2))} seconds")
         if destroy_platform:
             Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
         if destroy_challenges:
@@ -888,6 +898,7 @@ class Destroy(Command):
         # Configure tfvars file
         tfvars = TFVARS(self.get_path_tfvars(), f"{path}/cluster/data.auto.tfvars")
         tfvars.create(CLUSTER_TFVARS)
+        # tfvars.add("environment", self.environment)
         Logger.space()
         
         # Destroy the cluster
@@ -923,30 +934,32 @@ class Destroy(Command):
             Logger.error("Failed to remove kubeconfig")
         Logger.success("Kubeconfig removed")
     
-    def content_destroy(self):
+    def ops_destroy(self):
         path = Utils.get_path_to_script()
-        Logger.info("Destroying the content on the cluster")
+        Logger.info("Destroying the ops on the cluster")
         
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/content/data.auto.tfvars")
-        tfvars.create(CONTENT_TFVARS)
-        tfvars.add("kubeconfig", self.get_kubeconfig_b64())
-        tfvars.add("environment", self.environment)
+        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/ops/data.auto.tfvars")
+        tfvars.create(OPS_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
         Logger.space()
         
-        # Destroy the content
+        # Destroy the ops
         try:
-            self.init_terraform(f"{path}/content")
-            rc = run(f"cd {path}/content && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{path}/ops")
+            rc = run(f"cd {path}/ops && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
-            Logger.error("Content destroy failed")
+            Logger.error("Ops destroy failed")
         
         # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{path}/content/data.auto.tfvars").destroy()
+        TFVARS(self.get_path_tfvars(), f"{path}/ops/data.auto.tfvars").destroy()
         
-        Logger.success("Content destroyed successfully")
+        Logger.success("Ops destroyed successfully")
     
     def platform_destroy(self):
         path = Utils.get_path_to_script()
@@ -955,8 +968,10 @@ class Destroy(Command):
         # Configure tfvars file
         tfvars = TFVARS(self.get_path_tfvars(), f"{path}/platform/data.auto.tfvars")
         tfvars.create(PLATFORM_TFVARS)
-        tfvars.add("kubeconfig", self.get_kubeconfig_b64())
-        tfvars.add("environment", self.environment)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
         Logger.space()
         
         # Destroy the platform
@@ -980,8 +995,10 @@ class Destroy(Command):
         # Configure tfvars file
         tfvars = TFVARS(self.get_path_tfvars(), f"{path}/challenges/data.auto.tfvars")
         tfvars.create(CHALLENGES_TFVARS)
-        tfvars.add("kubeconfig", self.get_kubeconfig_b64())
-        tfvars.add("environment", self.environment)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
         Logger.space()
         
         # Destroy the challenges
@@ -1002,17 +1019,75 @@ class Destroy(Command):
 TFVars handler class
 '''
 class TFVARS:
+    root: str
+    destination: str
+    
     def __init__(self, root, destination):
         self.root = root
         self.destination = destination
 
     @staticmethod
     def get_filename_tfvars(environment="test"):
+        '''
+        Get the filename for the tfvars file based on the environment
+        
+        :param environment: The environment name (test, dev, prod)
+        :return: The filename for the tfvars file
+        '''
+        
         prefix = ""
         if environment != "test":
             prefix = f"{environment}."
 
         return f"automated.{prefix}tfvars"
+    
+    @staticmethod
+    def load_tfvars(file_path: str):
+        '''
+        Load a tfvars file and return its contents as a dictionary
+        
+        :param file_path: The path to the tfvars file
+        :return: A dictionary containing the tfvars key-value pairs
+        '''
+        
+        with open(file_path, "r") as tfvars_file:
+            tfvars = hcl2.api.load(tfvars_file)
+        return tfvars
+
+    @staticmethod
+    def safe_load_tfvars(file_path: str):
+        '''
+        Safely load a tfvars file and handle errors by exiting the program
+        
+        :param file_path: The path to the tfvars file
+        :return: A dictionary containing the tfvars key-value pairs
+        '''
+        
+        try:
+            return TFVARS.load_tfvars(file_path)
+        except Exception as e:
+            print(f"Error loading tfvars file: {e}")
+            exit(1)
+            
+    @staticmethod
+    def safe_write_tfvars(file_path: str, data: dict):
+        '''
+        Safely write a dictionary to a tfvars file and handle errors by exiting the program
+        
+        :param file_path: The path to the tfvars file
+        :param data: A dictionary containing the tfvars key-value pairs
+        :return: None
+        '''
+        
+        try:
+            tree = hcl2.api.reverse_transform(data)
+            formatted_data = hcl2.api.writes(tree)
+            
+            with open(file_path, "w") as tfvars_file:
+                tfvars_file.write(formatted_data)
+        except Exception as e:
+            print(f"Error writing tfvars file: {e}")
+            exit(1)
     
     def create(self, fields=[]):
         # Check if destination exists
@@ -1028,43 +1103,54 @@ class TFVARS:
             file.write("")
 
         # Parse the root file into key-value pairs
-        key_value_pairs = {}
-        with open(self.root, "r") as root:
-            for line in root:
-                line = line.strip()
-                if "=" in line and not line.startswith("#"):
-                    key, value = map(str.strip, line.split("=", 1))
-                    key_value_pairs[key] = value
+        key_value_pairs = TFVARS.safe_load_tfvars(self.root)
 
         # Filter and write only the specified fields to the destination file
-        with open(self.destination, "w") as file:
-            for field in fields:
-                if field in key_value_pairs:
-                    file.write(f"{field} = {key_value_pairs[field]}\n")
-                else:
-                    Logger.warning(f"Field '{field}' not found in {self.root}")
+        filtered_values = {}
+        for field in fields:
+            if field in key_value_pairs:
+                filtered_values[field] = key_value_pairs[field]
+            else:
+                Logger.warning(f"Field '{field}' not found in {self.root}")
+        TFVARS.safe_write_tfvars(self.destination, filtered_values)
     
     def add(self, key, value):
+        '''
+        Add a key-value pair to the tfvars file
+        
+        :param key: The key to add
+        :param value: The value to add
+        :return: None
+        '''
+        
         # Check if destionation exists
         exists = os.path.exists(self.destination)
         if not exists:
             Logger.error(f"{self.destination} does not exist")
             exit(1)
         
-        # Overwrite line if it exists or append to the end
-        with open(self.destination, "r") as file:
-            lines = file.readlines()
+        data = TFVARS.safe_load_tfvars(self.destination)
+        data[key] = value
+        TFVARS.safe_write_tfvars(self.destination, data)
+    
+    def add_dict(self, dict_data):
+        '''
+        Add multiple key-value pairs from a dictionary to the tfvars file
         
-        with open(self.destination, "w") as file:
-            found = False
-            for line in lines:
-                if key in line:
-                    file.write(f'{key} = "{value}"\n')
-                    found = True
-                else:
-                    file.write(line)
-            if not found:
-                file.write(f'{key} = "{value}"\n')
+        :param dict_data: A dictionary containing the key-value pairs to add
+        :return: None
+        '''
+        
+        # Check if destionation exists
+        exists = os.path.exists(self.destination)
+        if not exists:
+            Logger.error(f"{self.destination} does not exist")
+            exit(1)
+        
+        data = TFVARS.safe_load_tfvars(self.destination)
+        for key, value in dict_data.items():
+            data[key] = value
+        TFVARS.safe_write_tfvars(self.destination, data)
     
     def destroy(self):
         # Check if destionation exists
@@ -1089,17 +1175,10 @@ class TFVARS:
         with open(f"{path}/data/keys/k8s.b64", "r") as file:
             private_key = file.read()
         
-        # Insert the keys into automated.tfvars
-        with open(f"{path}/{TFVARS.get_filename_tfvars(environment)}", "r") as file:
-            lines = file.readlines()
-        with open(f"{path}/{TFVARS.get_filename_tfvars(environment)}", "w") as file:
-            for line in lines:
-                if "ssh_key_public_base64" in line:
-                    file.write(f'ssh_key_public_base64 = "{public_key}"\n')
-                elif "ssh_key_private_base64" in line:
-                    file.write(f'ssh_key_private_base64 = "{private_key}"\n')
-                else:
-                    file.write(line)
+        data = TFVARS.safe_load_tfvars(f"{path}/{TFVARS.get_filename_tfvars(environment)}")
+        data["ssh_key_public_base64"] = public_key
+        data["ssh_key_private_base64"] = private_key
+        TFVARS.safe_write_tfvars(f"{path}/{TFVARS.get_filename_tfvars(environment)}", data)
 
 '''
 CLI tool

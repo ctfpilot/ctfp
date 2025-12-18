@@ -3,14 +3,6 @@
 # This file (`template.automated.tfvars`) is git tracked, and MUST NOT be changed in the repository to include sensitive information.
 
 # ------------------------
-# IMPORTANT INFORMATION
-# ------------------------
-# FORMAT: key = "value"
-# It is important keys and equal signs have AT LEAST one space between them.
-# The values MUST be in quotes.
-# Value MUST NOT be multiline.
-
-# ------------------------
 # Cluster configuration
 # ------------------------
 # WARNING: Changing region while the cluster is running will cause all servers in the group to be destroyed and recreated.
@@ -201,6 +193,23 @@ ctf_logo_path = "data/logo.png" # Path to the CTF logo file (e.g., "ctf-logo.png
 ctfd_plugin_first_blood_limit_url = "<webhook-url>" # Discord webhook URL for First blood notifications
 
 chall_whitelist_ips = ["<ip1>", "<ip2>"] # List of IPs to whitelist for challenges, e.g., [ "0.0.0.0/0" ]
+
+# ------------------------
+# Challenges configuration
+# ------------------------
+challenges_static = {
+  "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+} # List of static challenges to deploy. Needs to be the slugs of the challenges
+challenges_shared = {
+  "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+} # List of shared challenges to deploy. Needs to be the slugs of the challenges
+challenges_instanced = {
+  "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+} # List of instanced challenges to deploy. Needs to be the slugs of the challenges
+
+challenges_repository = "<url>"    # URL of the Git repository containing the challenge definitions
+challenges_branch     = "<branch>" # Branch of the Git repository to use for the challenge definitions. Leave empty for environment based branch (environment == prod ? main : develop)
+
 
 # ----------------------
 # Docker images
