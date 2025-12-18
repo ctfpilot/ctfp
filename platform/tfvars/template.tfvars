@@ -29,7 +29,6 @@ filebeat_elasticsearch_password = "<password>" # The password for Elasticsearch 
 # ----------------------
 kubectf_auth_secret = "<secret>" # The secret to use for the authSecret in the CTF configuration
 
-
 # ------------------------
 # DB configuration
 # ------------------------

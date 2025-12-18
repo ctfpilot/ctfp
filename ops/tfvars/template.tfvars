@@ -7,8 +7,6 @@ kubeconfig = "AA==" # The base64 encoded kubeconfig file (base64 -w 0 <file>)
 # Generic information
 # ------------------------
 environment            = "test"    # Deployment environment name for the CTF (i.e. prod, staging, dev, test)
-cluster_dns_management = "<dns>"   # The domain name to use for the DNS records for the management part of the cluster
-cluster_dns_ctf        = "<dns>"   # The domain name to use for the DNS records for the CTF part of the cluster
 email                  = "<email>" # Email to use for the ACME certificate
 discord_webhook_url    = "<url>"   # Discord webhook URL for sending alerts and notifications
 
@@ -27,6 +25,12 @@ cluster_dns_management    = "<dns>"   # The specific domain name to use for the 
 filebeat_elasticsearch_host     = "<host>"     # The hostname of the Elasticsearch instance for Filebeat to send logs to. Must be a https 443 endpoint.
 filebeat_elasticsearch_username = "<username>" # The username for the Elasticsearch instance
 filebeat_elasticsearch_password = "<password>" # The password for the Elasticsearch instance
+
+# ------------------------
+# GitHub variables
+# ------------------------
+ghcr_username = "<username>" # GitHub Container Registry username
+ghcr_token    = "<token>"    # GitHub Container Registry token. This token is used to pull images from the GitHub Container Registry. Only let this token have registry read access
 
 # ----------------------
 # Prometheus configuration
