@@ -13,6 +13,8 @@ import subprocess
 # Terraform parser - https://github.com/amplify-education/python-hcl2
 import hcl2
 
+import backend.generate as backend_generate
+
 AUTO_APPLY = True
 ENVIRONMENTS = ["test", "dev", "prod"]
 FLAVOR = "tofu" # Can be "terraform" or "tofu"
@@ -1202,6 +1204,7 @@ class CLI:
             InsertKeys(subparser),
             Deploy(subparser),
             Destroy(subparser),
+            backend_generate.Generator(subparser)
         ]
         for command in commands:
             command.register_subcommand()
