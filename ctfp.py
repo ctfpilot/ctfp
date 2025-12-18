@@ -373,7 +373,7 @@ class InitializeTFVars(Command):
 
         Logger.info(f"Initializing {self.get_filename_tfvars()} (ENV: {self.environment})")
         path = Utils.get_path_to_script()
-        template = f"{path}/template.{self.get_filename_tfvars()}"
+        template = f"{path}/template.automated.tfvars"
         destination = f"{path}/{self.get_filename_tfvars()}"
 
         # Check if destination file already exists
