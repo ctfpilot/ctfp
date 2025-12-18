@@ -10,9 +10,13 @@ resource "kubernetes_namespace" "errors" {
 module "errors-pull-secret" {
   source = "../tf-modules/pull-secret"
 
-  namespace     = "errors"
+  namespace     = kubernetes_namespace.errors.metadata[0].name
   ghcr_token    = var.ghcr_token
   ghcr_username = var.ghcr_username
+
+  depends_on = [
+    kubernetes_namespace.errors
+  ]
 }
 
 resource "kubernetes_deployment_v1" "errors" {
