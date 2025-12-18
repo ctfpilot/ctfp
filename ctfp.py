@@ -2,6 +2,7 @@
 # Licensed under PolyForm Noncommercial License 1.0.0. 
 # See LICENSE file in the project root for full license information.
 # This file must not be distributed without the LICENSE file.
+# Required Notice: Copyright Mikkel Albrechtsen (<https://themikkel.dk>)
 
 import os
 import sys
