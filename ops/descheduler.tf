@@ -7,7 +7,7 @@ resource "kubernetes_namespace_v1" "descheduler" {
 resource "helm_release" "descheduler" {
   name       = "descheduler"
   repository = "https://kubernetes-sigs.github.io/descheduler/"
-  chart      = "descheduler/descheduler"
+  chart      = "descheduler"
   version    = var.descheduler_version
 
   namespace        = kubernetes_namespace_v1.descheduler.metadata.0.name
