@@ -1,3 +1,8 @@
+# CTFp CLI tool
+# Licensed under PolyForm Noncommercial License 1.0.0. 
+# See LICENSE file in the project root for full license information.
+# This file must not be distributed without the LICENSE file.
+
 import os
 import sys
 import argparse
@@ -162,7 +167,7 @@ class Args:
     parser = None
     
     def __init__(self):
-        self.parser = argparse.ArgumentParser(description="Platform CLI")
+        self.parser = argparse.ArgumentParser(description="CTFp CLI")
 
     def print_help(self):
         if self.parser is None:
