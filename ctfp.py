@@ -15,10 +15,29 @@ ENVIRONMENTS = ["test", "dev", "prod"]
 FLAVOR = "tofu" # Can be "terraform" or "tofu"
 
 CLUSTER_TFVARS = [
-    # Server configuration
+    # Hetzner
+    "hcloud_token", 
+    
+    # SSH
+    "ssh_key_private_base64", 
+    "ssh_key_public_base64", 
+    
+    # Cloudflare variables
+    "cloudflare_api_token", 
+    "cloudflare_dns_management", 
+    "cloudflare_dns_platform",
+    "cloudflare_dns_ctf", 
+    
+    # DNS information
+    "cluster_dns_management", 
+    "cluster_dns_platform",
+    "cluster_dns_ctf",
+
+    # Cluster configuration
     "region_1",
     "region_2",
     "region_3",
+    "network_zone",
     "control_plane_type_1",
     "control_plane_type_2",
     "control_plane_type_3",
@@ -32,67 +51,87 @@ CLUSTER_TFVARS = [
     "agent_count_1",
     "agent_count_2",
     "agent_count_3",
-    "scale_count",
-    "scale_min",
+    "challs_count",
+    "scale_max",
     "load_balancer_type",
     
-    # Cluster configuration
-    "hcloud_token", 
-    "ssh_key_private_base64", 
-    "ssh_key_public_base64", 
-    "cloudflare_api_token", 
-    "cloudflare_dns_management", 
-    "cloudflare_dns_ctf", 
-    "cloudflare_dns_platform",
-    "cluster_dns_management", 
-    "cluster_dns_ctf",
-    "cluster_dns_platform",
+    # Versions
+    "kube_hetzner_version",
 ]
-CONTENT_TFVARS = [
+OPS_TFVARS = [
+    # Generic information
+    "email", 
+    "discord_webhook_url",
+    
+    # Cloudflare variables
     "cloudflare_api_token", 
     "cloudflare_dns_management", 
-    "cloudflare_dns_ctf", 
     "cloudflare_dns_platform",
+    "cloudflare_dns_ctf", 
     "cluster_dns_management", 
-    "cluster_dns_ctf", 
-    "email", 
-    "argocd_github_secret",
-    "argocd_admin_password", 
-    "grafana_admin_password",
-    "discord_webhook_url",
-    "traefik_basic_auth",
     
+    # Filebeat configuration
     "filebeat_elasticsearch_host",
     "filebeat_elasticsearch_username",
     "filebeat_elasticsearch_password",
     
+    # Prometheus configuration
+    "prometheus_storage_size",
+    
+    # Management configuration
+    "argocd_github_secret",
+    "argocd_admin_password", 
+    "grafana_admin_password",
+    "traefik_basic_auth",
+    
+    # GitHub variables
     "ghcr_username",
     "ghcr_token",
+    
+    # Docker images
+    "image_error_fallback",
+    "image_filebeat",
+    
+    # Versions
+    "argocd_version",
+    "cert_manager_version",
+    "descheduler_version",
+    "mariadb_operator_version",
+    "kube_prometheus_stack_version",
+    "redis_operator_version",
 ]
 PLATFORM_TFVARS = [
+    # Generic information
+    "cluster_dns_management", 
     "cluster_dns_ctf",
-    "cluster_dns_platform",
+    
+    # GitHub variables    
     "ghcr_username",
     "ghcr_token",
     "git_token",
+
+    # Filebeat configuration
+    "filebeat_elasticsearch_host",
+    "filebeat_elasticsearch_username",
+    "filebeat_elasticsearch_password",
+    
+    # CTF configuration
     "kubectf_auth_secret",
+    
+    # DB configuration
     "db_root_password",
     "db_user",
     "db_password",
-    "ctfd_manager_password",
-
-    # S3 configuration
+    # DB backupo configuration
     "s3_bucket",
     "s3_region",
     "s3_endpoint",
     "s3_access_key",
     "s3_secret_key",
     
-    # Elasticsearch configuration
-    "filebeat_elasticsearch_host",
-    "filebeat_elasticsearch_username",
-    "filebeat_elasticsearch_password",
-
+    # CTFd Manager configuration
+    "ctfd_manager_password",
+    
     # CTFd configuration
     "ctfd_secret_key",
     "ctf_name",
@@ -126,15 +165,50 @@ PLATFORM_TFVARS = [
     "ctf_s3_access_key",
     "ctf_s3_secret_key",
     "ctf_s3_prefix",
+    "ctfd_plugin_first_blood_limit_url",
+    "ctfd_plugin_first_blood_limit",
+    "ctfd_plugin_first_blood_message",
+    "pages",
+    "pages_repository",
+    "pages_branch",
+    "ctfd_k8s_deployment_repository",
+    "ctfd_k8s_deployment_path",
+    "ctfd_k8s_deployment_branch",
+    
+    # Docker images
+    "image_ctfd_manager",
+    "image_error_fallback",
+    "image_filebeat",
+    "image_ctfd_exporter",
+    
+    # Versions
+    "mariadb_version",
 ]
 CHALLENGES_TFVARS = [
+    # Generic information
+    "cluster_dns_management",
     "cluster_dns_ctf",
+    
+    # GitHub variables
     "ghcr_username",
     "ghcr_token",
     "git_token",
+    
+    # CTF configuration
     "kubectf_auth_secret",
     "kubectf_container_secret",
+    
+    # Challenges configuration
     "chall_whitelist_ips",
+    "challenges_static",
+    "challenges_shared",
+    "challenges_instanced",
+    "challenges_repository",
+    "challenges_branch",
+        
+    # Docker images
+    "image_instancing_fallback",
+    "image_kubectf",
 ]
 
 # Load env from .env
