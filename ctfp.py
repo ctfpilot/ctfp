@@ -108,7 +108,7 @@ OPS_TFVARS = [
 PLATFORM_TFVARS = [
     # Generic information
     "cluster_dns_management", 
-    "cluster_dns_ctf",
+    "cluster_dns_platform",
     
     # GitHub variables    
     "ghcr_username",
@@ -136,6 +136,8 @@ PLATFORM_TFVARS = [
     
     # CTFd Manager configuration
     "ctfd_manager_password",
+    "ctfd_manager_github_repo",
+    "ctfd_manager_github_branch",
     
     # CTFd configuration
     "ctfd_secret_key",
@@ -163,7 +165,6 @@ PLATFORM_TFVARS = [
     "ctf_mail_tls",
     "ctf_mail_from",
     "ctf_logo_path",
-    "ctfd_discord_webhook_url",
     "ctf_s3_bucket",
     "ctf_s3_region",
     "ctf_s3_endpoint",
@@ -216,6 +217,12 @@ CHALLENGES_TFVARS = [
     "image_kubectf",
 ]
 
+PATH = os.path.dirname(os.path.realpath(__file__))
+# Check if the path contains spaces
+if " " in PATH:
+    print("Path to script contains spaces. Please move the script to a path without spaces")
+    exit(1)
+
 # Load env from .env
 if os.path.exists(".env"):
     with open(".env", "r") as f:
@@ -256,24 +263,26 @@ class Args:
         
         self.parser.print_help()
 
-class Utils:
-    @staticmethod
-    def get_path_to_script():
-        path = os.path.dirname(os.path.realpath(__file__))
-        
-        # Check if the path contains spaces
-        if " " in path:
-            Logger.error("Path to script contains spaces. Please move the script to a path without spaces")
-            exit(1)
-            
-        return path
-    
+class Utils:    
     @staticmethod
     def extract_tuple_from_list(list, key):
         for item in list:
             if key in item:
                 return item
         return None
+    
+class TFBackend:
+    @staticmethod
+    def get_backend_filename(component):
+        return f"{component}.hcl"
+    
+    @staticmethod
+    def get_backend_path(component):
+        return f"{PATH}/backend/generated/{TFBackend.get_backend_filename(component)}"
+    
+    @staticmethod
+    def backend_exists(component):        
+        return os.path.exists(TFBackend.get_backend_path(component))
 
 class Logger:
     RED = "\033[91m"
@@ -336,9 +345,8 @@ class GenerateImages(Command):
     
     def run(self, args):
         Logger.info("Generating server images")
-        path = Utils.get_path_to_script()
         try:
-            rc = run(f"cd {path}/cluster && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"", shell=True)
+            rc = run(f"cd {PATH}/cluster && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -374,9 +382,8 @@ class InitializeTFVars(Command):
             self.environment = "prod"
 
         Logger.info(f"Initializing {self.get_filename_tfvars()} (ENV: {self.environment})")
-        path = Utils.get_path_to_script()
-        template = f"{path}/template.automated.tfvars"
-        destination = f"{path}/{self.get_filename_tfvars()}"
+        template = f"{PATH}/template.automated.tfvars"
+        destination = f"{PATH}/{self.get_filename_tfvars()}"
 
         # Check if destination file already exists
         if os.path.exists(destination) and not args.force:
@@ -428,9 +435,8 @@ class GenerateKeys(Command):
             self.environment = "prod"
             
         Logger.info("Generating RSA keys")
-        path = Utils.get_path_to_script()
         try:
-            rc = run([f"{path}/data/keys/create.sh"], shell=True)
+            rc = run([f"{PATH}/data/keys/create.sh"], shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -578,22 +584,27 @@ class Deploy(Command):
     '''
     Initialize Terraform to a given environment (workspace)
     '''
-    def init_terraform(self, path):
+    def init_terraform(self, path, components: str = ""):
         Logger.info("Initializing Terraform")
         current_dir = os.getcwd()
         os.chdir(path)
 
         try:
+            # Check if backend config exists
+            if not TFBackend.backend_exists(components):
+                Logger.error(f"Backend configuration for {components} does not exist. Please generate it first.")
+                raise Exception
+
+            # Initialize the backend (if not already done for this project)
+            Logger.info("Running terraform init")
+            rc = run(f"{FLAVOR} init -backend-config={TFBackend.get_backend_path(components)}", shell=True)
+            if rc != 0:
+                raise Exception
+            
             # Create workspaces
             Logger.info("Creating workspaces if they do not exist")
             for env in ENVIRONMENTS:
                 subprocess.run([FLAVOR, "workspace", "new", env], check=False)
-
-            # Initialize the backend (if not already done for this project)
-            Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init", shell=True)
-            if rc != 0:
-                raise Exception
                 
             # Select the workspace based on the environment
             Logger.info(f"Selecting workspace: {self.environment}")
@@ -611,8 +622,7 @@ class Deploy(Command):
         return TFVARS.get_filename_tfvars(self.environment)
 
     def get_path_tfvars(self):
-        path = Utils.get_path_to_script()
-        return f"{path}/{self.get_filename_tfvars()}"
+        return f"{PATH}/{self.get_filename_tfvars()}"
     
     '''
     Validate automated.tfvars is set, and values are set
@@ -623,30 +633,43 @@ class Deploy(Command):
         if not os.path.exists(tfvars_path):
             Logger.error(f"{self.get_filename_tfvars()} not found. Please create the file and try again")
             exit(1)
+
+        # Load tfvars file
+        tfvars_data = TFVARS.safe_load_tfvars(tfvars_path)
         
-        # Ensure no < or > are present in the file
-        with open(tfvars_path, "r") as file:
-            for line in file:
-                if "<" in line and ">" in line:
-                    Logger.error(f"{self.get_filename_tfvars()} does not seem to be filled out. Please fill out all fields and try again")
-                    exit(1)
+        # Check if fields include "<" or ">"
+        def check_placeholders(value):
+            if isinstance(value, str) and "<" in value and ">" in value:
+                return True
+            elif isinstance(value, dict):
+                for v in value.values():
+                    if check_placeholders(v):
+                        return True
+            elif isinstance(value, list):
+                for item in value:
+                    if check_placeholders(item):
+                        return True
+            return False
+        for key, value in tfvars_data.items():
+            if check_placeholders(value):
+                Logger.error(f"{self.get_filename_tfvars()} does not seem to be filled out (see field '{key}'). Please fill out all fields and try again")
+                exit(1)
 
         Logger.info(f"{self.get_filename_tfvars()} is filled out correctly")
 
     def cluster_deploy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Deploying the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/cluster/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars")
         tfvars.create(CLUSTER_TFVARS)
         # tfvars.add("environment", self.environment)
         Logger.space()
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{path}/cluster")
-            cmd = f"cd {path}/cluster && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}"
+            self.init_terraform(f"{PATH}/cluster", "cluster")
+            cmd = f"cd {PATH}/cluster && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}"
             rc = run(cmd, shell=True)
             if rc != 0:
                 raise Exception
@@ -658,15 +681,14 @@ class Deploy(Command):
         Logger.success("Cluster deployed successfully")
         
     def export_kubeconfig(self):
-        path = Utils.get_path_to_script()
         Logger.info("Exporting kubeconfig")
         
         # Export kubeconfig
         try:
-            rc = run(f"cd {path}/cluster && {FLAVOR} output --raw kubeconfig > {path}/kube-config/kube-config.{self.environment}.yml")
+            rc = run(f"cd {PATH}/cluster && {FLAVOR} output --raw kubeconfig > {PATH}/kube-config/kube-config.{self.environment}.yml")
             if rc != 0:
                 raise Exception
-            rc = run(f"cat {path}/kube-config/kube-config.{self.environment}.yml | base64 -w0 > {path}/kube-config/kube-config.{self.environment}.b64")
+            rc = run(f"cat {PATH}/kube-config/kube-config.{self.environment}.yml | base64 -w0 > {PATH}/kube-config/kube-config.{self.environment}.b64")
             if rc != 0:
                 raise Exception
         except:
@@ -674,16 +696,14 @@ class Deploy(Command):
         Logger.success("Kubeconfig exported")
     
     def get_kubeconfig_b64(self):
-        path = Utils.get_path_to_script()
-        with open(f"{path}/kube-config/kube-config.{self.environment}.b64", "r") as file:
+        with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
             return file.read()
     
     def ops_deploy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Deploying the ops on the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/ops/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars")
         tfvars.create(OPS_TFVARS)
         tfvars.add_dict({
             "kubeconfig": self.get_kubeconfig_b64(),
@@ -693,8 +713,8 @@ class Deploy(Command):
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{path}/ops")
-            rc = run(f"cd {path}/ops && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/ops", "ops")
+            rc = run(f"cd {PATH}/ops && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -702,11 +722,10 @@ class Deploy(Command):
         Logger.success("Ops deployed successfully")
     
     def platform_deploy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Deploying the platform on the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/platform/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars")
         tfvars.create(PLATFORM_TFVARS)
         tfvars.add_dict({
             "kubeconfig": self.get_kubeconfig_b64(),
@@ -716,8 +735,8 @@ class Deploy(Command):
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{path}/platform")
-            rc = run(f"cd {path}/platform && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/platform", "platform")
+            rc = run(f"cd {PATH}/platform && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -725,11 +744,10 @@ class Deploy(Command):
         Logger.success("Platform deployed successfully")
 
     def challenges_deploy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Deploying the challenges on the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/challenges/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars")
         tfvars.create(CHALLENGES_TFVARS)
         tfvars.add_dict({
             "kubeconfig": self.get_kubeconfig_b64(),
@@ -739,8 +757,8 @@ class Deploy(Command):
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{path}/challenges")
-            rc = run(f"cd {path}/challenges && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/challenges", "challenges")
+            rc = run(f"cd {PATH}/challenges && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -851,22 +869,27 @@ class Destroy(Command):
     '''
     Initialize Terraform to a given environment (workspace)
     '''
-    def init_terraform(self, path):
+    def init_terraform(self, path, components: str = ""):
         Logger.info("Initializing Terraform")
         current_dir = os.getcwd()
         os.chdir(path)
 
         try:
+            # Check if backend config exists
+            if not TFBackend.backend_exists(components):
+                Logger.error(f"Backend configuration for {components} does not exist. Please generate it first.")
+                raise Exception
+
+            # Initialize the backend (if not already done for this project)
+            Logger.info("Running terraform init")
+            rc = run(f"{FLAVOR} init -backend-config={TFBackend.get_backend_path(components)}", shell=True)
+            if rc != 0:
+                raise Exception
+            
             # Create workspaces
             Logger.info("Creating workspaces if they do not exist")
             for env in ENVIRONMENTS:
                 subprocess.run([FLAVOR, "workspace", "new", env], check=False)
-
-            # Initialize the backend (if not already done for this project)
-            Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init", shell=True)
-            if rc != 0:
-                raise Exception
                 
             # Select the workspace based on the environment
             Logger.info(f"Selecting workspace: {self.environment}")
@@ -884,36 +907,33 @@ class Destroy(Command):
         return TFVARS.get_filename_tfvars(self.environment)
 
     def get_path_tfvars(self):
-        path = Utils.get_path_to_script()
-        return f"{path}/{self.get_filename_tfvars()}"
+        return f"{PATH}/{self.get_filename_tfvars()}"
     
     def get_kubeconfig_b64(self):
-        path = Utils.get_path_to_script()
-        with open(f"{path}/kube-config/kube-config.{self.environment}.b64", "r") as file:
+        with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
             return file.read()
     
     def cluster_destroy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Destroying the cluster")
         
         
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/cluster/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars")
         tfvars.create(CLUSTER_TFVARS)
         # tfvars.add("environment", self.environment)
         Logger.space()
         
         # Destroy the cluster
         try:
-            self.init_terraform(f"{path}/cluster")
-            rc = run(f"cd {path}/cluster && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/challenges", "challenges")
+            rc = run(f"cd {PATH}/cluster && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
             Logger.error("Cluster terraform destroy failed")
         
         # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{path}/cluster/data.auto.tfvars").destroy()
+        TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars").destroy()
         
         Logger.success("Cluster terraform destroy applied successfully")
         
@@ -921,15 +941,14 @@ class Destroy(Command):
         self.remove_kubeconfig()
     
     def remove_kubeconfig(self):
-        path = Utils.get_path_to_script()
         Logger.info("Removing kubeconfig")
         
         # Remove kubeconfig
         try:
-            rc = run(f"rm {path}/kube-config/kube-config.{self.environment}.yml", shell=True)
+            rc = run(f"rm {PATH}/kube-config/kube-config.{self.environment}.yml", shell=True)
             if rc != 0:
                 raise Exception
-            rc = run(f"rm {path}/kube-config/kube-config.{self.environment}.b64", shell=True)
+            rc = run(f"rm {PATH}/kube-config/kube-config.{self.environment}.b64", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -937,11 +956,10 @@ class Destroy(Command):
         Logger.success("Kubeconfig removed")
     
     def ops_destroy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Destroying the ops on the cluster")
         
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/ops/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars")
         tfvars.create(OPS_TFVARS)
         tfvars.add_dict({
             "kubeconfig": self.get_kubeconfig_b64(),
@@ -951,24 +969,23 @@ class Destroy(Command):
         
         # Destroy the ops
         try:
-            self.init_terraform(f"{path}/ops")
-            rc = run(f"cd {path}/ops && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/ops", "ops")
+            rc = run(f"cd {PATH}/ops && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
             Logger.error("Ops destroy failed")
         
         # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{path}/ops/data.auto.tfvars").destroy()
+        TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars").destroy()
         
         Logger.success("Ops destroyed successfully")
     
     def platform_destroy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Destroying the platform on the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/platform/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars")
         tfvars.create(PLATFORM_TFVARS)
         tfvars.add_dict({
             "kubeconfig": self.get_kubeconfig_b64(),
@@ -978,24 +995,23 @@ class Destroy(Command):
         
         # Destroy the platform
         try:
-            self.init_terraform(f"{path}/platform")
-            rc = run(f"cd {path}/platform && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/platform", "platform")
+            rc = run(f"cd {PATH}/platform && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
             Logger.error("Platform destroy failed")
         
         # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{path}/platform/data.auto.tfvars").destroy()
+        TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars").destroy()
         
         Logger.success("Platform destroyed successfully")
         
     def challenges_destroy(self):
-        path = Utils.get_path_to_script()
         Logger.info("Destroying the challenges on the cluster")
 
         # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{path}/challenges/data.auto.tfvars")
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars")
         tfvars.create(CHALLENGES_TFVARS)
         tfvars.add_dict({
             "kubeconfig": self.get_kubeconfig_b64(),
@@ -1005,15 +1021,15 @@ class Destroy(Command):
         
         # Destroy the challenges
         try:
-            self.init_terraform(f"{path}/challenges")
-            rc = run(f"cd {path}/challenges && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            self.init_terraform(f"{PATH}/challenges", "challenges")
+            rc = run(f"cd {PATH}/challenges && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
             Logger.error("Challenges destroy failed")
         
         # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{path}/challenges/data.auto.tfvars").destroy()
+        TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars").destroy()
         
         Logger.success("Challenges destroyed successfully")
 
@@ -1167,20 +1183,19 @@ class TFVARS:
 
     @staticmethod
     def insert_keys(environment="test"):
-        path = Utils.get_path_to_script()
         
         # Read the keys
         public_key = ""
         private_key = ""
-        with open(f"{path}/data/keys/k8s.pub.b64", "r") as file:
+        with open(f"{PATH}/data/keys/k8s.pub.b64", "r") as file:
             public_key = file.read()
-        with open(f"{path}/data/keys/k8s.b64", "r") as file:
+        with open(f"{PATH}/data/keys/k8s.b64", "r") as file:
             private_key = file.read()
         
-        data = TFVARS.safe_load_tfvars(f"{path}/{TFVARS.get_filename_tfvars(environment)}")
+        data = TFVARS.safe_load_tfvars(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}")
         data["ssh_key_public_base64"] = public_key
         data["ssh_key_private_base64"] = private_key
-        TFVARS.safe_write_tfvars(f"{path}/{TFVARS.get_filename_tfvars(environment)}", data)
+        TFVARS.safe_write_tfvars(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}", data)
 
 '''
 CLI tool
