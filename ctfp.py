@@ -127,7 +127,7 @@ PLATFORM_TFVARS = [
     "db_root_password",
     "db_user",
     "db_password",
-    # DB backupo configuration
+    # DB backup configuration
     "s3_bucket",
     "s3_region",
     "s3_endpoint",
@@ -1141,7 +1141,7 @@ class TFVARS:
         :return: None
         '''
         
-        # Check if destionation exists
+        # Check if destination exists
         exists = os.path.exists(self.destination)
         if not exists:
             Logger.error(f"{self.destination} does not exist")
@@ -1159,7 +1159,7 @@ class TFVARS:
         :return: None
         '''
         
-        # Check if destionation exists
+        # Check if destination exists
         exists = os.path.exists(self.destination)
         if not exists:
             Logger.error(f"{self.destination} does not exist")
@@ -1171,7 +1171,7 @@ class TFVARS:
         TFVARS.safe_write_tfvars(self.destination, data)
     
     def destroy(self):
-        # Check if destionation exists
+        # Check if destination exists
         exists = os.path.exists(self.destination)
             
         # Remove the file

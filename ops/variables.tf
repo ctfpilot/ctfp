@@ -21,7 +21,7 @@ variable "email" {
 variable "cloudflare_api_token" {
   sensitive   = true # Requires terraform >= 0.14
   type        = string
-  description = "Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
+  description = "Cloudflare API Token for updating the DNS records (Zone.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
 }
 
 variable "cloudflare_dns_management" {
@@ -164,6 +164,6 @@ variable "kube_prometheus_stack_version" {
 
 variable "redis_operator_version" {
   type        = string
-  description = "The version of the Redus Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
+  description = "The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
   default     = "0.22.2"
 }

@@ -6,7 +6,7 @@
 # Cluster configuration
 # ------------------------
 # WARNING: Changing region while the cluster is running will cause all servers in the group to be destroyed and recreated.
-# For uptimal performance, it is recommended to use the same region for all servers.
+# For optimal performance, it is recommended to use the same region for all servers.
 # Region 1 is used for scale nodes and loadbalancer.
 # Possible values: fsn1, hel1, nbg1
 region_1     = "nbg1"       # Region for subgroup 1
@@ -64,8 +64,8 @@ ssh_key_public_base64  = "<public_key>"  # The public key to use for SSH access 
 # Cloudflare variables
 # ------------------------
 # The cluster uses two domains for the management and CTF parts of the cluster.
-# This is to sepearte the two parts of the cluster, and to allow for different DNS records for the two parts. It may be the same domain. The specific subdomains is set later.
-cloudflare_api_token      = "<api-token>"         # Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)
+# This is to separate the two parts of the cluster, and to allow for different DNS records for the two parts. It may be the same domain. The specific subdomains is set later.
+cloudflare_api_token      = "<api-token>"         # Cloudflare API Token for updating the DNS records (Zone.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)
 cloudflare_dns_management = "<management-domain>" # The top level domain (TLD) to use for the DNS records for the management part of the cluster
 cloudflare_dns_platform   = "<platform-domain>"   # The top level domain (TLD) to use for the DNS records for the platform part of the cluster
 cloudflare_dns_ctf        = "<ctf-domain>"        # The top level domain (TLD) to use for the DNS records for the CTF part of the cluster
@@ -150,7 +150,7 @@ s3_secret_key = "<secret_key>" # Secret key for S3 for backups
 # CTFd Manager configuration
 # ------------------------
 # The CTFd manager is used to manage the CTFd instance, and is not used for the CTFd instance itself.
-ctfd_manager_password = "<password>" # Password for the CTFd Manager
+ctfd_manager_password      = "<password>"   # Password for the CTFd Manager
 ctfd_manager_github_repo   = "<repository>" # Github repository used in the CTFd Manager. Env variable GITHUB_REPO. See https://github.com/ctfpilot/ctfd-manager
 ctfd_manager_github_branch = ""             # Github branch used in the CTFd Manager. Leave empty for environment based branch (environment == prod ? main : develop). Env variable GITHUB_BRANCH. See https://github.com/ctfpilot/ctfd-manager
 
@@ -252,5 +252,5 @@ challenges_branch     = "<branch>"                  # Branch of the Git reposito
 # descheduler_version           = "0.34.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
 # mariadb_operator_version      = "25.8.1" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
 # kube_prometheus_stack_version = "62.3.1" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
-# redis_operator_version        = "0.22.2" # The version of the Redus Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
+# redis_operator_version        = "0.22.2" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
 # mariadb_version               = "25.8.1" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator

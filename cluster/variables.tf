@@ -3,9 +3,9 @@
 # ----------------------
 
 variable "kube_hetzner_version" {
-  type = string
+  type        = string
   description = "The version of the Kube-Hetzner module to use. More information at https://github.com/mysticaltech/terraform-hcloud-kube-hetzner"
-  default = "2.18.2"
+  default     = "2.18.2"
 }
 
 # Hetzner
@@ -28,7 +28,7 @@ variable "ssh_key_public_base64" {
 variable "cloudflare_api_token" {
   sensitive   = true # Requires terraform >= 0.14
   type        = string
-  description = "Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
+  description = "Cloudflare API Token for updating the DNS records (Zone.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
 }
 
 variable "cloudflare_dns_management" {
