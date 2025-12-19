@@ -231,9 +231,9 @@ resource "kubernetes_secret_v1" "ctfd-filebeat-config" {
                   file: "registrations.log"
 
       output.elasticsearch:
-        hosts: ["https://${var.fluentd_elasticsearch_host}:443"]
-        username: "${var.fluentd_elasticsearch_username}"
-        password: "${var.fluentd_elasticsearch_password}"
+        hosts: ["https://${var.filebeat_elasticsearch_host}:443"]
+        username: "${var.filebeat_elasticsearch_username}"
+        password: "${var.filebeat_elasticsearch_password}"
         protocol: https
         ssl.verification_mode: "full"
         index: filebeat-${var.environment}-ctfd
