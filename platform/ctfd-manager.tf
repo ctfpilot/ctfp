@@ -92,6 +92,7 @@ resource "kubernetes_secret_v1" "ctfd-manager-secret" {
   }
 
   data = {
+    "github-user"  = var.ghcr_username
     "github-token" = var.git_token
     "password"     = var.ctfd_manager_password
   }
@@ -284,6 +285,16 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
           env {
             name  = "GITHUB_BRANCH"
             value = local.ctfd_manager_gh_branch
+          }
+
+          env {
+            name = "GITHUB_USER"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret_v1.ctfd-manager-secret.metadata.0.name
+                key  = "github-user"
+              }
+            }
           }
 
           env {
