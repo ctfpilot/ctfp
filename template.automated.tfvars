@@ -9,9 +9,9 @@
 # For uptimal performance, it is recommended to use the same region for all servers.
 # Region 1 is used for scale nodes and loadbalancer.
 # Possible values: fsn1, hel1, nbg1
-region_1     = "fsn1"       # Region for subgroup 1
-region_2     = "fsn1"       # Region for subgroup 2
-region_3     = "fsn1"       # Region for subgroup 3
+region_1     = "nbg1"       # Region for subgroup 1
+region_2     = "nbg1"       # Region for subgroup 2
+region_3     = "nbg1"       # Region for subgroup 3
 network_zone = "eu-central" # Hetzner network zone. Possible values: "eu-central", "us-east", "us-west", "ap-southeast". Regions must be within the network zone.
 
 # Servers
@@ -151,6 +151,8 @@ s3_secret_key = "<secret_key>" # Secret key for S3 for backups
 # ------------------------
 # The CTFd manager is used to manage the CTFd instance, and is not used for the CTFd instance itself.
 ctfd_manager_password = "<password>" # Password for the CTFd Manager
+ctfd_manager_github_repo   = "<repository>" # Github repository used in the CTFd Manager. Env variable GITHUB_REPO. See https://github.com/ctfpilot/ctfd-manager
+ctfd_manager_github_branch = ""             # Github branch used in the CTFd Manager. Leave empty for environment based branch (environment == prod ? main : develop). Env variable GITHUB_BRANCH. See https://github.com/ctfpilot/ctfd-manager
 
 # ------------------------
 # CTFd configuration
@@ -180,7 +182,7 @@ ctf_mail_password = "<password>" # Mail server password
 ctf_mail_tls      = true         # Whether to use TLS for the mail server
 ctf_mail_from     = "<from>"     # From address for the mail server
 
-ctf_logo_path = "data/logo.png" # Path to the CTF logo file (e.g., "ctf-logo.png")
+ctf_logo_path = "data/logo.png" # Path to the CTF logo file (e.g., "ctf-logo.png"). Path from `platform/` directory.
 
 ctfd_secret_key = "<secret>" # Secret key for CTFd
 
@@ -198,9 +200,9 @@ ctfd_plugin_first_blood_limit     = "1"                                         
 ctfd_plugin_first_blood_message   = ":drop_of_blood: First blood for **{challenge}** goes to **{user}**! :drop_of_blood:" # Message configuration for the First Blood plugin
 
 # Pages Configuration
-pages            = []             # List of pages to deploy to CTFd
-pages_repository = "<repository>" # Repository URL for pages
-pages_branch     = ""             # Git branch for pages. Leave empty for environment based branch (environment == prod ? main : develop)
+pages            = []                          # List of pages to deploy to CTFd
+pages_repository = "https://github.com/<repo>" # Repository URL for pages
+pages_branch     = ""                          # Git branch for pages. Leave empty for environment based branch (environment == prod ? main : develop)
 
 # CTFd Deployment Configuration
 ctfd_k8s_deployment_repository = "https://github.com/<repo>" # Repository URL for CTFd deployment files
