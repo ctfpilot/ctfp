@@ -82,19 +82,19 @@ variable "chall_whitelist_ips" {
 variable "challenges_static" {
   type        = map(list(string))
   description = "List of static challenges to deploy. In the format { \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }"
-  default     = []
+  default     = {}
 }
 
 variable "challenges_shared" {
   type        = map(list(string))
   description = "List of shared challenges to deploy. In the format { \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }"
-  default     = []
+  default     = {}
 }
 
 variable "challenges_instanced" {
   type        = map(list(string))
   description = "List of instanced challenges to deploy. In the format { \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }"
-  default     = []
+  default     = {}
 }
 
 variable "challenges_repository" {
