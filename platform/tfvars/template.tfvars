@@ -8,7 +8,7 @@ kubeconfig = "AA==" # Base64 encoded kubeconfig file
 # ------------------------
 environment            = "test"  # Environment name for the CTF
 cluster_dns_management = "<dns>" # The specific domain name to use for the DNS records for the management part of the cluster
-cluster_dns_ctf        = "<dns>" # The domain name to use for the DNS records for the CTF part of the cluster
+cluster_dns_platform   = "<dns>" # The domain name to use for the DNS records for the platform part of the cluster
 
 # ------------------------
 # GitHub variables
@@ -46,7 +46,9 @@ s3_secret_key = "<secret_key>" # Secret key for S3 for backups
 # ------------------------
 # CTFd Manager configuration
 # ------------------------
-ctfd_manager_password = "<password>" # Password for the CTFd Manager
+ctfd_manager_password      = "<password>"   # Password for the CTFd Manager
+ctfd_manager_github_repo   = "<repository>" # Github repository used in the CTFd Manager. Env variable GITHUB_REPO. See https://github.com/ctfpilot/ctfd-manager
+ctfd_manager_github_branch = ""             # Github branch used in the CTFd Manager. Leave empty for environment based branch (environment == prod ? main : develop). Env variable GITHUB_BRANCH. See https://github.com/ctfpilot/ctfd-manager
 
 # ------------------------
 # CTFd configuration
