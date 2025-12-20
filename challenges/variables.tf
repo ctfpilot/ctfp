@@ -118,5 +118,5 @@ variable "image_instancing_fallback" {
 variable "image_kubectf" {
   type        = string
   description = "The docker image for the kube-ctf deployment. See https://github.com/ctfpilot/kube-ctf"
-  default     = "ghcr.io/ctfpilot/kube-ctf:1.0.1"
+  default     = "ghcr.io/ctfpilot/kube-ctf:1.0.2"
 }
