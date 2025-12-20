@@ -739,7 +739,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
@@ -761,7 +761,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
@@ -783,7 +783,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
@@ -960,7 +960,7 @@ class Destroy(Command):
         # Destroy the cluster
         try:
             self.init_terraform(f"{PATH}/cluster", "cluster")
-            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
@@ -1004,7 +1004,7 @@ class Destroy(Command):
         # Destroy the ops
         try:
             self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
@@ -1030,7 +1030,7 @@ class Destroy(Command):
         # Destroy the platform
         try:
             self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
@@ -1056,7 +1056,7 @@ class Destroy(Command):
         # Destroy the challenges
         try:
             self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
