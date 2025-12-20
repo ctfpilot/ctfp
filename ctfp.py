@@ -218,10 +218,13 @@ CHALLENGES_TFVARS = [
 ]
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-# Check if the path contains spaces
-if " " in PATH:
-    print("Path to script contains spaces. Please move the script to a path without spaces")
-    exit(1)
+# Sanitize path
+PATH = PATH.replace(" ", "\\ ").replace("\"", "\\\"").replace("'", "\\'")
+# Check if PATH contains special characters
+for char in ['&', ';', '$', '>', '<', '|', '`', '!', '*', '?', '(', ')', '[', ']', '{', '}', '~']:
+    if char in PATH:
+        print(f"Path to script contains special character '{char}'. Please move the script to a path without special characters")
+        exit(1)
 
 # Load env from .env
 if os.path.exists(".env"):
@@ -357,7 +360,7 @@ class GenerateImages(Command):
     def run(self, args):
         Logger.info("Generating server images")
         try:
-            rc = run(f"cd {PATH}/cluster && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"", shell=True)
+            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -447,7 +450,7 @@ class GenerateKeys(Command):
             
         Logger.info("Generating RSA keys")
         try:
-            rc = run([f"{PATH}/data/keys/create.sh"], shell=True)
+            rc = run([f"\"{PATH}\"/data/keys/create.sh"], shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -610,7 +613,7 @@ class Deploy(Command):
 
             # Initialize the backend (if not already done for this project)
             Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init -backend-config={TFBackend.get_backend_path(components)}", shell=True)
+            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
             if rc != 0:
                 raise Exception
             
@@ -682,7 +685,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/cluster", "cluster")
-            cmd = f"cd {PATH}/cluster && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}"
+            cmd = f"cd \"{PATH}/cluster\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}"
             rc = run(cmd, shell=True)
             if rc != 0:
                 raise Exception
@@ -698,10 +701,10 @@ class Deploy(Command):
         
         # Export kubeconfig
         try:
-            rc = run(f"cd {PATH}/cluster && {FLAVOR} output --raw kubeconfig > {PATH}/kube-config/kube-config.{self.environment}.yml")
+            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} output --raw kubeconfig > \"{PATH}\"/kube-config/kube-config.{self.environment}.yml")
             if rc != 0:
                 raise Exception
-            rc = run(f"cat {PATH}/kube-config/kube-config.{self.environment}.yml | base64 -w0 > {PATH}/kube-config/kube-config.{self.environment}.b64")
+            rc = run(f"cat \"{PATH}\"/kube-config/kube-config.{self.environment}.yml | base64 -w0 > \"{PATH}\"/kube-config/kube-config.{self.environment}.b64")
             if rc != 0:
                 raise Exception
         except:
@@ -727,7 +730,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd {PATH}/ops && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -749,7 +752,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd {PATH}/platform && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -771,7 +774,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd {PATH}/challenges && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -897,7 +900,7 @@ class Destroy(Command):
 
             # Initialize the backend (if not already done for this project)
             Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init -backend-config={TFBackend.get_backend_path(components)}", shell=True)
+            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
             if rc != 0:
                 raise Exception
             
@@ -941,7 +944,7 @@ class Destroy(Command):
         # Destroy the cluster
         try:
             self.init_terraform(f"{PATH}/cluster", "cluster")
-            rc = run(f"cd {PATH}/cluster && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -960,10 +963,10 @@ class Destroy(Command):
         
         # Remove kubeconfig
         try:
-            rc = run(f"rm {PATH}/kube-config/kube-config.{self.environment}.yml", shell=True)
+            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.yml", shell=True)
             if rc != 0:
                 raise Exception
-            rc = run(f"rm {PATH}/kube-config/kube-config.{self.environment}.b64", shell=True)
+            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.b64", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -985,7 +988,7 @@ class Destroy(Command):
         # Destroy the ops
         try:
             self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd {PATH}/ops && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -1011,7 +1014,7 @@ class Destroy(Command):
         # Destroy the platform
         try:
             self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd {PATH}/platform && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
@@ -1037,7 +1040,7 @@ class Destroy(Command):
         # Destroy the challenges
         try:
             self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd {PATH}/challenges && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
+            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
         except:
