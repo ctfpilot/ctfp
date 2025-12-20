@@ -1043,7 +1043,7 @@ class Terraform:
         
         # Check if fields include "<" or ">"
         def check_placeholders(value):
-            if isinstance(value, str) and "<" in value and ">" in value:
+            if isinstance(value, str) and value.startswith("<") and value.endswith(">"):
                 return True
             elif isinstance(value, dict):
                 for v in value.values():
