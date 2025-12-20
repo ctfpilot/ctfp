@@ -232,20 +232,31 @@ if os.path.exists(".env"):
                 os.environ[key.strip()] = value.strip()
 
 def run(cmd, shell=True):
-    """
-    Run a subprocess in a new process group and forward KeyboardInterrupt (SIGINT) to it.
-    Returns the process returncode.
-    """
+    '''
+    Run a subprocess in a new process group (where supported) and forward
+    KeyboardInterrupt (SIGINT) to it. Returns the process returncode.
+    '''
     import signal
+    # Use os.setsid only on platforms where it is available (POSIX).
+    preexec = os.setsid if hasattr(os, "setsid") else None
     proc = subprocess.Popen(
         cmd,
         shell=shell,
-        preexec_fn=os.setsid
+        preexec_fn=preexec
     )
     try:
         proc.wait()
     except KeyboardInterrupt:
-        os.killpg(proc.pid, signal.SIGINT)
+        # On POSIX, if we created a new process group, send SIGINT to the group.
+        if preexec is not None and hasattr(os, "killpg"):
+            os.killpg(proc.pid, signal.SIGINT)
+        else:
+            # Fallback for non-POSIX: send SIGINT directly to the child.
+            try:
+                proc.send_signal(signal.SIGINT)
+            except Exception:
+                # As a last resort, terminate the process.
+                proc.terminate()
         proc.wait()
     return proc.returncode
 
