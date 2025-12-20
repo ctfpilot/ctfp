@@ -17,9 +17,10 @@ import hcl2
 
 import backend.generate as backend_generate
 
-AUTO_APPLY = True
+AUTO_APPLY = False
 ENVIRONMENTS = ["test", "dev", "prod"]
-FLAVOR = "tofu" # Can be "terraform" or "tofu"
+FLAVOR = "tofu" # Can be "terraform" or "tofu". Only tested with "tofu"
+COMPONENTS = ["cluster", "ops", "platform", "challenges"]
 
 CLUSTER_TFVARS = [
     # Hetzner
@@ -319,7 +320,7 @@ class Utils:
         for item in tuple_list:
             if key in item:
                 return item
-        return None
+        return ()
     
 class TFBackend:
     @staticmethod
@@ -506,43 +507,34 @@ class Deploy(Command):
     help = "Deploy the platform"
     description = "Deploy the platform"
     times = []
-    environment = "test"  # Default environment
+    environment = "test" # Default environment
+    components = COMPONENTS + ["all"]
 
     def register_subcommand(self):
-        # Only run listed parts of the deployment
-        self.subparser.add_argument("--cluster", action="store_true", help="Deploy the cluster")
-        self.subparser.add_argument("--ops", action="store_true", help="Deploy the ops")
-        self.subparser.add_argument("--platform", action="store_true", help="Deploy the platform")
-        self.subparser.add_argument("--challenges", action="store_true", help="Deploy the challenges")
-        self.subparser.add_argument("--all", action="store_true", help="Deploy all parts of the platform")
+        self.subparser.add_argument("component", help="Component to deploy (cluster, ops, platform, challenges, all)", choices=self.components)
         self.subparser.add_argument("--test", action="store_true", help="Deploy TEST cluster (default)")
         self.subparser.add_argument("--dev", action="store_true", help="Deploy DEV cluster")
         self.subparser.add_argument("--prod", action="store_true", help="Deploy PROD cluster")
+        self.subparser.add_argument("--auto-apply", action="store_true", help="Automatically apply Terraform changes without prompting")
         return
 
     def run(self, args):
         global AUTO_APPLY
-        
-        if not args.cluster and not args.ops and not args.platform and not args.challenges and not args.all:
-            Logger.error("Please specify which part of the platform to deploy")
-            exit(1)
-            
-        if args.all and (args.cluster or args.ops or args.platform or args.challenges):
-            Logger.error("Please specify only --all or individual parts of the platform")
-            exit(1)
 
+        # Check component is valid
+        component = args.component.lower()
+        if component not in COMPONENTS and component != "all":
+            Logger.error(f"Invalid component. Please specify one of: {', '.join(self.components)}")
+            exit(1)
+        
         if [args.test, args.dev, args.prod].count(True) > 1:
             Logger.error("Please specify only one environment: --test, --dev or --prod")
             exit(1)
-                        
-        if args.prod:
-            AUTO_APPLY = False  # Disable auto-apply for production environment
         
-        deploy_all = args.all
-        deploy_cluster = args.cluster or deploy_all
-        deploy_ops = args.ops or deploy_all
-        deploy_platform = args.platform or deploy_all
-        deploy_challenges = args.challenges or deploy_all
+        if args.auto_apply:
+            AUTO_APPLY = True
+        
+        deploy_all = component == "all"
 
         self.environment = "test"
         if args.dev:
@@ -555,11 +547,9 @@ class Deploy(Command):
         Logger.space()
         
         terraform = Terraform(self.environment)
-        
-        terraform.check_values()
         Logger.space()
 
-        if deploy_cluster:        
+        if deploy_all or component == "cluster":
             start_time = time.time()
             terraform.cluster_deploy()
             self.times.append(("cluster", start_time, time.time(), time.time() - start_time))
@@ -567,7 +557,7 @@ class Deploy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
         
-        if deploy_ops:
+        if deploy_all or component == "ops":
             start_time = time.time()
             terraform.ops_deploy()
             self.times.append(("ops", start_time, time.time(), time.time() - start_time))
@@ -575,7 +565,7 @@ class Deploy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
         
-        if deploy_platform:
+        if deploy_all or component == "platform":
             start_time = time.time()
             terraform.platform_deploy()
             self.times.append(("platform", start_time, time.time(), time.time() - start_time))
@@ -583,7 +573,7 @@ class Deploy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
         
-        if deploy_challenges:
+        if deploy_all or component == "challenges":
             start_time = time.time()
             terraform.challenges_deploy()
             self.times.append(("challenges", start_time, time.time(), time.time() - start_time))
@@ -596,13 +586,13 @@ class Deploy(Command):
 
         Logger.info(f"Time taken: {str(round(Utils.extract_tuple_from_list(self.times, 'end')[1] - Utils.extract_tuple_from_list(self.times, 'start')[1], 2))} seconds")
         
-        if deploy_cluster:
+        if deploy_all or component == "cluster":
             Logger.info(f"Cluster time: {str(round(Utils.extract_tuple_from_list(self.times, 'cluster')[3], 2))} seconds")
-        if deploy_ops:
+        if deploy_all or component == "ops":
             Logger.info(f"Ops time: {str(round(Utils.extract_tuple_from_list(self.times, 'ops')[3], 2))} seconds")
-        if deploy_platform:
+        if deploy_all or component == "platform":
             Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
-        if deploy_challenges:
+        if deploy_all or component == "challenges":
             Logger.info(f"Challenges time: {str(round(Utils.extract_tuple_from_list(self.times, 'challenges')[3], 2))} seconds")
 
 '''
@@ -614,42 +604,34 @@ class Destroy(Command):
     description = "Destroy the platform"
     times = []
     environment = "test"  # Default environment
+    components = COMPONENTS + ["all"]
 
     def register_subcommand(self):
         # Only run listed parts of the destruction
-        self.subparser.add_argument("--cluster", action="store_true", help="Destroy the cluster")
-        self.subparser.add_argument("--ops", action="store_true", help="Destroy the ops")
-        self.subparser.add_argument("--platform", action="store_true", help="Destroy the platform")
-        self.subparser.add_argument("--challenges", action="store_true", help="Destroy the challenges")
-        self.subparser.add_argument("--all", action="store_true", help="Destroy all parts of the platform")   
+        self.subparser.add_argument("component", help="Component to destroy (cluster, ops, platform, challenges, all)", choices=self.components)  
         self.subparser.add_argument("--test", action="store_true", help="Destroy TEST cluster (default)")
         self.subparser.add_argument("--dev", action="store_true", help="Destroy DEV cluster")
         self.subparser.add_argument("--prod", action="store_true", help="Destroy PROD cluster")     
+        self.subparser.add_argument("--auto-apply", action="store_true", help="Automatically apply Terraform changes without prompting")
         return
 
     def run(self, args):
         global AUTO_APPLY
-        
-        if not args.cluster and not args.ops and not args.platform and not args.challenges and not args.all:
-            Logger.error("Please specify which part of the platform to destroy")
+
+        # Check component is valid
+        component = args.component.lower()
+        if component not in COMPONENTS and component != "all":
+            Logger.error(f"Invalid component. Please specify one of: {', '.join(self.components)}")
             exit(1)
-            
-        if args.all and (args.cluster or args.ops or args.platform or args.challenges):
-            Logger.error("Please specify only --all or individual parts of the platform")
-            exit(1)
-            
+
         if [args.test, args.dev, args.prod].count(True) > 1:
             Logger.error("Please specify only one environment: --test, --dev or --prod")
             exit(1)
-                        
-        if args.prod:
-            AUTO_APPLY = False  # Disable auto-apply for production environment
+
+        if args.auto_apply:
+            AUTO_APPLY = True
             
-        destroy_all = args.all
-        destroy_cluster = args.cluster or destroy_all
-        destroy_ops = args.ops or destroy_all
-        destroy_platform = args.platform or destroy_all
-        destroy_challenges = args.challenges or destroy_all
+        destroy_all = component == "all"
         
         self.environment = "test"
         if args.dev:
@@ -663,7 +645,7 @@ class Destroy(Command):
         
         terraform = Terraform(self.environment)
         
-        if destroy_challenges:
+        if destroy_all or component == "challenges":
             start_time = time.time()
             terraform.challenges_destroy()
             self.times.append(("challenges", start_time, time.time(), time.time() - start_time))
@@ -671,7 +653,7 @@ class Destroy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
             
-        if destroy_platform:
+        if destroy_all or component == "platform":
             start_time = time.time()
             terraform.platform_destroy()
             self.times.append(("platform", start_time, time.time(), time.time() - start_time))
@@ -679,7 +661,7 @@ class Destroy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
         
-        if destroy_ops:
+        if destroy_all or component == "ops":
             start_time = time.time()
             terraform.ops_destroy()
             self.times.append(("ops", start_time, time.time(), time.time() - start_time))
@@ -687,7 +669,7 @@ class Destroy(Command):
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
             Logger.space()
             
-        if destroy_cluster:
+        if destroy_all or component == "cluster":
             start_time = time.time()
             terraform.cluster_destroy()
             self.times.append(("cluster", start_time, time.time(), time.time() - start_time))
@@ -701,13 +683,13 @@ class Destroy(Command):
         
         Logger.info(f"Time taken: {str(round(Utils.extract_tuple_from_list(self.times, 'end')[1] - Utils.extract_tuple_from_list(self.times, 'start')[1], 2))} seconds")
         
-        if destroy_cluster:
+        if destroy_all or component == "cluster":
             Logger.info(f"Cluster time: {str(round(Utils.extract_tuple_from_list(self.times, 'cluster')[3], 2))} seconds")
-        if destroy_ops:
+        if destroy_all or component == "ops":
             Logger.info(f"Ops time: {str(round(Utils.extract_tuple_from_list(self.times, 'ops')[3], 2))} seconds")
-        if destroy_platform:
+        if destroy_all or component == "platform":
             Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
-        if destroy_challenges:
+        if destroy_all or component == "challenges":
             Logger.info(f"Challenges time: {str(round(Utils.extract_tuple_from_list(self.times, 'challenges')[3], 2))} seconds")
     
 
@@ -922,6 +904,9 @@ class Terraform:
         os.chdir(path)
 
         try:
+            # Check if tfvars file exists and is valid
+            self.check_values()
+        
             # Check if backend config exists
             if not TFBackend.backend_exists(components):
                 Logger.error(f"Backend configuration for {components} does not exist. Please generate it first.")
@@ -931,7 +916,16 @@ class Terraform:
             Logger.info("Running terraform init")
             rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
             if rc != 0:
-                raise Exception
+                # Try to init with reconfigure
+                response = input(f"The init of the backend for {components} failed. Do you want to try to reconfigure the backend? (y/N): ")
+                if response.lower() != "y":
+                    Logger.info("Exiting")
+                    exit(0)
+                
+                Logger.warning("Reconfiguring backend")
+                rc = run(f"{FLAVOR} init -reconfigure -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
+                if rc != 0:
+                    raise Exception
             
             # Create workspaces
             Logger.info("Creating workspaces if they do not exist")
@@ -956,6 +950,83 @@ class Terraform:
     def get_path_tfvars(self):
         return f"{PATH}/{self.get_filename_tfvars()}"
     
+    def execute(self, component, generate_plan=True, action="apply"):
+        '''
+        Execute Terraform action (apply or destroy)
+        
+        :param component: The component to execute
+        :param generate_plan: Whether to generate a plan before executing
+        :param action: The action to execute (apply or destroy)
+        '''
+        if action not in ["apply", "destroy"]:
+            Logger.error("Invalid action. Must be 'apply' or 'destroy'")
+            exit(1)
+        
+        is_apply = action == "apply"
+        
+        # Initialize Terraform
+        component_path = f"{PATH}/{component}"
+        self.init_terraform(component_path, component)
+        
+        rc = 0
+        if generate_plan:
+            # Generate plan
+            Logger.info("Generating Terraform plan")
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} plan {'' if is_apply else '-destroy'} -out=\"{PATH}/terraform/{component}-{self.environment}.tfplan\"", shell=True)
+            if rc != 0:
+                raise Exception(f"Terraform plan failed for {component} ({action}), with return code: {rc}")
+            
+            # Store the plan as human-readable output (Allowing user to review it)
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} show -no-color \"{PATH}/terraform/{component}-{self.environment}.tfplan\" > \"{PATH}/terraform/{component}-{self.environment}.plan.txt\"", shell=True)
+            if rc != 0:
+                raise Exception(f"Terraform show plan failed for {component} ({action}), with return code: {rc}")
+            
+            Logger.success(f"Terraform plan generated successfully - It can be found at terraform/{component}-{self.environment}.plan.txt")
+            
+            # Ask if user wants to proceed
+            if not AUTO_APPLY:
+                response = input(f"Do you want to apply this plan on {component} ({action} {component} in {self.environment})? (y/N): ")
+                if response.lower() != "y":
+                    Logger.info(f"Exiting without applying the plan on {component} ({action})")
+                    exit(0)
+        
+            # Run apply
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} apply \"{PATH}/terraform/{component}-{self.environment}.tfplan\"", shell=True)
+            
+            # Remove the plan files
+            os.remove(f"{PATH}/terraform/{component}-{self.environment}.tfplan")
+
+            # Move human readable plan to .old
+            os.rename(f"{PATH}/terraform/{component}-{self.environment}.plan.txt", f"{PATH}/terraform/{component}-{self.environment}.plan.txt.old")
+        else:
+            # Run apply directly
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} {action} {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+        if rc != 0:
+            raise Exception(f"Terraform {action} failed for {component}, with return code: {rc}")
+    
+    '''
+    Run Terraform apply
+    '''
+    def apply(self, component, generate_plan=True):
+        '''
+        Run Terraform apply
+        
+        :param component: The component to apply
+        :param generate_plan: Whether to generate a plan before applying
+        '''
+        self.execute(component, generate_plan, action="apply")
+    
+    '''
+    Run Terraform destroy
+    '''
+    def destroy(self, component, generate_plan=True):
+        '''
+        Run Terraform destroy
+        
+        :param component: The component to destroy
+        :param generate_plan: Whether to generate a plan before destroying
+        '''
+        self.execute(component, generate_plan, action="destroy")
     
     '''
     Validate automated.tfvars is set, and values are set
@@ -1001,11 +1072,7 @@ class Terraform:
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{PATH}/cluster", "cluster")
-            cmd = f"cd \"{PATH}/cluster\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}"
-            rc = run(cmd, shell=True)
-            if rc != 0:
-                raise Exception
+            self.apply("cluster")
         except Exception:
             Logger.error("Cluster terraform failed")
         Logger.success("Cluster terraform applied successfully")
@@ -1053,10 +1120,7 @@ class Terraform:
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.apply("ops")
         except Exception:
             Logger.error("Ops apply failed")
         Logger.success("Ops deployed successfully")
@@ -1075,10 +1139,7 @@ class Terraform:
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.apply("platform")
         except Exception:
             Logger.error("Platform apply failed")
         Logger.success("Platform deployed successfully")
@@ -1097,10 +1158,7 @@ class Terraform:
         
         # Deploy the cluster
         try:
-            self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.apply("challenges")
         except Exception:
             Logger.error("Challenges apply failed")
         Logger.success("Challenges deployed successfully")
@@ -1116,10 +1174,7 @@ class Terraform:
         
         # Destroy the cluster
         try:
-            self.init_terraform(f"{PATH}/cluster", "cluster")
-            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.destroy("cluster")
         except Exception:
             Logger.error("Cluster terraform destroy failed")
         
@@ -1160,10 +1215,7 @@ class Terraform:
         
         # Destroy the ops
         try:
-            self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.destroy("ops")
         except Exception:
             Logger.error("Ops destroy failed")
         
@@ -1186,10 +1238,7 @@ class Terraform:
         
         # Destroy the platform
         try:
-            self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.destroy("platform")
         except Exception:
             Logger.error("Platform destroy failed")
         
@@ -1212,10 +1261,7 @@ class Terraform:
         
         # Destroy the challenges
         try:
-            self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
+            self.destroy("challenges")
         except Exception:
             Logger.error("Challenges destroy failed")
         
