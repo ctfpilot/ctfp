@@ -218,12 +218,46 @@ CHALLENGES_TFVARS = [
 ]
 
 PATH = os.path.dirname(os.path.realpath(__file__))
+
+class Logger:
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    RESET = "\033[0m"
+
+    @staticmethod
+    def error(message):
+        print(f"{Logger.RED}Error: {message}{Logger.RESET}")
+        exit(1)
+
+    @staticmethod
+    def info(message):
+        print(f"{Logger.BLUE}Info: {message}{Logger.RESET}")
+        
+    @staticmethod
+    def success(message):
+        print(f"{Logger.GREEN}Success: {message}{Logger.RESET}")
+        
+    @staticmethod
+    def warning(message):
+        print(f"{Logger.YELLOW}Warning: {message}{Logger.RESET}")
+        
+    @staticmethod
+    def debug(message):
+        print(f"{Logger.BLUE}Debug: {message}{Logger.RESET}")
+    
+    @staticmethod
+    def space():
+        print("")
+
+
 # Sanitize path
 PATH = PATH.replace(" ", "\\ ").replace("\"", "\\\"").replace("'", "\\'")
 # Check if PATH contains special characters
 for char in ['&', ';', '$', '>', '<', '|', '`', '!', '*', '?', '(', ')', '[', ']', '{', '}', '~']:
     if char in PATH:
-        print(f"Path to script contains special character '{char}'. Please move the script to a path without special characters")
+        Logger.error(f"Path to script contains special character '{char}'. Please move the script to a path without special characters")
         exit(1)
 
 # Load env from .env
@@ -297,38 +331,6 @@ class TFBackend:
     @staticmethod
     def backend_exists(component):        
         return os.path.exists(TFBackend.get_backend_path(component))
-
-class Logger:
-    RED = "\033[91m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    BLUE = "\033[94m"
-    RESET = "\033[0m"
-
-    @staticmethod
-    def error(message):
-        print(f"{Logger.RED}Error: {message}{Logger.RESET}")
-        exit(1)
-
-    @staticmethod
-    def info(message):
-        print(f"{Logger.BLUE}Info: {message}{Logger.RESET}")
-        
-    @staticmethod
-    def success(message):
-        print(f"{Logger.GREEN}Success: {message}{Logger.RESET}")
-        
-    @staticmethod
-    def warning(message):
-        print(f"{Logger.YELLOW}Warning: {message}{Logger.RESET}")
-        
-    @staticmethod
-    def debug(message):
-        print(f"{Logger.BLUE}Debug: {message}{Logger.RESET}")
-    
-    @staticmethod
-    def space():
-        print("")
 
 '''
 Subcommand pattern
@@ -712,8 +714,15 @@ class Deploy(Command):
         Logger.success("Kubeconfig exported")
     
     def get_kubeconfig_b64(self):
-        with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
-            return file.read()
+        try:
+            with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
+                return file.read()
+        except FileNotFoundError:  
+            Logger.error("Kubeconfig file not found. Please deploy the cluster first.")
+            exit(1)  
+        except OSError as e:  
+            Logger.error(f"Failed to read kubeconfig file: {e}")
+            exit(1) 
     
     def ops_deploy(self):
         Logger.info("Deploying the ops on the cluster")
@@ -928,8 +937,15 @@ class Destroy(Command):
         return f"{PATH}/{self.get_filename_tfvars()}"
     
     def get_kubeconfig_b64(self):
-        with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
-            return file.read()
+        try:
+            with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
+                return file.read()
+        except FileNotFoundError:  
+            Logger.error("Kubeconfig file not found. Please deploy the cluster first.")
+            exit(1)  
+        except OSError as e:  
+            Logger.error(f"Failed to read kubeconfig file: {e}")
+            exit(1) 
     
     def cluster_destroy(self):
         Logger.info("Destroying the cluster")
@@ -1101,8 +1117,11 @@ class TFVARS:
         
         try:
             return TFVARS.load_tfvars(file_path)
+        except FileNotFoundError:  
+            Logger.error("tfvars file not found. Please create the file and try again.")
+            exit(1)
         except Exception as e:
-            print(f"Error loading tfvars file: {e}")
+            Logger.error(f"Error loading tfvars file: {e}")
             exit(1)
             
     @staticmethod
@@ -1122,7 +1141,7 @@ class TFVARS:
             with open(file_path, "w") as tfvars_file:
                 tfvars_file.write(formatted_data)
         except Exception as e:
-            print(f"Error writing tfvars file: {e}")
+            Logger.error(f"Error writing tfvars file: {e}")
             exit(1)
     
     def create(self, fields=[]):
@@ -1205,10 +1224,17 @@ class TFVARS:
         # Read the keys
         public_key = ""
         private_key = ""
-        with open(f"{PATH}/data/keys/k8s.pub.b64", "r") as file:
-            public_key = file.read()
-        with open(f"{PATH}/data/keys/k8s.b64", "r") as file:
-            private_key = file.read()
+        try:  
+            with open(f"{PATH}/data/keys/k8s.pub.b64", "r") as file:  
+                public_key = file.read()
+            with open(f"{PATH}/data/keys/k8s.b64", "r") as file:  
+                private_key = file.read()
+        except FileNotFoundError:  
+            Logger.error("SSH keys not found. Please run 'generate-keys' first.")  
+            exit(1)  
+        except OSError as e:  
+            Logger.error(f"Failed to read SSH key files: {e}")  
+            exit(1)  
         
         data = TFVARS.safe_load_tfvars(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}")
         data["ssh_key_public_base64"] = public_key
