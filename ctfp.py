@@ -687,7 +687,7 @@ class Deploy(Command):
         # Deploy the cluster
         try:
             self.init_terraform(f"{PATH}/cluster", "cluster")
-            cmd = f"cd \"{PATH}/cluster\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}"
+            cmd = f"cd \"{PATH}/cluster\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}"
             rc = run(cmd, shell=True)
             if rc != 0:
                 raise Exception
