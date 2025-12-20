@@ -864,7 +864,6 @@ class TFVARS:
 
     @staticmethod
     def insert_keys(environment="test"):
-        
         # Read the keys
         public_key = ""
         private_key = ""
@@ -878,12 +877,19 @@ class TFVARS:
             exit(1)  
         except OSError as e:  
             Logger.error(f"Failed to read SSH key files: {e}")  
-            exit(1)  
+            exit(1)
         
-        data = TFVARS.safe_load_tfvars(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}")
-        data["ssh_key_public_base64"] = public_key
-        data["ssh_key_private_base64"] = private_key
-        TFVARS.safe_write_tfvars(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}", data)
+        # Insert the keys into automated.tfvars (in place)
+        with open(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}", "r") as file:
+            lines = file.readlines()
+        with open(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}", "w") as file:
+            for line in lines:
+                if "ssh_key_public_base64" in line:
+                    file.write(f'ssh_key_public_base64 = "{public_key}"\n')
+                elif "ssh_key_private_base64" in line:
+                    file.write(f'ssh_key_private_base64 = "{private_key}"\n')
+                else:
+                    file.write(line)
 
 '''
 Terraform handler
