@@ -365,7 +365,7 @@ class GenerateImages(Command):
             rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Failed to generate images")
         Logger.success("Images generated successfully")
     
@@ -416,7 +416,7 @@ class InitializeTFVars(Command):
             os_output = os.system(f"cp {template} {destination}")
             if os_output != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error(f"Failed to initialize {self.get_filename_tfvars()}")
         Logger.success(f"{self.get_filename_tfvars()} initialized successfully")
     
@@ -455,7 +455,7 @@ class GenerateKeys(Command):
             rc = run([f"\"{PATH}\"/data/keys/create.sh"], shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Failed to generate keys")
         
         Logger.success("Keys generated successfully in data/keys/ using ed25519")
@@ -709,7 +709,7 @@ class Deploy(Command):
             rc = run(f"cat \"{PATH}\"/kube-config/kube-config.{self.environment}.yml | base64 -w0 > \"{PATH}\"/kube-config/kube-config.{self.environment}.b64")
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Failed to export kubeconfig")
         Logger.success("Kubeconfig exported")
     
@@ -742,7 +742,7 @@ class Deploy(Command):
             rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Ops apply failed")
         Logger.success("Ops deployed successfully")
     
@@ -764,7 +764,7 @@ class Deploy(Command):
             rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Platform apply failed")
         Logger.success("Platform deployed successfully")
 
@@ -786,7 +786,7 @@ class Deploy(Command):
             rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Challenges apply failed")
         Logger.success("Challenges deployed successfully")
 
@@ -963,7 +963,7 @@ class Destroy(Command):
             rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Cluster terraform destroy failed")
         
         # Remove the tfvars file
@@ -985,7 +985,7 @@ class Destroy(Command):
             rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.b64", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Failed to remove kubeconfig")
         Logger.success("Kubeconfig removed")
     
@@ -1007,7 +1007,7 @@ class Destroy(Command):
             rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Ops destroy failed")
         
         # Remove the tfvars file
@@ -1033,7 +1033,7 @@ class Destroy(Command):
             rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Platform destroy failed")
         
         # Remove the tfvars file
@@ -1059,7 +1059,7 @@ class Destroy(Command):
             rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
-        except:
+        except Exception:
             Logger.error("Challenges destroy failed")
         
         # Remove the tfvars file
