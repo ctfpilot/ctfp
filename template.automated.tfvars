@@ -129,7 +129,7 @@ git_token     = "<gh-git-token>"  # GitHub repo token. Only let this token have 
 # The following is the configuration for the instanced challenge management system.
 # They should be unique and strong passwords.
 kubectf_auth_secret      = "<kubectf-auth-secret>"      # The secret to use for the authSecret in the CTF configuration
-kubectf_container_secret = "<kubectl-container-secret>" # The secret to use for the containerSecret in the CTF configuration
+kubectf_container_secret = "<kubectf-container-secret>" # The secret to use for the containerSecret in the CTF configuration
 
 # ------------------------
 # DB configuration
