@@ -225,7 +225,7 @@ challenges_instanced = {
 } # List of instanced challenges to deploy. Needs to be the slugs of the challenges
 
 challenges_repository = "https://github.com/<repo>" # URL of the Git repository containing the challenge definitions
-challenges_branch     = "<branch>"                  # Branch of the Git repository to use for the challenge definitions. Leave empty for environment based branch (environment == prod ? main : develop)
+challenges_branch     = ""                          # Branch of the Git repository to use for the challenge definitions. Leave empty for environment based branch (environment == prod ? main : develop)
 
 # ----------------------
 # Docker images
