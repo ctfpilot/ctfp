@@ -35,3 +35,7 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# CTFd deployment
+ctfd_config.json
+**/ctfd_config.json
