@@ -1312,14 +1312,9 @@ class CLI:
             Logger.error(f"Failed to run subcommand: {e}")
 
     def platform_check(self):
-        # Check if system is linux
-        if sys.platform != "linux":
-            Logger.error("This script is only supported on Linux")
-            exit(1)
-        
-        # Check if user has bash
-        if not os.path.exists("/bin/bash"):
-            Logger.error("This script requires bash")
+        # Check if system is linux and if bash is available
+        if sys.platform != "linux" or not os.path.exists("/bin/bash"):
+            Logger.error("This script requires Linux and bash")
             exit(1)
 
 if __name__ == "__main__":    
