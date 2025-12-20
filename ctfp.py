@@ -503,6 +503,8 @@ class Deploy(Command):
         return
 
     def run(self, args):
+        global AUTO_APPLY
+        
         if not args.cluster and not args.ops and not args.platform and not args.challenges and not args.all:
             Logger.error("Please specify which part of the platform to deploy")
             exit(1)
@@ -788,6 +790,8 @@ class Destroy(Command):
         return
 
     def run(self, args):
+        global AUTO_APPLY
+        
         if not args.cluster and not args.ops and not args.platform and not args.challenges and not args.all:
             Logger.error("Please specify which part of the platform to destroy")
             exit(1)
