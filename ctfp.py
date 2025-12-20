@@ -929,7 +929,7 @@ class Destroy(Command):
         
         # Destroy the cluster
         try:
-            self.init_terraform(f"{PATH}/challenges", "challenges")
+            self.init_terraform(f"{PATH}/cluster", "cluster")
             rc = run(f"cd {PATH}/cluster && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {AUTO_APPLY and '-auto-approve' or ''}", shell=True)
             if rc != 0:
                 raise Exception
