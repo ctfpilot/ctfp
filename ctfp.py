@@ -454,15 +454,15 @@ class GenerateKeys(Command):
             
         Logger.info("Generating RSA keys")
         try:
-            rc = run([f"\"{PATH}\"/data/keys/create.sh"], shell=True)
+            rc = run([f"\"{PATH}\"/keys/create.sh \"{self.environment}\""], shell=True)
             if rc != 0:
                 raise Exception
         except Exception:
             Logger.error("Failed to generate keys")
         
-        Logger.success("Keys generated successfully in data/keys/ using ed25519")
-        Logger.info("Public key: data/keys/k8s.pub")
-        Logger.info("Private key: data/keys/k8s")
+        Logger.success("Keys generated successfully in keys/ using ed25519")
+        Logger.info(f"Public key: keys/k8s-{self.environment}.pub")
+        Logger.info(f"Private key: keys/k8s-{self.environment}")
         
         # Insert keys into automated.tfvars
         if args.insert:
@@ -869,9 +869,9 @@ class TFVARS:
         public_key = ""
         private_key = ""
         try:  
-            with open(f"{PATH}/data/keys/k8s.pub.b64", "r") as file:  
+            with open(f"{PATH}/keys/k8s-{environment}.pub.b64", "r") as file:  
                 public_key = file.read()
-            with open(f"{PATH}/data/keys/k8s.b64", "r") as file:  
+            with open(f"{PATH}/keys/k8s-{environment}.b64", "r") as file:  
                 private_key = file.read()
         except FileNotFoundError:  
             Logger.error("SSH keys not found. Please run 'generate-keys' first.")  
