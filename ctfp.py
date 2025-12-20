@@ -313,8 +313,8 @@ class Args:
 
 class Utils:    
     @staticmethod
-    def extract_tuple_from_list(list, key):
-        for item in list:
+    def extract_tuple_from_list(tuple_list, key):
+        for item in tuple_list:
             if key in item:
                 return item
         return None
