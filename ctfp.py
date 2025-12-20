@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # CTFp CLI tool
 # Licensed under PolyForm Noncommercial License 1.0.0. 
 # See LICENSE file in the project root for full license information.
