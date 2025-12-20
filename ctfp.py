@@ -552,12 +552,16 @@ class Deploy(Command):
 
         self.times.append(("start", time.time()))
         Logger.info("Deploying " + (self.environment.upper() if self.environment != "test" else "TEST") + " environment")
-        self.check_values()
+        Logger.space()
+        
+        terraform = Terraform(self.environment)
+        
+        terraform.check_values()
         Logger.space()
 
         if deploy_cluster:        
             start_time = time.time()
-            self.cluster_deploy()
+            terraform.cluster_deploy()
             self.times.append(("cluster", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -565,7 +569,7 @@ class Deploy(Command):
         
         if deploy_ops:
             start_time = time.time()
-            self.ops_deploy()
+            terraform.ops_deploy()
             self.times.append(("ops", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -573,7 +577,7 @@ class Deploy(Command):
         
         if deploy_platform:
             start_time = time.time()
-            self.platform_deploy()
+            terraform.platform_deploy()
             self.times.append(("platform", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -581,7 +585,7 @@ class Deploy(Command):
         
         if deploy_challenges:
             start_time = time.time()
-            self.challenges_deploy()
+            terraform.challenges_deploy()
             self.times.append(("challenges", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -600,197 +604,6 @@ class Deploy(Command):
             Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
         if deploy_challenges:
             Logger.info(f"Challenges time: {str(round(Utils.extract_tuple_from_list(self.times, 'challenges')[3], 2))} seconds")
-    
-    '''
-    Initialize Terraform to a given environment (workspace)
-    '''
-    def init_terraform(self, path, components: str = ""):
-        Logger.info("Initializing Terraform")
-        current_dir = os.getcwd()
-        os.chdir(path)
-
-        try:
-            # Check if backend config exists
-            if not TFBackend.backend_exists(components):
-                Logger.error(f"Backend configuration for {components} does not exist. Please generate it first.")
-                raise Exception
-
-            # Initialize the backend (if not already done for this project)
-            Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
-            if rc != 0:
-                raise Exception
-            
-            # Create workspaces
-            Logger.info("Creating workspaces if they do not exist")
-            for env in ENVIRONMENTS:
-                subprocess.run([FLAVOR, "workspace", "new", env], check=False)
-                
-            # Select the workspace based on the environment
-            Logger.info(f"Selecting workspace: {self.environment}")
-            rc = run(f"{FLAVOR} workspace select {self.environment}", shell=True)
-            if rc != 0:
-                raise Exception
-        except subprocess.CalledProcessError as e:
-            Logger.error("Terraform initialization failed")
-            raise e
-        finally:
-            os.chdir(current_dir) # Always change back to the original directory
-        Logger.success("Terraform initialized successfully")
-    
-    def get_filename_tfvars(self):
-        return TFVARS.get_filename_tfvars(self.environment)
-
-    def get_path_tfvars(self):
-        return f"{PATH}/{self.get_filename_tfvars()}"
-    
-    '''
-    Validate automated.tfvars is set, and values are set
-    '''
-    def check_values(self):
-        # Check if automated.tfvars exists
-        tfvars_path = self.get_path_tfvars()
-        if not os.path.exists(tfvars_path):
-            Logger.error(f"{self.get_filename_tfvars()} not found. Please create the file and try again")
-            exit(1)
-
-        # Load tfvars file
-        tfvars_data = TFVARS.safe_load_tfvars(tfvars_path)
-        
-        # Check if fields include "<" or ">"
-        def check_placeholders(value):
-            if isinstance(value, str) and "<" in value and ">" in value:
-                return True
-            elif isinstance(value, dict):
-                for v in value.values():
-                    if check_placeholders(v):
-                        return True
-            elif isinstance(value, list):
-                for item in value:
-                    if check_placeholders(item):
-                        return True
-            return False
-        for key, value in tfvars_data.items():
-            if check_placeholders(value):
-                Logger.error(f"{self.get_filename_tfvars()} does not seem to be filled out (see field '{key}'). Please fill out all fields and try again")
-                exit(1)
-
-        Logger.info(f"{self.get_filename_tfvars()} is filled out correctly")
-
-    def cluster_deploy(self):
-        Logger.info("Deploying the cluster")
-
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars")
-        tfvars.create(CLUSTER_TFVARS)
-        # tfvars.add("environment", self.environment)
-        Logger.space()
-        
-        # Deploy the cluster
-        try:
-            self.init_terraform(f"{PATH}/cluster", "cluster")
-            cmd = f"cd \"{PATH}/cluster\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}"
-            rc = run(cmd, shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Cluster terraform failed")
-        Logger.success("Cluster terraform applied successfully")
-        # Export kubeconfig
-        self.export_kubeconfig()
-        Logger.success("Cluster deployed successfully")
-        
-    def export_kubeconfig(self):
-        Logger.info("Exporting kubeconfig")
-        
-        # Export kubeconfig
-        try:
-            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} output --raw kubeconfig > \"{PATH}\"/kube-config/kube-config.{self.environment}.yml")
-            if rc != 0:
-                raise Exception
-            rc = run(f"cat \"{PATH}\"/kube-config/kube-config.{self.environment}.yml | base64 -w0 > \"{PATH}\"/kube-config/kube-config.{self.environment}.b64")
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Failed to export kubeconfig")
-        Logger.success("Kubeconfig exported")
-    
-    def get_kubeconfig_b64(self):
-        try:
-            with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
-                return file.read()
-        except FileNotFoundError:  
-            Logger.error("Kubeconfig file not found. Please deploy the cluster first.")
-            exit(1)  
-        except OSError as e:  
-            Logger.error(f"Failed to read kubeconfig file: {e}")
-            exit(1) 
-    
-    def ops_deploy(self):
-        Logger.info("Deploying the ops on the cluster")
-
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars")
-        tfvars.create(OPS_TFVARS)
-        tfvars.add_dict({
-            "kubeconfig": self.get_kubeconfig_b64(),
-            "environment": self.environment
-        })
-        Logger.space()
-        
-        # Deploy the cluster
-        try:
-            self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Ops apply failed")
-        Logger.success("Ops deployed successfully")
-    
-    def platform_deploy(self):
-        Logger.info("Deploying the platform on the cluster")
-
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars")
-        tfvars.create(PLATFORM_TFVARS)
-        tfvars.add_dict({
-            "kubeconfig": self.get_kubeconfig_b64(),
-            "environment": self.environment
-        })
-        Logger.space()
-        
-        # Deploy the cluster
-        try:
-            self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Platform apply failed")
-        Logger.success("Platform deployed successfully")
-
-    def challenges_deploy(self):
-        Logger.info("Deploying the challenges on the cluster")
-
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars")
-        tfvars.create(CHALLENGES_TFVARS)
-        tfvars.add_dict({
-            "kubeconfig": self.get_kubeconfig_b64(),
-            "environment": self.environment
-        })
-        Logger.space()
-        
-        # Deploy the cluster
-        try:
-            self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Challenges apply failed")
-        Logger.success("Challenges deployed successfully")
 
 '''
 Destroy the platform
@@ -848,9 +661,11 @@ class Destroy(Command):
         Logger.info("Destroying " + (self.environment.upper() if self.environment != "test" else "TEST") + " environment")
         Logger.space()
         
+        terraform = Terraform(self.environment)
+        
         if destroy_challenges:
             start_time = time.time()
-            self.challenges_destroy()
+            terraform.challenges_destroy()
             self.times.append(("challenges", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -858,7 +673,7 @@ class Destroy(Command):
             
         if destroy_platform:
             start_time = time.time()
-            self.platform_destroy()
+            terraform.platform_destroy()
             self.times.append(("platform", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -866,7 +681,7 @@ class Destroy(Command):
         
         if destroy_ops:
             start_time = time.time()
-            self.ops_destroy()
+            terraform.ops_destroy()
             self.times.append(("ops", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -874,7 +689,7 @@ class Destroy(Command):
             
         if destroy_cluster:
             start_time = time.time()
-            self.cluster_destroy()
+            terraform.cluster_destroy()
             self.times.append(("cluster", start_time, time.time(), time.time() - start_time))
             Logger.space()
             Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
@@ -895,179 +710,6 @@ class Destroy(Command):
         if destroy_challenges:
             Logger.info(f"Challenges time: {str(round(Utils.extract_tuple_from_list(self.times, 'challenges')[3], 2))} seconds")
     
-    '''
-    Initialize Terraform to a given environment (workspace)
-    '''
-    def init_terraform(self, path, components: str = ""):
-        Logger.info("Initializing Terraform")
-        current_dir = os.getcwd()
-        os.chdir(path)
-
-        try:
-            # Check if backend config exists
-            if not TFBackend.backend_exists(components):
-                Logger.error(f"Backend configuration for {components} does not exist. Please generate it first.")
-                raise Exception
-
-            # Initialize the backend (if not already done for this project)
-            Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
-            if rc != 0:
-                raise Exception
-            
-            # Create workspaces
-            Logger.info("Creating workspaces if they do not exist")
-            for env in ENVIRONMENTS:
-                subprocess.run([FLAVOR, "workspace", "new", env], check=False)
-                
-            # Select the workspace based on the environment
-            Logger.info(f"Selecting workspace: {self.environment}")
-            rc = run(f"{FLAVOR} workspace select {self.environment}", shell=True)
-            if rc != 0:
-                raise Exception
-        except subprocess.CalledProcessError as e:
-            Logger.error("Terraform initialization failed")
-            raise e
-        finally:
-            os.chdir(current_dir) # Always change back to the original directory
-        Logger.success("Terraform initialized successfully")
-    
-    def get_filename_tfvars(self):
-        return TFVARS.get_filename_tfvars(self.environment)
-
-    def get_path_tfvars(self):
-        return f"{PATH}/{self.get_filename_tfvars()}"
-    
-    def get_kubeconfig_b64(self):
-        try:
-            with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
-                return file.read()
-        except FileNotFoundError:  
-            Logger.error("Kubeconfig file not found. Please deploy the cluster first.")
-            exit(1)  
-        except OSError as e:  
-            Logger.error(f"Failed to read kubeconfig file: {e}")
-            exit(1) 
-    
-    def cluster_destroy(self):
-        Logger.info("Destroying the cluster")
-        
-        
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars")
-        tfvars.create(CLUSTER_TFVARS)
-        # tfvars.add("environment", self.environment)
-        Logger.space()
-        
-        # Destroy the cluster
-        try:
-            self.init_terraform(f"{PATH}/cluster", "cluster")
-            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Cluster terraform destroy failed")
-        
-        # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars").destroy()
-        
-        Logger.success("Cluster terraform destroy applied successfully")
-        
-        # remove kubeconfig
-        self.remove_kubeconfig()
-    
-    def remove_kubeconfig(self):
-        Logger.info("Removing kubeconfig")
-        
-        # Remove kubeconfig
-        try:
-            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.yml", shell=True)
-            if rc != 0:
-                raise Exception
-            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.b64", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Failed to remove kubeconfig")
-        Logger.success("Kubeconfig removed")
-    
-    def ops_destroy(self):
-        Logger.info("Destroying the ops on the cluster")
-        
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars")
-        tfvars.create(OPS_TFVARS)
-        tfvars.add_dict({
-            "kubeconfig": self.get_kubeconfig_b64(),
-            "environment": self.environment
-        })
-        Logger.space()
-        
-        # Destroy the ops
-        try:
-            self.init_terraform(f"{PATH}/ops", "ops")
-            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Ops destroy failed")
-        
-        # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars").destroy()
-        
-        Logger.success("Ops destroyed successfully")
-    
-    def platform_destroy(self):
-        Logger.info("Destroying the platform on the cluster")
-
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars")
-        tfvars.create(PLATFORM_TFVARS)
-        tfvars.add_dict({
-            "kubeconfig": self.get_kubeconfig_b64(),
-            "environment": self.environment
-        })
-        Logger.space()
-        
-        # Destroy the platform
-        try:
-            self.init_terraform(f"{PATH}/platform", "platform")
-            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Platform destroy failed")
-        
-        # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars").destroy()
-        
-        Logger.success("Platform destroyed successfully")
-        
-    def challenges_destroy(self):
-        Logger.info("Destroying the challenges on the cluster")
-
-        # Configure tfvars file
-        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars")
-        tfvars.create(CHALLENGES_TFVARS)
-        tfvars.add_dict({
-            "kubeconfig": self.get_kubeconfig_b64(),
-            "environment": self.environment
-        })
-        Logger.space()
-        
-        # Destroy the challenges
-        try:
-            self.init_terraform(f"{PATH}/challenges", "challenges")
-            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
-            if rc != 0:
-                raise Exception
-        except Exception:
-            Logger.error("Challenges destroy failed")
-        
-        # Remove the tfvars file
-        TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars").destroy()
-        
-        Logger.success("Challenges destroyed successfully")
 
 '''
 TFVars handler class
@@ -1242,6 +884,339 @@ class TFVARS:
         data["ssh_key_public_base64"] = public_key
         data["ssh_key_private_base64"] = private_key
         TFVARS.safe_write_tfvars(f"{PATH}/{TFVARS.get_filename_tfvars(environment)}", data)
+
+'''
+Terraform handler
+'''
+class Terraform:
+    environment: str
+    
+    @staticmethod
+    def is_installed():
+        '''
+        Check if Terraform is installed
+        
+        :return: True if installed, False otherwise
+        '''
+        try:
+            rc = run(f"{FLAVOR} version", shell=True)
+            return rc == 0
+        except Exception:
+            return False
+
+    def __init__(self, environment="test"):
+        self.environment = environment
+
+    '''
+    Initialize Terraform to a given environment (workspace)
+    '''
+    def init_terraform(self, path, components: str = ""):
+        Logger.info("Initializing Terraform")
+        current_dir = os.getcwd()
+        os.chdir(path)
+
+        try:
+            # Check if backend config exists
+            if not TFBackend.backend_exists(components):
+                Logger.error(f"Backend configuration for {components} does not exist. Please generate it first.")
+                raise Exception
+
+            # Initialize the backend (if not already done for this project)
+            Logger.info("Running terraform init")
+            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
+            if rc != 0:
+                raise Exception
+            
+            # Create workspaces
+            Logger.info("Creating workspaces if they do not exist")
+            for env in ENVIRONMENTS:
+                subprocess.run([FLAVOR, "workspace", "new", env], check=False)
+                
+            # Select the workspace based on the environment
+            Logger.info(f"Selecting workspace: {self.environment}")
+            rc = run(f"{FLAVOR} workspace select {self.environment}", shell=True)
+            if rc != 0:
+                raise Exception
+        except subprocess.CalledProcessError as e:
+            Logger.error("Terraform initialization failed")
+            raise e
+        finally:
+            os.chdir(current_dir) # Always change back to the original directory
+        Logger.success("Terraform initialized successfully")
+    
+    def get_filename_tfvars(self):
+        return TFVARS.get_filename_tfvars(self.environment)
+
+    def get_path_tfvars(self):
+        return f"{PATH}/{self.get_filename_tfvars()}"
+    
+    
+    '''
+    Validate automated.tfvars is set, and values are set
+    '''
+    def check_values(self):
+        # Check if automated.tfvars exists
+        tfvars_path = self.get_path_tfvars()
+        if not os.path.exists(tfvars_path):
+            Logger.error(f"{self.get_filename_tfvars()} not found. Please create the file and try again")
+            exit(1)
+
+        # Load tfvars file
+        tfvars_data = TFVARS.safe_load_tfvars(tfvars_path)
+        
+        # Check if fields include "<" or ">"
+        def check_placeholders(value):
+            if isinstance(value, str) and "<" in value and ">" in value:
+                return True
+            elif isinstance(value, dict):
+                for v in value.values():
+                    if check_placeholders(v):
+                        return True
+            elif isinstance(value, list):
+                for item in value:
+                    if check_placeholders(item):
+                        return True
+            return False
+        for key, value in tfvars_data.items():
+            if check_placeholders(value):
+                Logger.error(f"{self.get_filename_tfvars()} does not seem to be filled out (see field '{key}'). Please fill out all fields and try again")
+                exit(1)
+
+        Logger.info(f"{self.get_filename_tfvars()} is filled out correctly")
+
+    def cluster_deploy(self):
+        Logger.info("Deploying the cluster")
+
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars")
+        tfvars.create(CLUSTER_TFVARS)
+        # tfvars.add("environment", self.environment)
+        Logger.space()
+        
+        # Deploy the cluster
+        try:
+            self.init_terraform(f"{PATH}/cluster", "cluster")
+            cmd = f"cd \"{PATH}/cluster\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}"
+            rc = run(cmd, shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Cluster terraform failed")
+        Logger.success("Cluster terraform applied successfully")
+        # Export kubeconfig
+        self.export_kubeconfig()
+        Logger.success("Cluster deployed successfully")
+        
+    def export_kubeconfig(self):
+        Logger.info("Exporting kubeconfig")
+        
+        # Export kubeconfig
+        try:
+            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} output --raw kubeconfig > \"{PATH}\"/kube-config/kube-config.{self.environment}.yml")
+            if rc != 0:
+                raise Exception
+            rc = run(f"cat \"{PATH}\"/kube-config/kube-config.{self.environment}.yml | base64 -w0 > \"{PATH}\"/kube-config/kube-config.{self.environment}.b64")
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Failed to export kubeconfig")
+        Logger.success("Kubeconfig exported")
+    
+    def get_kubeconfig_b64(self):
+        try:
+            with open(f"{PATH}/kube-config/kube-config.{self.environment}.b64", "r") as file:
+                return file.read()
+        except FileNotFoundError:  
+            Logger.error("Kubeconfig file not found. Please deploy the cluster first.")
+            exit(1)  
+        except OSError as e:  
+            Logger.error(f"Failed to read kubeconfig file: {e}")
+            exit(1) 
+    
+    def ops_deploy(self):
+        Logger.info("Deploying the ops on the cluster")
+
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars")
+        tfvars.create(OPS_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
+        Logger.space()
+        
+        # Deploy the cluster
+        try:
+            self.init_terraform(f"{PATH}/ops", "ops")
+            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Ops apply failed")
+        Logger.success("Ops deployed successfully")
+    
+    def platform_deploy(self):
+        Logger.info("Deploying the platform on the cluster")
+
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars")
+        tfvars.create(PLATFORM_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
+        Logger.space()
+        
+        # Deploy the cluster
+        try:
+            self.init_terraform(f"{PATH}/platform", "platform")
+            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Platform apply failed")
+        Logger.success("Platform deployed successfully")
+
+    def challenges_deploy(self):
+        Logger.info("Deploying the challenges on the cluster")
+
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars")
+        tfvars.create(CHALLENGES_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
+        Logger.space()
+        
+        # Deploy the cluster
+        try:
+            self.init_terraform(f"{PATH}/challenges", "challenges")
+            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} apply {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Challenges apply failed")
+        Logger.success("Challenges deployed successfully")
+
+    def cluster_destroy(self):
+        Logger.info("Destroying the cluster")
+        
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars")
+        tfvars.create(CLUSTER_TFVARS)
+        # tfvars.add("environment", self.environment)
+        Logger.space()
+        
+        # Destroy the cluster
+        try:
+            self.init_terraform(f"{PATH}/cluster", "cluster")
+            rc = run(f"cd \"{PATH}/cluster\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Cluster terraform destroy failed")
+        
+        # Remove the tfvars file
+        TFVARS(self.get_path_tfvars(), f"{PATH}/cluster/data.auto.tfvars").destroy()
+        
+        Logger.success("Cluster terraform destroy applied successfully")
+        
+        # remove kubeconfig
+        self.remove_kubeconfig()
+    
+    def remove_kubeconfig(self):
+        Logger.info("Removing kubeconfig")
+        
+        # Remove kubeconfig
+        try:
+            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.yml", shell=True)
+            if rc != 0:
+                raise Exception
+            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.b64", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Failed to remove kubeconfig")
+        Logger.success("Kubeconfig removed")
+    
+    def ops_destroy(self):
+        Logger.info("Destroying the ops on the cluster")
+        
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars")
+        tfvars.create(OPS_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
+        Logger.space()
+        
+        # Destroy the ops
+        try:
+            self.init_terraform(f"{PATH}/ops", "ops")
+            rc = run(f"cd \"{PATH}/ops\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Ops destroy failed")
+        
+        # Remove the tfvars file
+        TFVARS(self.get_path_tfvars(), f"{PATH}/ops/data.auto.tfvars").destroy()
+        
+        Logger.success("Ops destroyed successfully")
+    
+    def platform_destroy(self):
+        Logger.info("Destroying the platform on the cluster")
+
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars")
+        tfvars.create(PLATFORM_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
+        Logger.space()
+        
+        # Destroy the platform
+        try:
+            self.init_terraform(f"{PATH}/platform", "platform")
+            rc = run(f"cd \"{PATH}/platform\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Platform destroy failed")
+        
+        # Remove the tfvars file
+        TFVARS(self.get_path_tfvars(), f"{PATH}/platform/data.auto.tfvars").destroy()
+        
+        Logger.success("Platform destroyed successfully")
+        
+    def challenges_destroy(self):
+        Logger.info("Destroying the challenges on the cluster")
+
+        # Configure tfvars file
+        tfvars = TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars")
+        tfvars.create(CHALLENGES_TFVARS)
+        tfvars.add_dict({
+            "kubeconfig": self.get_kubeconfig_b64(),
+            "environment": self.environment
+        })
+        Logger.space()
+        
+        # Destroy the challenges
+        try:
+            self.init_terraform(f"{PATH}/challenges", "challenges")
+            rc = run(f"cd \"{PATH}/challenges\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} destroy {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            if rc != 0:
+                raise Exception
+        except Exception:
+            Logger.error("Challenges destroy failed")
+        
+        # Remove the tfvars file
+        TFVARS(self.get_path_tfvars(), f"{PATH}/challenges/data.auto.tfvars").destroy()
+        
+        Logger.success("Challenges destroyed successfully")
 
 '''
 CLI tool
