@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 # Select environment between test, dev or prod
 # Usage: ./kubectl-setup.sh [test|dev|prod]
-set -e
 CTFP_EXECUTE=true
 if [ -z "$1" ]; then
   echo "Usage: $0 [test|dev|prod]"
   CTFP_EXECUTE=false
 fi
-set +e
 
 if [ "$CTFP_EXECUTE" = true ]; then
     CTFP_ENVIRONMENT=$1
