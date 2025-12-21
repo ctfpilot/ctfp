@@ -312,14 +312,6 @@ class Args:
             exit(1)
         
         self.parser.print_help()
-
-class Utils:    
-    @staticmethod
-    def extract_tuple_from_list(tuple_list, key):
-        for item in tuple_list:
-            if key in item:
-                return item
-        return ()
     
 class TFBackend:
     @staticmethod
@@ -364,7 +356,7 @@ class GenerateImages(Command):
     def run(self, args):
         Logger.info("Generating server images")
         try:
-            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"", shell=True)
+            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"")
             if rc != 0:
                 raise Exception
         except Exception:
@@ -452,7 +444,7 @@ class GenerateKeys(Command):
             
         Logger.info("Generating SSH keys")
         try:
-            rc = run([f"\"{PATH}\"/keys/create.sh \"{self.environment}\""], shell=True)
+            rc = run([f"\"{PATH}\"/keys/create.sh \"{self.environment}\""])
             if rc != 0:
                 raise Exception
         except Exception:
@@ -503,7 +495,6 @@ class Deploy(Command):
     name = "deploy"
     help = "Deploy the platform"
     description = "Deploy the platform"
-    times = []
     environment = "test" # Default environment
     components = COMPONENTS + ["all"]
 
@@ -539,7 +530,8 @@ class Deploy(Command):
         elif args.prod:
             self.environment = "prod"
 
-        self.times.append(("start", time.time()))
+        times = {}
+        times["start"] = time.time()
         Logger.info("Deploying " + (self.environment.upper() if self.environment != "test" else "TEST") + " environment")
         Logger.space()
         
@@ -547,50 +539,50 @@ class Deploy(Command):
         Logger.space()
 
         if deploy_all or component == "cluster":
-            start_time = time.time()
+            component_start = time.time()
             terraform.cluster_deploy()
-            self.times.append(("cluster", start_time, time.time(), time.time() - start_time))
+            times["cluster"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['cluster'], 2)} seconds")
             Logger.space()
         
         if deploy_all or component == "ops":
-            start_time = time.time()
+            component_start = time.time()
             terraform.ops_deploy()
-            self.times.append(("ops", start_time, time.time(), time.time() - start_time))
+            times["ops"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['ops'], 2)} seconds")
             Logger.space()
         
         if deploy_all or component == "platform":
-            start_time = time.time()
+            component_start = time.time()
             terraform.platform_deploy()
-            self.times.append(("platform", start_time, time.time(), time.time() - start_time))
+            times["platform"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['platform'], 2)} seconds")
             Logger.space()
         
         if deploy_all or component == "challenges":
-            start_time = time.time()
+            component_start = time.time()
             terraform.challenges_deploy()
-            self.times.append(("challenges", start_time, time.time(), time.time() - start_time))
+            times["challenges"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['challenges'], 2)} seconds")
             Logger.space()
         
         Logger.success("Platform deployed")
-        self.times.append(("end", time.time()))
+        total_time = time.time() - times["start"]
 
-        Logger.info(f"Time taken: {str(round(Utils.extract_tuple_from_list(self.times, 'end')[1] - Utils.extract_tuple_from_list(self.times, 'start')[1], 2))} seconds")
+        Logger.info(f"Time taken: {round(total_time, 2)} seconds")
         
         if deploy_all or component == "cluster":
-            Logger.info(f"Cluster time: {str(round(Utils.extract_tuple_from_list(self.times, 'cluster')[3], 2))} seconds")
+            Logger.info(f"Cluster time: {round(times['cluster'], 2)} seconds")
         if deploy_all or component == "ops":
-            Logger.info(f"Ops time: {str(round(Utils.extract_tuple_from_list(self.times, 'ops')[3], 2))} seconds")
+            Logger.info(f"Ops time: {round(times['ops'], 2)} seconds")
         if deploy_all or component == "platform":
-            Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
+            Logger.info(f"Platform time: {round(times['platform'], 2)} seconds")
         if deploy_all or component == "challenges":
-            Logger.info(f"Challenges time: {str(round(Utils.extract_tuple_from_list(self.times, 'challenges')[3], 2))} seconds")
+            Logger.info(f"Challenges time: {round(times['challenges'], 2)} seconds")
 
 '''
 Destroy the platform
@@ -636,58 +628,58 @@ class Destroy(Command):
         elif args.prod:
             self.environment = "prod"
         
-        self.times.append(("start", time.time()))
+        times = {}
+        times["start"] = time.time()
         Logger.info("Destroying " + (self.environment.upper() if self.environment != "test" else "TEST") + " environment")
         Logger.space()
         
         terraform = Terraform(self.environment)
         
         if destroy_all or component == "challenges":
-            start_time = time.time()
+            component_start = time.time()
             terraform.challenges_destroy()
-            self.times.append(("challenges", start_time, time.time(), time.time() - start_time))
+            times["challenges"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['challenges'], 2)} seconds")
             Logger.space()
             
         if destroy_all or component == "platform":
-            start_time = time.time()
+            component_start = time.time()
             terraform.platform_destroy()
-            self.times.append(("platform", start_time, time.time(), time.time() - start_time))
+            times["platform"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['platform'], 2)} seconds")
             Logger.space()
         
         if destroy_all or component == "ops":
-            start_time = time.time()
+            component_start = time.time()
             terraform.ops_destroy()
-            self.times.append(("ops", start_time, time.time(), time.time() - start_time))
+            times["ops"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['ops'], 2)} seconds")
             Logger.space()
             
         if destroy_all or component == "cluster":
-            start_time = time.time()
+            component_start = time.time()
             terraform.cluster_destroy()
-            self.times.append(("cluster", start_time, time.time(), time.time() - start_time))
+            times["cluster"] = time.time() - component_start
             Logger.space()
-            Logger.info(f"Time taken: {str(round(self.times[-1][3], 2))} seconds")
+            Logger.info(f"Time taken: {round(times['cluster'], 2)} seconds")
             Logger.space()
 
         Logger.success("Destroyed action")
+        total_time = time.time() - times["start"]
         
-        self.times.append(("end", time.time()))
-        
-        Logger.info(f"Time taken: {str(round(Utils.extract_tuple_from_list(self.times, 'end')[1] - Utils.extract_tuple_from_list(self.times, 'start')[1], 2))} seconds")
+        Logger.info(f"Time taken: {round(total_time, 2)} seconds")
         
         if destroy_all or component == "cluster":
-            Logger.info(f"Cluster time: {str(round(Utils.extract_tuple_from_list(self.times, 'cluster')[3], 2))} seconds")
+            Logger.info(f"Cluster time: {round(times['cluster'], 2)} seconds")
         if destroy_all or component == "ops":
-            Logger.info(f"Ops time: {str(round(Utils.extract_tuple_from_list(self.times, 'ops')[3], 2))} seconds")
+            Logger.info(f"Ops time: {round(times['ops'], 2)} seconds")
         if destroy_all or component == "platform":
-            Logger.info(f"Platform time: {str(round(Utils.extract_tuple_from_list(self.times, 'platform')[3], 2))} seconds")
+            Logger.info(f"Platform time: {round(times['platform'], 2)} seconds")
         if destroy_all or component == "challenges":
-            Logger.info(f"Challenges time: {str(round(Utils.extract_tuple_from_list(self.times, 'challenges')[3], 2))} seconds")
+            Logger.info(f"Challenges time: {round(times['challenges'], 2)} seconds")
     
 
 '''
@@ -884,7 +876,7 @@ class Terraform:
         :return: True if installed, False otherwise
         '''
         try:
-            rc = run(f"{FLAVOR} version", shell=False)
+            rc = run(f"{FLAVOR} version")
             return rc == 0
         except Exception:
             return False
@@ -911,7 +903,7 @@ class Terraform:
 
             # Initialize the backend (if not already done for this project)
             Logger.info("Running terraform init")
-            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
+            rc = run(f"{FLAVOR} init -backend-config=\"{TFBackend.get_backend_path(components)}\"")
             if rc != 0:
                 # Try to init with reconfigure
                 response = input(f"The init of the backend for {components} failed. Do you want to try to reconfigure the backend? (y/N): ")
@@ -920,7 +912,7 @@ class Terraform:
                     exit(0)
                 
                 Logger.warning("Reconfiguring backend")
-                rc = run(f"{FLAVOR} init -reconfigure -backend-config=\"{TFBackend.get_backend_path(components)}\"", shell=True)
+                rc = run(f"{FLAVOR} init -reconfigure -backend-config=\"{TFBackend.get_backend_path(components)}\"")
                 if rc != 0:
                     raise Exception
             
@@ -931,7 +923,7 @@ class Terraform:
                 
             # Select the workspace based on the environment
             Logger.info(f"Selecting workspace: {self.environment}")
-            rc = run(f"{FLAVOR} workspace select {self.environment}", shell=True)
+            rc = run(f"{FLAVOR} workspace select {self.environment}")
             if rc != 0:
                 raise Exception
         except subprocess.CalledProcessError as e:
@@ -969,12 +961,12 @@ class Terraform:
         if generate_plan:
             # Generate plan
             Logger.info("Generating Terraform plan")
-            rc = run(f"cd \"{component_path}\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} plan {'' if is_apply else '-destroy'} -out=\"{PATH}/terraform/{component}-{self.environment}.tfplan\"", shell=True)
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} plan {'' if is_apply else '-destroy'} -out=\"{PATH}/terraform/{component}-{self.environment}.tfplan\"")
             if rc != 0:
                 raise Exception(f"Terraform plan failed for {component} ({action}), with return code: {rc}")
             
             # Store the plan as human-readable output (Allowing user to review it)
-            rc = run(f"cd \"{component_path}\" && {FLAVOR} show -no-color \"{PATH}/terraform/{component}-{self.environment}.tfplan\" > \"{PATH}/terraform/{component}-{self.environment}.plan.txt\"", shell=True)
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} show -no-color \"{PATH}/terraform/{component}-{self.environment}.tfplan\" > \"{PATH}/terraform/{component}-{self.environment}.plan.txt\"")
             if rc != 0:
                 raise Exception(f"Terraform show plan failed for {component} ({action}), with return code: {rc}")
             
@@ -988,7 +980,7 @@ class Terraform:
                     exit(0)
         
             # Run apply
-            rc = run(f"cd \"{component_path}\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} apply \"{PATH}/terraform/{component}-{self.environment}.tfplan\"", shell=True)
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} workspace select {self.environment} && {FLAVOR} apply \"{PATH}/terraform/{component}-{self.environment}.tfplan\"")
             
             # Remove the plan files
             os.remove(f"{PATH}/terraform/{component}-{self.environment}.tfplan")
@@ -997,7 +989,7 @@ class Terraform:
             os.rename(f"{PATH}/terraform/{component}-{self.environment}.plan.txt", f"{PATH}/terraform/{component}-{self.environment}.plan.txt.old")
         else:
             # Run apply directly
-            rc = run(f"cd \"{component_path}\" && {FLAVOR} {action} {'-auto-approve' if AUTO_APPLY else ''}", shell=True)
+            rc = run(f"cd \"{component_path}\" && {FLAVOR} {action} {'-auto-approve' if AUTO_APPLY else ''}")
         if rc != 0:
             raise Exception(f"Terraform {action} failed for {component}, with return code: {rc}")
     
@@ -1188,10 +1180,10 @@ class Terraform:
         
         # Remove kubeconfig
         try:
-            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.yml", shell=True)
+            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.yml")
             if rc != 0:
                 raise Exception
-            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.b64", shell=True)
+            rc = run(f"rm \"{PATH}\"/kube-config/kube-config.{self.environment}.b64")
             if rc != 0:
                 raise Exception
         except Exception:
@@ -1272,8 +1264,11 @@ CLI tool
 '''
 class CLI:
     def run(self):
+        Logger.info("Starting CTF-Pilot CLI")
+        Logger.info("Checking availability of requried tools")
         self.platform_check()
         self.tool_check()
+        Logger.success("Required Tools are available")
         
         args = Args()
         if args.parser is None:
@@ -1322,17 +1317,17 @@ class CLI:
             exit(1)
         
         # Check if curl is installed
-        if run("which curl", shell=False) != 0:
+        if run("which curl") != 0:
             Logger.error("curl is not installed. Please install curl and try again.")
             exit(1)
             
         # Check if base64 is installed
-        if run("which base64", shell=False) != 0:
+        if run("which base64") != 0:
             Logger.error("base64 is not installed. Please install base64 and try again.")
             exit(1)
         
         # Check if keygen is installed
-        if run("which ssh-keygen", shell=False) != 0:
+        if run("which ssh-keygen") != 0:
             Logger.error("ssh-keygen is not installed. Please install ssh-keygen and try again.")
             exit(1)
 
