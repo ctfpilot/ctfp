@@ -83,6 +83,8 @@ First you need to initialize the platform configuration for your desired environ
 > [!NOTE]
 > You can add `--test`, `--dev` or `--prod` to specify the environment you want to initialize.  
 > The default environment is `test` (`--test`).
+>
+> Used in all commands, except the `generate-images` command, as it asks for the Hetzner Cloud project to use when generating images.
 
 Next, you need to fill out the configuration located in the `automated.<env>.tfvars` file.
 
