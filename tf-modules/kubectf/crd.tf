@@ -11,7 +11,7 @@ resource "kubernetes_manifest" "crd" {
 
         plural   = "instanced-challenges"
         singular = "instanced-challenge"
-        kind     = "instancedChallenge"
+        kind     = "InstancedChallenge"
         shortNames = [
           "instanced-challenge"
         ]
