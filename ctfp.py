@@ -425,12 +425,12 @@ class InitializeTFVars(Command):
         return TFVARS.get_filename_tfvars(self.environment)
 
 '''
-Generate RSA keys
+Generate SSH keys
 '''
 class GenerateKeys(Command):
     name = "generate-keys"
-    help = "Generate RSA keys"
-    description = "Generate RSA keys"
+    help = "Generate SSH keys"
+    description = "Generate SSH keys"
     environment = "test"  # Default environment
 
     def register_subcommand(self):
@@ -451,7 +451,7 @@ class GenerateKeys(Command):
         elif args.prod:
             self.environment = "prod"
             
-        Logger.info("Generating RSA keys")
+        Logger.info("Generating SSH keys")
         try:
             rc = run([f"\"{PATH}\"/keys/create.sh \"{self.environment}\""], shell=True)
             if rc != 0:
