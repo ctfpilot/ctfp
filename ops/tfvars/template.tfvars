@@ -7,15 +7,13 @@ kubeconfig = "AA==" # The base64 encoded kubeconfig file (base64 -w 0 <file>)
 # Generic information
 # ------------------------
 environment            = "test"    # Deployment environment name for the CTF (i.e. prod, staging, dev, test)
-cluster_dns_management = "<dns>"   # The domain name to use for the DNS records for the management part of the cluster
-cluster_dns_ctf        = "<dns>"   # The domain name to use for the DNS records for the CTF part of the cluster
 email                  = "<email>" # Email to use for the ACME certificate
 discord_webhook_url    = "<url>"   # Discord webhook URL for sending alerts and notifications
 
 # ------------------------
 # Cloudflare variables
 # ------------------------
-cloudflare_api_token      = "<token>" # Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)
+cloudflare_api_token      = "<token>" # Cloudflare API Token for updating the DNS records (Zone.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)
 cloudflare_dns_management = "<dns>"   # The top level domain (TLD) to use for the DNS records for the management part of the cluster
 cloudflare_dns_platform   = "<dns>"   # The top level domain (TLD) to use for the DNS records for the platform part of the cluster
 cloudflare_dns_ctf        = "<dns>"   # The top level domain (TLD) to use for the DNS records for the CTF challenges part of the cluster
@@ -27,6 +25,12 @@ cluster_dns_management    = "<dns>"   # The specific domain name to use for the 
 filebeat_elasticsearch_host     = "<host>"     # The hostname of the Elasticsearch instance for Filebeat to send logs to. Must be a https 443 endpoint.
 filebeat_elasticsearch_username = "<username>" # The username for the Elasticsearch instance
 filebeat_elasticsearch_password = "<password>" # The password for the Elasticsearch instance
+
+# ------------------------
+# GitHub variables
+# ------------------------
+ghcr_username = "<username>" # GitHub Container Registry username
+ghcr_token    = "<token>"    # GitHub Container Registry token. This token is used to pull images from the GitHub Container Registry. Only let this token have registry read access
 
 # ----------------------
 # Prometheus configuration
@@ -70,7 +74,7 @@ traefik_basic_auth = { user = "<basic-username>", password = "<basic-password>" 
 
 # argocd_version                = "8.2.5"  # The version of the ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm
 # cert_manager_version          = "1.17.1" # The version of the Cert-Manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager
-# descheduler_version           = "1.34" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
+# descheduler_version           = "0.34.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
 # mariadb_operator_version      = "25.8.1" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
 # kube_prometheus_stack_version = "62.3.1" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
-# redis_operator_version        = "0.22.2" # The version of the Redus Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
+# redis_operator_version        = "0.22.2" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator

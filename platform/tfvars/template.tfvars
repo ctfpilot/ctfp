@@ -8,7 +8,7 @@ kubeconfig = "AA==" # Base64 encoded kubeconfig file
 # ------------------------
 environment            = "test"  # Environment name for the CTF
 cluster_dns_management = "<dns>" # The specific domain name to use for the DNS records for the management part of the cluster
-cluster_dns_ctf        = "<dns>" # The domain name to use for the DNS records for the CTF part of the cluster
+cluster_dns_platform   = "<dns>" # The domain name to use for the DNS records for the platform part of the cluster
 
 # ------------------------
 # GitHub variables
@@ -29,7 +29,6 @@ filebeat_elasticsearch_password = "<password>" # The password for Elasticsearch 
 # ----------------------
 kubectf_auth_secret = "<secret>" # The secret to use for the authSecret in the CTF configuration
 
-
 # ------------------------
 # DB configuration
 # ------------------------
@@ -47,7 +46,9 @@ s3_secret_key = "<secret_key>" # Secret key for S3 for backups
 # ------------------------
 # CTFd Manager configuration
 # ------------------------
-ctfd_manager_password = "<password>" # Password for the CTFd Manager
+ctfd_manager_password      = "<password>"   # Password for the CTFd Manager
+ctfd_manager_github_repo   = "<repository>" # Github repository used in the CTFd Manager. Env variable GITHUB_REPO. See https://github.com/ctfpilot/ctfd-manager
+ctfd_manager_github_branch = ""             # Github branch used in the CTFd Manager. Leave empty for environment based branch (environment == prod ? main : develop). Env variable GITHUB_BRANCH. See https://github.com/ctfpilot/ctfd-manager
 
 # ------------------------
 # CTFd configuration
@@ -109,7 +110,7 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 # You can override these values by uncommenting and setting your own images here.
 
 # image_ctfd_manager   = "ghcr.io/ctfpilot/ctfd-manager:1.0.1"     # Docker image for the CTFd Manager deployment
-# image_error_fallback = "ghcr.io/ctfpilot/error-fallback:1.2.1"  # Docker image for the error fallback deployment
+# image_error_fallback = "ghcr.io/ctfpilot/error-fallback:1.2.1"   # Docker image for the error fallback deployment
 # image_filebeat       = "docker.elastic.co/beats/filebeat:8.19.0" # Docker image for Filebeat
 # image_ctfd_exporter  = "ghcr.io/the0mikkel/ctfd-exporter:1.1.1"  # Docker image for the CTFd Exporter
 

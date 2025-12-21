@@ -1,6 +1,6 @@
 locals {
   instanced_challenges = var.challenges_instanced
-  shared_challenges    = var.challenges_static
+  shared_challenges    = var.challenges_shared
   static_challenges    = var.challenges_static
 
   challenges_branch = var.challenges_branch == "" ? local.env_branch : var.challenges_branch

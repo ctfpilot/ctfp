@@ -48,19 +48,19 @@ variable "git_token" {
   nullable    = false
 }
 
-variable "fluentd_elasticsearch_host" {
+variable "filebeat_elasticsearch_host" {
   type        = string
   nullable    = false
-  description = "The hostname of the Elasticsearch instance for Fluentd to send logs to. Must be a https 443 endpoint."
+  description = "The hostname of the Elasticsearch instance for Filebeat to send logs to. Must be a https 443 endpoint."
 }
 
-variable "fluentd_elasticsearch_username" {
+variable "filebeat_elasticsearch_username" {
   type        = string
   nullable    = false
   description = "The username for Elasticsearch authentication."
 }
 
-variable "fluentd_elasticsearch_password" {
+variable "filebeat_elasticsearch_password" {
   type        = string
   nullable    = false
   description = "The password for Elasticsearch authentication."
@@ -276,4 +276,5 @@ variable "mariadb_version" {
   type        = string
   description = "The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator"
   nullable    = false
+  default     = "25.8.1"
 }

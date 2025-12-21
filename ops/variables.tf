@@ -21,7 +21,7 @@ variable "email" {
 variable "cloudflare_api_token" {
   sensitive   = true # Requires terraform >= 0.14
   type        = string
-  description = "Cloudflare API Token for updating the DNS records (Zne.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
+  description = "Cloudflare API Token for updating the DNS records (Zone.Zone.Read and Zone.DNS.Edit permissions required for the two following domains)"
 }
 
 variable "cloudflare_dns_management" {
@@ -79,8 +79,8 @@ variable "filebeat_elasticsearch_password" {
 }
 
 variable "prometheus_storage_size" {
-  type = "string"
-  default = "15Gi"
+  type        = string
+  default     = "15Gi"
   description = "The size of the persistent volume claim for Prometheus data storage. Format: <size><unit> (e.g., 20Gi, 100Gi)"
 }
 
@@ -147,7 +147,7 @@ variable "cert_manager_version" {
 variable "descheduler_version" {
   type        = string
   description = "The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler"
-  default     = "1.34"
+  default     = "0.34.0"
 }
 
 variable "mariadb_operator_version" {
@@ -159,11 +159,11 @@ variable "mariadb_operator_version" {
 variable "kube_prometheus_stack_version" {
   type        = string
   description = "The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/"
-  default = "62.3.1"
+  default     = "62.3.1"
 }
 
 variable "redis_operator_version" {
-  type = string
-  description = "The version of the Redus Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
-  default = "0.22.2"
+  type        = string
+  description = "The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
+  default     = "0.22.2"
 }

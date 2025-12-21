@@ -1,7 +1,7 @@
 locals {
-  categories_standard = keys(local.shared_challenges)
-  categories_isolated = keys(local.instanced_challenges)
-  categories_config   = keys(local.static_challenges)
+  categories_config    = keys(local.static_challenges)
+  categories_shared    = keys(local.shared_challenges)
+  categories_instanced = keys(local.instanced_challenges)
 }
 
 module "argocd_project_shared" {
@@ -106,7 +106,7 @@ module "repo_access_config" {
 module "shared_challenges" {
   source = "./challenges"
 
-  for_each = toset(local.categories_standard)
+  for_each = toset(local.categories_shared)
 
   revision   = local.branch
   category   = each.key
@@ -138,7 +138,7 @@ module "shared_challenges" {
 module "instanced_challenges" {
   source = "./challenges"
 
-  for_each = toset(local.categories_isolated)
+  for_each = toset(local.categories_instanced)
 
   revision   = local.branch
   category   = each.key
