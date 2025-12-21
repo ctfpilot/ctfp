@@ -884,7 +884,7 @@ class Terraform:
         :return: True if installed, False otherwise
         '''
         try:
-            rc = run(f"{FLAVOR} version", shell=True)
+            rc = run(f"{FLAVOR} version", shell=False)
             return rc == 0
         except Exception:
             return False
@@ -1322,17 +1322,17 @@ class CLI:
             exit(1)
         
         # Check if curl is installed
-        if run("which curl", shell=True) != 0:
+        if run("which curl", shell=False) != 0:
             Logger.error("curl is not installed. Please install curl and try again.")
             exit(1)
             
         # Check if base64 is installed
-        if run("which base64", shell=True) != 0:
+        if run("which base64", shell=False) != 0:
             Logger.error("base64 is not installed. Please install base64 and try again.")
             exit(1)
         
         # Check if keygen is installed
-        if run("which ssh-keygen", shell=True) != 0:
+        if run("which ssh-keygen", shell=False) != 0:
             Logger.error("ssh-keygen is not installed. Please install ssh-keygen and try again.")
             exit(1)
 
