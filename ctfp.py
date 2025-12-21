@@ -701,12 +701,8 @@ class TFVARS:
         :param environment: The environment name (test, dev, prod)
         :return: The filename for the tfvars file
         '''
-        
-        prefix = ""
-        if environment != "test":
-            prefix = f"{environment}."
 
-        return f"automated.{prefix}tfvars"
+        return f"automated.{environment}.tfvars"
     
     @staticmethod
     def load_tfvars(file_path: str):
