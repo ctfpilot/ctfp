@@ -122,6 +122,41 @@ source kubectl.sh [test|dev|prod]
 
 *`source` is required to set the environment variables in your current shell session.*
 
+## Architecture
+
+The CTFp platform is composed of four main components, each responsible for different aspects of the platform's functionality:
+
+1. **Cluster Component**: Responsible for provisioning and managing the underlying Kubernetes cluster infrastructure on Hetzner Cloud. This includes setting up the necessary servers, networking, and storage resources required for the cluster to operate.
+   This can be found in the [`cluster`](./cluster) directory, and as the `cluster` components in the CLI tool.
+2. **Ops Component**: Focuses on deploying and managing the operational tools and monitoring systems for the platform. This includes setting up ArgoCD, monitoring, logging, ingress controllers, and other essential services that ensure the smooth operation of the platform.
+   This can be found in the [`ops`](./ops) directory, and as the `ops` components in the CLI tool.
+3. **Platform Component**: Handles the deployment and configuration of the CTFd scoreboard and its associated services. This includes setting up the database, caching, and storage solutions required for the scoreboard to function effectively.
+   This can be found in the [`platform`](./platform) directory, and as the `platform` components in the CLI tool.
+4. **Challenges Component**: Manages the deployment and configuration of the CTF challenges. This includes setting up the necessary resources and configurations to host and manage the challenges securely and efficiently.
+   This can be found in the [`challenges`](./challenges) directory, and as the `challenges` components in the CLI tool.
+
+Each component is designed to be modular and can be deployed independently or together, allowing for flexibility in managing the platform's infrastructure and services.
+
+### Directory structure
+
+The CTFp repository is structured as follows:
+
+```txt
+ctfp/
+├── backend/           # Terraform backend configurations
+├── keys/              # Generated SSH keys
+├── terraform/         # Terraform plans
+├── tf-modules/        # Reusable Terraform modules
+├── cluster/           # Cluster component Terraform configurations
+├── ops/               # Ops component Terraform configurations
+├── platform/          # Platform component Terraform configurations
+├── challenges/        # Challenges component Terraform configurations
+├── ctfp.py            # CTFp CLI tool
+├── kubectl.sh         # Script for configuring kubectl context
+├── README.md          # This README file
+└── ...                # Other files and directories
+```
+
 ## Pre-requisites
 
 In order to even deploy the platform, the following software needs to be installed on your local machine:
