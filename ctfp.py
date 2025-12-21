@@ -11,6 +11,7 @@ import sys
 import argparse
 import time
 import subprocess
+import shutil
 
 # Terraform parser - https://github.com/amplify-education/python-hcl2
 import hcl2
@@ -414,9 +415,7 @@ class InitializeTFVars(Command):
         
         # Clone the template to the destination
         try:
-            os_output = os.system(f"cp {template} {destination}")
-            if os_output != 0:
-                raise Exception
+            shutil.copyfile(template, destination)
         except Exception:
             Logger.error(f"Failed to initialize {self.get_filename_tfvars()}")
         Logger.success(f"{self.get_filename_tfvars()} initialized successfully")
@@ -1274,6 +1273,7 @@ CLI tool
 class CLI:
     def run(self):
         self.platform_check()
+        self.tool_check()
         
         args = Args()
         if args.parser is None:
@@ -1313,6 +1313,27 @@ class CLI:
         # Check if system is linux and if bash is available
         if sys.platform != "linux" or not os.path.exists("/bin/bash"):
             Logger.error("This script requires Linux and bash")
+            exit(1)
+
+    def tool_check(self):
+        # Check if Terraform is installed
+        if not Terraform.is_installed():
+            Logger.error("Terraform is not installed. Please install Terraform and try again.")
+            exit(1)
+        
+        # Check if curl is installed
+        if run("which curl", shell=True) != 0:
+            Logger.error("curl is not installed. Please install curl and try again.")
+            exit(1)
+            
+        # Check if base64 is installed
+        if run("which base64", shell=True) != 0:
+            Logger.error("base64 is not installed. Please install base64 and try again.")
+            exit(1)
+        
+        # Check if keygen is installed
+        if run("which ssh-keygen", shell=True) != 0:
+            Logger.error("ssh-keygen is not installed. Please install ssh-keygen and try again.")
             exit(1)
 
 if __name__ == "__main__":    
