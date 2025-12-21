@@ -255,10 +255,8 @@ class Logger:
         print("")
 
 
-# Sanitize path
-PATH = PATH.replace(" ", "\\ ").replace("\"", "\\\"").replace("'", "\\'")
-# Check if PATH contains special characters
-for char in ['&', ';', '$', '>', '<', '|', '`', '!', '*', '?', '(', ')', '[', ']', '{', '}', '~']:
+# Validate PATH: reject if it contains special characters that may break shell commands
+for char in [' ', '"', "'", '&', ';', '$', '>', '<', '|', '`', '!', '*', '?', '(', ')', '[', ']', '{', '}', '~']:
     if char in PATH:
         Logger.error(f"Path to script contains special character '{char}'. Please move the script to a path without special characters")
         exit(1)
