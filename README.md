@@ -20,6 +20,19 @@ CTFp provides a CLI tool for managing the deployment of the platform, but it is 
 
 This platform deploys real world infrastructure, and will incur costs when deployed.
 
+## Table of Contents
+
+- [Features](#features)
+- [Quick start](#quick-start)
+- [How to run](#how-to-run)
+  - [Pre-requisites](#pre-requisites)
+- [Architecture](#architecture)
+  - [Directory structure](#directory-structure)
+- [Contributing](#contributing)
+- [Background](#background)
+- [License](#license)
+- [Code of Conduct](#code-of-conduct)
+
 ## Features
 
 CTFp offers a wide range of features to facilitate the deployment and management of CTF competitions. Below is an overview of the key features:
@@ -122,42 +135,9 @@ source kubectl.sh [test|dev|prod]
 
 *`source` is required to set the environment variables in your current shell session.*
 
-## Architecture
+## How to run
 
-The CTFp platform is composed of four main components, each responsible for different aspects of the platform's functionality:
-
-1. **Cluster Component**: Responsible for provisioning and managing the underlying Kubernetes cluster infrastructure on Hetzner Cloud. This includes setting up the necessary servers, networking, and storage resources required for the cluster to operate.
-   This can be found in the [`cluster`](./cluster) directory, and as the `cluster` components in the CLI tool.
-2. **Ops Component**: Focuses on deploying and managing the operational tools and monitoring systems for the platform. This includes setting up ArgoCD, monitoring, logging, ingress controllers, and other essential services that ensure the smooth operation of the platform.
-   This can be found in the [`ops`](./ops) directory, and as the `ops` components in the CLI tool.
-3. **Platform Component**: Handles the deployment and configuration of the CTFd scoreboard and its associated services. This includes setting up the database, caching, and storage solutions required for the scoreboard to function effectively.
-   This can be found in the [`platform`](./platform) directory, and as the `platform` components in the CLI tool.
-4. **Challenges Component**: Manages the deployment and configuration of the CTF challenges. This includes setting up the necessary resources and configurations to host and manage the challenges securely and efficiently.
-   This can be found in the [`challenges`](./challenges) directory, and as the `challenges` components in the CLI tool.
-
-Each component is designed to be modular and can be deployed independently or together, allowing for flexibility in managing the platform's infrastructure and services.
-
-### Directory structure
-
-The CTFp repository is structured as follows:
-
-```txt
-ctfp/
-├── backend/           # Terraform backend configurations
-├── keys/              # Generated SSH keys
-├── terraform/         # Terraform plans
-├── tf-modules/        # Reusable Terraform modules
-├── cluster/           # Cluster component Terraform configurations
-├── ops/               # Ops component Terraform configurations
-├── platform/          # Platform component Terraform configurations
-├── challenges/        # Challenges component Terraform configurations
-├── ctfp.py            # CTFp CLI tool
-├── kubectl.sh         # Script for configuring kubectl context
-├── README.md          # This README file
-└── ...                # Other files and directories
-```
-
-## Pre-requisites
+### Pre-requisites
 
 In order to even deploy the platform, the following software needs to be installed on your local machine:
 
@@ -175,6 +155,48 @@ And the following is required in order to deploy the platform:
 - [Cloudflare](https://www.cloudflare.com/) account
 - [Cloudflare API Token](https://dash.cloudflare.com/profile/api-tokens) - For authenticating with the Cloudflare API
 - [3 Cloudflare controlled domains](https://dash.cloudflare.com/) - For allowing the system to allocate a domain for the Kubernetes cluster. Used to allocate management, platform and challenge domains.
+
+
+## Architecture
+
+The CTFp platform is composed of four main components, each responsible for different aspects of the platform's functionality:
+
+1. **Cluster**: Responsible for provisioning and managing the underlying Kubernetes cluster infrastructure on Hetzner Cloud. This includes setting up the necessary servers, networking, and storage resources required for the cluster to operate.
+   This can be found in the [`cluster`](./cluster) directory, and as the `cluster` component in the CLI tool.
+2. **Ops** (Operations): Focuses on deploying and managing the operational tools and monitoring systems for the platform. This includes setting up ArgoCD, monitoring, logging, ingress controllers, and other essential services that ensure the smooth operation of the platform.
+   This can be found in the [`ops`](./ops) directory, and as the `ops` component in the CLI tool.
+3. **Platform**: Handles the deployment and configuration of the CTFd scoreboard and its associated services. This includes setting up the database, caching, and storage solutions required for the scoreboard to function effectively.
+   This can be found in the [`platform`](./platform) directory, and as the `platform` component in the CLI tool.
+4. **Challenges**: Manages the deployment and configuration of the CTF challenges. This includes setting up the necessary resources and configurations to host and manage the challenges securely and efficiently.
+   This can be found in the [`challenges`](./challenges) directory, and as the `challenges` component in the CLI tool.
+
+Each component is designed to be modular and can be deployed independently or together, allowing for flexibility in managing the platform's infrastructure and services.
+
+### Directory structure
+
+The CTFp repository is structured as follows:
+
+```txt
+ctfp/
+├── backend/                   # Terraform backend configurations
+├── keys/                      # Generated SSH keys
+├── terraform/                 # Terraform plans
+├── tf-modules/                # Reusable Terraform modules
+├── cluster/                   # Cluster component Terraform configurations
+├── ops/                       # Ops component Terraform configurations
+├── platform/                  # Platform component Terraform configurations
+├── challenges/                # Challenges component Terraform configurations
+├── ctfp.py                    # CTFp CLI tool
+├── kubectl.sh                 # Script for configuring kubectl context
+├── README.md                  # This README file
+├── requirements.txt           # Python dependencies for the CLI tool
+├── template.automated.tfvars  # Template for CTFp CLI configuration
+└── ...                        # Other files and directories, such as license, contributing guidelines, etc.
+```
+
+### CTFp
+
+### CLI Tool
 
 ## Contributing
 
