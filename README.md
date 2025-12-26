@@ -42,6 +42,9 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Workflow Overview](#workflow-overview)
     - [Guides](#guides)
       - [Updating sizes of nodes in a running platform](#updating-sizes-of-nodes-in-a-running-platform)
+      - [Deploying a new challenge](#deploying-a-new-challenge)
+      - [Updating a challenge](#updating-a-challenge)
+      - [Deplyoing a page](#deplyoing-a-page)
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
   - [Getting help](#getting-help)
@@ -549,6 +552,113 @@ You may need to manually intervene to resize existing nodes if required, or dele
 
 Hetzner does not support downsizing nodes, if they were initially created with a larger size.  
 In such cases, the nodes will need to be deleted, forcing the system to create new nodes with the desired size.
+
+#### Deploying a new challenge
+
+To deploy a new challenge, you will need to add the challenge to the configuration file, and then deploy the changes to the platform.
+
+Challenges are split into three types:
+
+- `static` - Static challenge, often with a handout (files, puzzles, etc.).
+- `shared` - Challenge with a single instance for all teams to connect to.
+- `instanced` - Challenge with individual instances for each team.
+
+The challenge should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenge Schema](https://github.com/ctfpilot/challenge-schema).
+
+In the configuration file, you will need to add the challenge under the `Challenges configuration` section.
+
+For static files, add the challenge under the `challenges_static` list:
+
+```hcl
+challenges_static = {
+  <category> = [
+    "<challenge-slug>"
+  ]
+}
+```
+
+For shared challenges, add the challenge under the `challenges_shared` list:
+
+```hcl
+challenges_shared = {
+  <category> = [
+    "<challenge-slug>"
+  ]
+}
+```
+
+For instanced challenges, add the challenge under the `challenges_instanced` list:
+
+```hcl
+challenges_instanced = {
+  <category> = [
+    "<challenge-slug>"
+  ]
+}
+```
+
+An example of this, using the [`CTF Pilot's Challenges example repository`](https://github.com/ctfpilot/challenges-example), would look like this:
+
+```hcl
+challenges_static = {
+  forensics = ["oh-look-a-flag"],
+}
+challenges_shared = {
+  web = ["the-shared-site"],
+}
+challenges_instanced = {
+  web  = ["where-robots-cannot-search"],
+  misc = ["a-true-connection"],
+}
+```
+
+In order to deploy the new challenge, you need to deploy the `challenges` component using the CLI tool:
+
+```bash
+./ctfp.py deploy challenges --<env>
+```
+
+Removing a challenge required you to remove it from the configuration file, and then deploy the `challenges` component again.
+
+Challenge changes are automatically and continuously deployed through ArgoCD, so no manual intervention is required after the initial deployment.
+
+#### Updating a challenge
+
+Challenge updates are handled through the Git repository containing the challenges.
+
+If a challenges slug has been changed, you need to remove the old slug from the configuration file, and add the new slug.
+For this, follow the [Deploying a new challenge](#deploying-a-new-challenge) guide.
+
+#### Deplyoing a page
+
+To deploy a new page to CTFd, you will need to add the page to a Git repository that should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit).  
+You can see the page schema in the [CTF Pilot's Page Schema](https://github.com/ctfpilot/page-schema).
+
+In the configuration file, you will need to add the page under the `Pages configuration` section.
+
+For pages, add the page under the `pages` list:
+
+```hcl
+pages = [
+  "<page-slug>"
+]
+```
+
+An example of this, using the [`CTF Pilot's Challenges example repository`](https://github.com/ctfpilot/challenges-example), would look like this:
+
+```hcl
+pages = ["index"]
+```
+
+In order to deploy the new page, you need to deploy the `platform` component using the CLI tool:
+
+```bash
+./ctfp.py deploy platform --<env>
+```
+
+To remove a page, you need to remove it from the configuration file, and then deploy the `platform` component again.
+
+Page changes are automatically and continuously deployed through ArgoCD, so no manual intervention is required after the initial deployment.
 
 ## Architecture
 
