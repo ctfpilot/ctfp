@@ -891,6 +891,9 @@ class Terraform:
         try:
             # Check if tfvars file exists and is valid
             self.check_values()
+            
+            # Load backend connection credentials
+            self.load_backend_credentials()
         
             # Check if backend config exists
             if not TFBackend.backend_exists(components):
@@ -1028,7 +1031,7 @@ class Terraform:
         
         # Check if fields include "<" or ">"
         def check_placeholders(value):
-            if isinstance(value, str) and value.startswith("<") and value.endswith(">"):
+            if isinstance(value, str) and (value.startswith("<") or value.startswith("https://github.com/<")) and value.endswith(">"):
                 return True
             elif isinstance(value, dict):
                 for v in value.values():
@@ -1045,6 +1048,25 @@ class Terraform:
                 exit(1)
 
         Logger.info(f"{self.get_filename_tfvars()} is filled out correctly")
+
+
+    def load_backend_credentials(self):
+        '''
+        Load S3 backend credentials from automated.tfvars, to set Terraform S3 connection credentials
+        '''
+        
+        # Load tfvars file
+        tfvars_data = TFVARS.safe_load_tfvars(self.get_path_tfvars())
+        
+        # Set environment variables for S3 backend
+        os.environ["AWS_ACCESS_KEY_ID"] = tfvars_data.get("terraform_backend_s3_access_key", "")
+        os.environ["AWS_SECRET_ACCESS_KEY"] = tfvars_data.get("terraform_backend_s3_secret_key", "")
+        
+        if os.environ["AWS_ACCESS_KEY_ID"] == "" or os.environ["AWS_SECRET_ACCESS_KEY"] == "":
+            Logger.error("S3 backend credentials not found in automated.tfvars. Please fill out terraform_backend_s3_access_key and terraform_backend_s3_secret_key as they are required to run the Terraform components.")
+            exit(1)
+        
+        Logger.info(f"S3 backend credentials loaded")
 
     def cluster_deploy(self):
         Logger.info("Deploying the cluster")
@@ -1261,10 +1283,6 @@ CLI tool
 class CLI:
     def run(self):
         Logger.info("Starting CTF-Pilot CLI")
-        Logger.info("Checking availability of requried tools")
-        self.platform_check()
-        self.tool_check()
-        Logger.success("Required Tools are available")
         
         args = Args()
         if args.parser is None:
@@ -1293,6 +1311,11 @@ class CLI:
         if not hasattr(namespace, "func"):
             args.print_help()
             exit(1)
+        
+        Logger.info("Checking availability of required tools")
+        self.platform_check()
+        self.tool_check()
+        Logger.success("Required Tools are available")
         
         # Run the subcommand
         try:

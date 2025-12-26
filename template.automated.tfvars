@@ -3,6 +3,14 @@
 # This file (`template.automated.tfvars`) is git tracked, and MUST NOT be changed in the repository to include sensitive information.
 
 # ------------------------
+# CLI Tool configuration
+# ------------------------
+# The following variables are used by the CLI tool to configure the backend connection.
+# Specifically setting the credentials to access the Terraform S3 backend.
+terraform_backend_s3_access_key = "<access_key>" # Access key for the S3 backend
+terraform_backend_s3_secret_key = "<secret_key>" # Secret key for the S3 backend
+
+# ------------------------
 # Cluster configuration
 # ------------------------
 # WARNING: Changing region while the cluster is running will cause all servers in the group to be destroyed and recreated.
