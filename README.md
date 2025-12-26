@@ -227,7 +227,7 @@ Changing these options may lead to instability or data loss, and should be done 
 > For example: `./ctfp.py deploy --help`
 >
 > Available commands:
-> 
+>
 > - `init` - Initialize Platform Configuration
 > - `generate-keys` - Generate SSH Keys
 > - `insert-keys` - Insert SSH Keys into Configuration
@@ -308,6 +308,7 @@ Manually inserts previously generated SSH keys into the configuration file. Usef
 - `--prod`: Insert keys for PROD environment
 
 **Example:**
+
 ```bash
 ./ctfp.py insert-keys --test
 ./ctfp.py insert-keys --prod
@@ -468,22 +469,32 @@ When updating the sizes of nodes in an existing cluster, it is important to foll
 Below are the steps to update the sizes of nodes in an existing cluster:
 
 1. **Drain the Node Pool**: Before making any changes, drain the node pool that you intend to update. This will safely evict all workloads from the nodes in the pool, allowing them to be rescheduled on other nodes in the cluster.
+
     ```bash
+    # List nodes
+    kubectl get nodes
+
+    # Drain each node in the node pool
     kubectl drain <node-name> --ignore-daemonsets --delete-local-data
     ```
+
    *You will need to repeat this for each node in the node pool. You can use tools such as [`draino`](https://github.com/planetlabs/draino) to automate this process.*
 
 2. **Update the Configuration**: Modify the `automated.<env>.tfvars` file to reflect the new sizes for the nodes in the node pool. Ensure that you only change the sizes for the specific node pool you are updating.
 3. **Deploy the Changes**: Use the CTFp CLI tool to deploy the changes to the cluster. This will apply the updated configuration and resize the nodes in the specified node pool.
+
     ```bash
     ./ctfp.py deploy cluster --<env>
     ```
+
    *Replace `<env>` with the appropriate environment flag (`--test`, `--dev`, or `--prod`).*
 4. **Monitor the Deployment**: Keep an eye on the deployment process to ensure that the nodes are resized correctly and that there are no issues. You can use `kubectl get nodes` to check the status of the nodes in the cluster.
 5. **Uncordon the Node Pool**: Once the nodes have been resized and are ready, uncordon the node pool to allow workloads to be scheduled on the nodes again.
+
     ```bash
     kubectl uncordon <node-name>
     ```
+
    *Repeat this for each node in the node pool.*
 6. **Verify the Changes**: Finally, verify that the workloads are running correctly on the resized nodes and that there are no issues in the cluster.
 7. **Repeat for Other Node Pools**: If you have multiple node pools to update, repeat the above steps for each node pool, one at a time.
