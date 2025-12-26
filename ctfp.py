@@ -1068,6 +1068,10 @@ class Terraform:
         os.environ["AWS_ACCESS_KEY_ID"] = tfvars_data.get("terraform_backend_s3_access_key", "")
         os.environ["AWS_SECRET_ACCESS_KEY"] = tfvars_data.get("terraform_backend_s3_secret_key", "")
         
+        if os.environ["AWS_ACCESS_KEY_ID"] == "" or os.environ["AWS_SECRET_ACCESS_KEY"] == "":
+            Logger.error("S3 backend credentials not found in automated.tfvars. Please fill out terraform_backend_s3_access_key and terraform_backend_s3_secret_key as they are required to run the Terraform components.")
+            exit(1)
+        
         Logger.info(f"S3 backend credentials loaded")
 
     def cluster_deploy(self):
