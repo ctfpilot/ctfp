@@ -30,6 +30,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Pre-requisites](#pre-requisites)
     - [Environments](#environments)
     - [Configuring the platform](#configuring-the-platform)
+    - [CLI Tool](#cli-tool)
     - [Commands](#commands)
       - [`init` - Initialize Platform Configuration](#init---initialize-platform-configuration)
       - [`generate-keys` - Generate SSH Keys](#generate-keys---generate-ssh-keys)
@@ -44,7 +45,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
     - [CTFp](#ctfp)
-    - [CLI Tool](#cli-tool)
+    - [CLI Tool](#cli-tool-1)
   - [Contributing](#contributing)
   - [Background](#background)
   - [License](#license)
@@ -163,6 +164,8 @@ In order to even deploy the platform, the following software needs to be install
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - For interacting with the Kubernetes cluster
 - [hcloud cli tool](https://github.com/hetznercloud/cli) - For interacting with the Hetzner Cloud API (Otherwise use the Hetzner web interface)
 - SSH client - For connecting to the servers
+- Python 3 - For running the CTFp CLI tool
+- Python package [`python-hcl2`](https://github.com/amplify-education/python-hcl2) - Required by the CTFp CLI tool for parsing Terraform configuration files
 
 And the following is required in order to deploy the platform:
 
@@ -220,6 +223,42 @@ Each component is not fully configurable, and may in certain situation required 
 These options are either intended to be static, or require manual configuration through the individual Terraform components.  
 Changing these options may lead to instability or data loss, and should be done with caution.
 
+### CLI Tool
+
+The CTFp CLI tool is a Python script that can be executed directly from the command line, and manages the deployment and lifecycle of the CTFp platform.
+
+**Prerequisites:**
+
+1. Install required Python dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   This installs `python-hcl2`, which is required for parsing Terraform configuration files.
+
+2. Ensure the script has executable permissions:
+
+   ```bash
+   chmod +x ctfp.py
+   ```
+
+**Running commands:**
+
+You can now run commands directly:
+
+```bash
+./ctfp.py <command> [options]
+```
+
+Alternatively, you can always run it explicitly with Python:
+
+```bash
+python3 ctfp.py <command> [options]
+```
+
+Both methods are functionally equivalent. The direct execution method (first example) is more convenient for regular use.
+
 ### Commands
 
 > [!TIP]
@@ -236,7 +275,6 @@ Changing these options may lead to instability or data loss, and should be done 
 > - `deploy` - Deploy Platform Components
 > - `destroy` - Destroy Platform Components
 
-The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform.  
 Below is a detailed overview of each available command:
 
 #### `init` - Initialize Platform Configuration
