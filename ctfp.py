@@ -1318,7 +1318,7 @@ class CLI:
             args.print_help()
             exit(1)
         
-        Logger.info("Checking availability of requried tools")
+        Logger.info("Checking availability of required tools")
         self.platform_check()
         self.tool_check()
         Logger.success("Required Tools are available")
