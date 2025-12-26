@@ -38,7 +38,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
       - [`generate-backend` - Generate Terraform Backend Configuration](#generate-backend---generate-terraform-backend-configuration)
       - [`deploy` - Deploy Platform Components](#deploy---deploy-platform-components)
       - [`destroy` - Destroy Platform Components](#destroy---destroy-platform-components)
-    - [Workflow Diagram](#workflow-diagram)
+    - [Workflow Overview](#workflow-overview)
     - [Guides](#guides)
       - [Updating sizes of nodes in an existing cluster](#updating-sizes-of-nodes-in-an-existing-cluster)
   - [Architecture](#architecture)
@@ -431,118 +431,30 @@ Destroys one or more components of the platform. This is the reverse of `deploy`
 
 **Destruction Order:** When destroying `all`, components are destroyed in reverse order: `challenges` → `platform` → `ops` → `cluster`. This ensures dependencies are properly cleaned up.
 
+### Workflow Overview
 
+The workflow for deploying and managing CTFp can be summarized in the following key phases:
 
-### Workflow Diagram
+1. **Setup Phase**:
+   - Clone the repository and generate backend configurations.
 
-The following Mermaid diagram shows the typical workflow for deploying and managing CTFp, with the sequence of commands and their relationships:
+2. **Preparation Phase**:
+   - Generate custom server images (one-time setup per Hetzner project).
+   - Generate SSH keys.
+   - Create needed pre-requisites.
+   - Configure the platform using the `automated.<env>.tfvars` file.
 
-```mermaid
-graph TD
-    A["🚀 Clone Repository<br/>git clone https://github.com/ctfpilot/ctfp"] --> B["⚙️ Initialize Config<br/>./ctfp.py init"]
-    B --> C["✏️ Edit Configuration<br/>Fill in tfvars file"]
-    C --> D["🔑 Generate SSH Keys<br/>./ctfp.py generate-keys --insert<br/><br/>[One-time per environment]"]
-    
-    D --> E["🖼️ Generate Images<br/>./ctfp.py generate-images<br/><br/>[One-time per Hetzner project, 5-15 min]"]
-    E --> F["📋 Generate Backends<br/>./ctfp.py generate-backend<br/>(for each component)<br/><br/>[One-time for tool setup]"]
-    
-    F --> G{{"Choose Deployment Method"}}
-    G -->|All Components| H["📦 Deploy All<br/>./ctfp.py deploy all<br/><br/>Reviews plans for each component<br/>then deploys in sequence"]
-    H --> H1["Cluster → Ops → Platform → Challenges"]
-    H1 --> J
-    
-    G -->|Individual| I1["📦 Deploy Cluster<br/>./ctfp.py deploy cluster"]
-    I1 -->|Review & Apply| I2["🛠️ Deploy Ops<br/>./ctfp.py deploy ops"]
-    I2 -->|Review & Apply| I3["🎯 Deploy Platform<br/>./ctfp.py deploy platform"]
-    I3 -->|Review & Apply| I4["🎮 Deploy Challenges<br/>./ctfp.py deploy challenges"]
-    I4 --> J
-    
-    J["🔌 Configure kubectl<br/>source kubectl.sh"] --> K["✅ LIVE CTF ENVIRONMENT<br/><br/>Monitor via:<br/>ArgoCD · Grafana · Prometheus<br/>kubectl · Elasticsearch"]
-    
-    K -->|Ongoing| L["🟢 Monitor & Operate<br/>Manage challenges & users"]
-    L -->|Updates| M["🔄 Redeploy Component<br/>Edit tfvars + deploy [component]"]
-    M --> K
-    
-    L -->|Issues| N["🔍 Troubleshoot<br/>Check logs, metrics, events"]
-    N -->|Resolved| K
-    N -->|Rollback| O["↩️ Revert Config<br/>Edit tfvars + redeploy"]
-    O --> K
-    
-    K -->|CTF Complete| P["🧹 Destroy All<br/>./ctfp.py destroy all<br/><br/>or individually in reverse order:<br/>challenges → platform → ops → cluster"]
-    P --> Q["✨ Clean Environment<br/>All resources destroyed"]
-    
-    style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px,color:#000
-    style B fill:#e1f5ff,stroke:#01579b,stroke-width:2px,color:#000
-    style C fill:#e1f5ff,stroke:#01579b,stroke-width:2px,color:#000
-    style D fill:#bbdefb,stroke:#01579b,stroke-width:2px,color:#000
-    style E fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
-    style F fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
-    style G fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
-    style H fill:#d1c4e9,stroke:#4a148c,stroke-width:2px,color:#000
-    style H1 fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
-    style I1 fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
-    style I2 fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
-    style I3 fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
-    style I4 fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
-    style J fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
-    style K fill:#a5d6a7,stroke:#1b5e20,stroke-width:3px,color:#000
-    style L fill:#a5d6a7,stroke:#1b5e20,stroke-width:2px,color:#000
-    style M fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
-    style N fill:#ffcc80,stroke:#e65100,stroke-width:2px,color:#000
-    style O fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
-    style P fill:#ffccbc,stroke:#bf360c,stroke-width:2px,color:#000
-    style Q fill:#f8bbd0,stroke:#880e4f,stroke-width:2px,color:#000
-```
+3. **Deployment Phase**:
+   - Deploy components in sequence: `Cluster → Ops → Platform → Challenges`.
+   - Use `deploy all` for automated deployment or deploy components individually.
 
-**Workflow Phases:**
+4. **Live Operations**:
+   - Monitor the platform using tools like ArgoCD, Grafana, and Prometheus.
+   - Manage challenges, and apply updates as needed.
 
-1. **Setup Phase** (Light Blue) - One-time per environment
-   - Clone repository and initialize configuration
-   - Generate SSH keys for cluster access
-2. **Preparation Phase** (Orange) - One-time setup
-   - **Generate Images**: One-time per Hetzner Cloud project (5-15 min)
-   - **Generate Backends**: One-time tool setup for Terraform state management
-3. **Deployment Phase** (Purple/Green) - Per environment deployment
-   - **Option A - Deploy All**: Reviews plans for all components, then deploys automatically in sequence
-   - **Option B - Individual**: Deploy components one-by-one with manual review between each
-   - Deployment order: Cluster → Ops → Platform → Challenges
-4. **Live Operations** (Green) - Ongoing CTF management
-   - Monitor infrastructure and platform health
-   - Deploy configuration updates and new challenges
-   - Troubleshoot issues and rollback when needed
-5. **Teardown Phase** (Red) - Cleanup after CTF
-   - Destroy all components in reverse order
-   - Use `destroy all` or destroy individual components
-
-**Key Decision Points:**
-
-- **Deploy all vs. individual**: 
-  - `deploy all`: Reviews all plans upfront, then deploys everything automatically in sequence (faster, recommended)
-  - Individual deploys: Full control with manual intervention between each component (slower, for careful deployments)
-- **Live operations**: 
-  - Configuration changes apply on next deployment
-  - Rollback by reverting configuration files and redeploying
-
-**Quick Reference:**
-
-| Phase      | Time     | Command                      | Frequency                       |
-| ---------- | -------- | ---------------------------- | ------------------------------- |
-| Setup      | ~5 min   | `init`, `generate-keys`      | Once per environment            |
-| Images     | 5-15 min | `generate-images`            | Once per Hetzner Cloud project  |
-| Backends   | ~1 min   | `generate-backend` (4x)      | Once for tool setup             |
-| Deploy     | ~20 min  | `deploy all` OR `deploy [x]` | Per environment (Test/Dev/Prod) |
-| Management | Ongoing  | `kubectl`, ArgoCD, Grafana   | As needed during CTF            |
-| Teardown   | ~15 min  | `destroy all`                | After CTF completion            |
-
-**Key Points:**
-
-- 🔑 **SSH keys** generated once per environment (test/dev/prod)
-- 🖼️ **Custom images** generated once per Hetzner Cloud project (shared across all environments)
-- 📋 **Backend configuration** generated once for the tool (stores Terraform state)
-- 🚀 **`deploy all`** still allows plan review before applying, but proceeds automatically after approval
-- 🔄 Configuration changes require editing tfvars and redeploying the affected component
-- ⚠️ Use `source kubectl.sh [env]` with `source` to properly set environment variables
-- 🛡️ Always review Terraform plans before applying—never use `--auto-apply` in production
+5. **Teardown Phase**:
+   - Destroy components in reverse order: `Challenges → Platform → Ops → Cluster`.
+   - Use `destroy all` for automated teardown or destroy components individually.
 
 ### Guides
 
