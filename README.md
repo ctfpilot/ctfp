@@ -3,10 +3,10 @@
 > [!TIP]
 > If you are looking for **how to build challenges for CTFp**, please check out the **[CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template)** and **[CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit)** repositories.
 
-CTFp (CTF Pilot's CTF Platform) is a CTF plaform designed to host large-scale Capture The Flag (CTF) competitions, with focus on scalability, resilience and ease of use.  
+CTFp (CTF Pilot's CTF Platform) is a CTF platform designed to host large-scale Capture The Flag (CTF) competitions, with focus on scalability, resilience and ease of use.  
 The platform uses Kubernetes as the underlying orchestration system, where both the management, scoreboard and challenge infrastructure are deployed as Kubernetes resources. It then leverages GitOps through [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) for managing the platform's configuration and deployments, including the CTF challenges.
 
-CTFp acts as the orchestration layer for deploying and managing the platform, while utilizing a varirety of CTF Pilots components for providing the full functionality of the platform.
+CTFp acts as the orchestration layer for deploying and managing the platform, while utilizing a variety of CTF Pilots components for providing the full functionality of the platform.
 
 CTFp provides a CLI tool for managing the deployment of the platform, but it is possible to use the individual Terraform components directly if desired. To further work with the platform after initial deployment, you will primarily interact with the Kubernetes cluster using `kubectl`, ArgoCD and the other monitoring systems deployed.
 
@@ -41,11 +41,10 @@ This platform deploys real world infrastructure, and will incur costs when deplo
         - [`destroy` - Destroy Platform Components](#destroy---destroy-platform-components)
     - [Workflow Overview](#workflow-overview)
     - [Guides](#guides)
-      - [Updating sizes of nodes in an existing cluster](#updating-sizes-of-nodes-in-an-existing-cluster)
+      - [Updating sizes of nodes in a running platform](#updating-sizes-of-nodes-in-a-running-platform)
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
-    - [CTFp](#ctfp)
-    - [CLI Tool](#cli-tool-1)
+  - [Getting help](#getting-help)
   - [Contributing](#contributing)
   - [Background](#background)
   - [License](#license)
@@ -171,7 +170,7 @@ And the following is required in order to deploy the platform:
 
 - [Hetzner Cloud](https://www.hetzner.com/cloud) account with one or more Hetzner Cloud projects
 - [Hetzner Cloud API Token](https://console.hetzner.cloud/projects) - For authenticating with the Hetzner Cloud API
-- [Hetzner S3 buckets](https://console.hetzner.cloud/projects) - For storing the Terraform state files, backups and challenge data. We recommend using 3 separate buckets with seperate access keys for security reasons
+- [Hetzner S3 buckets](https://console.hetzner.cloud/projects) - For storing the Terraform state files, backups and challenge data. We recommend using 3 separate buckets with separate access keys for security reasons
 - [Cloudflare](https://www.cloudflare.com/) account
 - [Cloudflare API Token](https://dash.cloudflare.com/profile/api-tokens) - For authenticating with the Cloudflare API
 - [3 Cloudflare controlled domains](https://dash.cloudflare.com/) - For allowing the system to allocate a domain for the Kubernetes cluster. Used to allocate management, platform and challenge domains.
@@ -386,7 +385,7 @@ Generates the Terraform backend configuration file (`backend.tf`) for the specif
 - `<component>`: Component for which to generate the backend configuration: `cluster`, `ops`, `platform`, or `challenges`
 - `<bucket>`: Name of the S3 bucket to use for storing the Terraform state
 - `<region>`: Region where the S3 bucket is located
-- `<endpoint>`: Endpoint URL for the S3-compatible storage. For exampel `nbg1.your-objectstorage.com` for Hetzner Cloud Object Storage in `nbg1` region.
+- `<endpoint>`: Endpoint URL for the S3-compatible storage. For example `nbg1.your-objectstorage.com` for Hetzner Cloud Object Storage in `nbg1` region.
 
 **Example:**
 
@@ -497,7 +496,7 @@ The workflow for deploying and managing CTFp can be summarized in the following 
 
 ### Guides
 
-#### Updating sizes of nodes in an existing cluster
+#### Updating sizes of nodes in a running platform
 
 > [!TIP]
 > When upgrading existing clusters, it is recommended to drain node pools before changing their sizes, to avoid disruption of running workloads.  
@@ -541,7 +540,7 @@ Below are the steps to update the sizes of nodes in an existing cluster:
 > Changing node sizes can lead to temporary disruption of workloads.  
 > Always ensure that you have backups of critical data before making changes to the cluster configuration.
 
-Changes to the `scale_type` will only affect new nodes being created, and will not resize existing nodes, as the deployment of these nodes are done as ressources are needed.
+Changes to the `scale_type` will only affect new nodes being created, and will not resize existing nodes, as the deployment of these nodes are done as resources are needed.
 
 You may need to manually intervene to resize existing nodes if required, or delete them, forcing the system to create new nodes with the updated sizes. However, this may lead to downtime for workloads running on the nodes being deleted.
 
@@ -588,9 +587,14 @@ ctfp/
 └── ...                        # Other files and directories, such as license, contributing guidelines, etc.
 ```
 
-### CTFp
+## Getting help
 
-### CLI Tool
+The project is built and maintained by the CTF Pilot team, which is a community-driven effort.
+
+If you need help or have questions regarding CTFp, you can reach out through the following channels:
+
+- **GitHub Issues**: You can open an issue in the [CTFp GitHub repository](https://github.com/ctfpilot/ctfp/issues) for bug reports, feature requests, or general questions.
+- **Discord**: Join the [CTF Pilot Discord server](https://discord.ctfpilot.com) to engage with the community, ask questions, and get support from other users and contributors.
 
 ## Contributing
 
@@ -610,11 +614,22 @@ To administrate the CLA signing process, we are using **[CLA assistant lite](htt
 
 CTF Pilot started as a CTF Platform project, originating in **[Brunnerne](https://github.com/brunnerne)**.
 
+The goal of the project, is to provide a scalable, resilient and easy to use CTF platform for hosting large scale Capture The Flag competitions, starting with BrunnerCTF 2025.
+
+The project is still in active development, and we welcome contributions from the community to help improve and expand the platform's capabilities.
+
 ## License
 
 CTFp is licensed under a dual license, the **PolyForm Noncommercial License 1.0.0** for non-commercial use, and a **Commercial License** for commercial use.
 You can find the full license for non-commercial use in the **[LICENSE.md](LICENSE.md)** file.  
 For commercial licensing, please contact **[The0Mikkel](https://github.com/The0Mikkel)**.
+
+Without commercial licensing, the platform **MUST NOT** be used for commercial purposes, including but not limited to:
+
+- Hosting CTF competitions for profit
+- Hosting a CTF as a commercial organization
+- Offering CTF hosting as a paid service
+- Using the platform in any commercial product or service
 
 We encourage all modifications and contributions to be shared back with the community, for example through pull requests to this repository.  
 We also encourage all derivative works to be publicly available under **PolyForm Noncommercial License 1.0.0**.  
