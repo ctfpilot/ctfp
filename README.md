@@ -222,7 +222,6 @@ Changing these options may lead to instability or data loss, and should be done 
 ### Commands
 
 The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform. Below is a detailed overview of each available command:
-
 #### `init` - Initialize Platform Configuration
 
 Initializes the platform configuration for a specified environment by creating an `automated.<env>.tfvars` file based on the template.
@@ -248,8 +247,6 @@ Initializes the platform configuration for a specified environment by creating a
 ```
 
 **Output:** Creates `automated.test.tfvars`, `automated.dev.tfvars`, or `automated.prod.tfvars` in the repository root.
-
----
 
 #### `generate-keys` - Generate SSH Keys
 
@@ -277,8 +274,6 @@ Generates SSH keys (ed25519) required for accessing the cluster nodes. Optionall
 
 **Output:** Creates `keys/k8s-<env>.pub` (public key) and `keys/k8s-<env>` (private key) in the `keys/` directory.
 
----
-
 #### `insert-keys` - Insert SSH Keys into Configuration
 
 Manually inserts previously generated SSH keys into the configuration file. Useful if keys were generated separately or if you need to update existing keys.
@@ -302,9 +297,6 @@ Manually inserts previously generated SSH keys into the configuration file. Usef
 ```
 
 **Prerequisite:** Keys must already exist in the `keys/` directory.
-
----
-
 #### `generate-images` - Generate Custom Server Images
 
 Generates custom Packer images for Kubernetes cluster nodes. These images are used when provisioning the cluster infrastructure on Hetzner Cloud.
@@ -321,8 +313,6 @@ Generates custom Packer images for Kubernetes cluster nodes. These images are us
 **Output:** Packer creates and uploads custom images to your Hetzner Cloud project.
 
 **Time:** This is typically the longest-running operation, taking 5-15 minutes.
-
----
 
 #### `deploy` - Deploy Platform Components
 
@@ -362,8 +352,6 @@ Deploys one or more components of the platform to the specified environment. Can
 
 **Output:** Creates Terraform state files in the `terraform/` directory and outputs deployment status and timing information.
 
----
-
 #### `destroy` - Destroy Platform Components
 
 > [!WARNING]
@@ -398,7 +386,6 @@ Destroys one or more components of the platform. This is the reverse of `deploy`
 **Destruction Order:** When destroying `all`, components are destroyed in reverse order: `challenges` → `platform` → `ops` → `cluster`. This ensures dependencies are properly cleaned up.
 
 
----
 
 ### Workflow Diagram
 
@@ -490,7 +477,6 @@ The diagram illustrates the critical dependencies between components:
 - 🔗 Use `source kubectl.sh` (not `./`) to properly set environment variables
 
 ### Guides
-
 #### Updating sizes of nodes in an existing cluster
 
 > [!TIP]
