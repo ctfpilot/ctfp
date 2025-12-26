@@ -22,19 +22,26 @@ network_zone = "eu-central" # Hetzner network zone. Possible values: "eu-central
 # Scale is automatically scaled agent nodes, which is handled by the cluster autoscaler. It is optional, and can be used to scale the cluster up or down dynamically.
 
 # Server types. See https://www.hetzner.com/cloud
+# Control plane nodes - Nodes that run the Kubernetes control plane components.
 control_plane_type_1 = "cx23" # Control plane group 1
 control_plane_type_2 = "cx23" # Control plane group 2
 control_plane_type_3 = "cx23" # Control plane group 3
+# Agent nodes - Nodes that run general workloads, excluding CTF challenges.
 agent_type_1         = "cx33" # Agent group 1
 agent_type_2         = "cx33" # Agent group 2
 agent_type_3         = "cx33" # Agent group 3
+# Challenge nodes - Nodes dedicated to running CTF challenges. These nodes are tainted to only run challenge workloads.
+challs_type          = "cx33" # CTF challenge nodes
+# Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
 scale_type           = "cx33" # Scale group
 
 # Server count 
+# Control plane nodes - Nodes that run the Kubernetes control plane components.
 # Minimum of 1 control plane across all groups. 1 in each group is recommended for HA.
 control_plane_count_1 = 1 # Number of control plane nodes in group 1
 control_plane_count_2 = 1 # Number of control plane nodes in group 2
 control_plane_count_3 = 1 # Number of control plane nodes in group 3
+# Agent nodes - Nodes that run general workloads, excluding CTF challenges.
 # Minimum of 1 agent across all groups. 1 in each group is recommended for HA.
 agent_count_1 = 1 # Number of agent nodes in group 1
 agent_count_2 = 1 # Number of agent nodes in group 2

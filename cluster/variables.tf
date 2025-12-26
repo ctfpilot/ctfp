@@ -138,6 +138,11 @@ variable "agent_type_3" {
   default     = "cx32"
 }
 
+variable "challs_type" {
+  type        = string
+  description = "CTF challenge nodes server type"
+  default     = "cx32"
+}
 variable "scale_type" {
   type        = string
   description = "Scale group server type"

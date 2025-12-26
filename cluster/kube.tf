@@ -227,7 +227,7 @@ module "kube-hetzner" {
     },
     {
       name        = "challs-1",
-      server_type = var.scale_type,
+      server_type = var.challs_type,
       location    = var.region_1,
       labels = [
         "ressource-type=node",
