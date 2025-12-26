@@ -620,7 +620,7 @@ The project is still in active development, and we welcome contributions from th
 
 ## License
 
-CTFp is licensed under a dual license, the **PolyForm Noncommercial License 1.0.0** for non-commercial use, and a **Commercial License** for commercial use.
+CTFp is licensed under a dual license, the **PolyForm Noncommercial License 1.0.0** for non-commercial use, and a **Commercial License** for commercial use.  
 You can find the full license for non-commercial use in the **[LICENSE.md](LICENSE.md)** file.  
 For commercial licensing, please contact **[The0Mikkel](https://github.com/The0Mikkel)**.
 
