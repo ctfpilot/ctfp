@@ -22,16 +22,25 @@ This platform deploys real world infrastructure, and will incur costs when deplo
 
 ## Table of Contents
 
-- [Features](#features)
-- [Quick start](#quick-start)
-- [How to run](#how-to-run)
-  - [Pre-requisites](#pre-requisites)
-- [Architecture](#architecture)
-  - [Directory structure](#directory-structure)
-- [Contributing](#contributing)
-- [Background](#background)
-- [License](#license)
-- [Code of Conduct](#code-of-conduct)
+- [CTFp - CTF Pilot's CTF Platform](#ctfp---ctf-pilots-ctf-platform)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Quick start](#quick-start)
+  - [How to run](#how-to-run)
+    - [Pre-requisites](#pre-requisites)
+    - [Environments](#environments)
+    - [Configuring the platform](#configuring-the-platform)
+    - [Commands](#commands)
+    - [Guides](#guides)
+      - [Updating sizes of nodes in an existing cluster](#updating-sizes-of-nodes-in-an-existing-cluster)
+  - [Architecture](#architecture)
+    - [Directory structure](#directory-structure)
+    - [CTFp](#ctfp)
+    - [CLI Tool](#cli-tool)
+  - [Contributing](#contributing)
+  - [Background](#background)
+  - [License](#license)
+  - [Code of Conduct](#code-of-conduct)
 
 ## Features
 
@@ -144,18 +153,120 @@ In order to even deploy the platform, the following software needs to be install
 - [OpenTofu](https://opentofu.org) (Alternative version of [Terraform](https://www.terraform.io/downloads.html))
 - [Packer](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli#installing-packer) - For initial generation of server images
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - For interacting with the Kubernetes cluster
-- [hcloud cli tool](https://github.com/hetznercloud/cli) - For interacting with the Hetzner Cloud API (Recommended, otherwise use the web interface)
+- [hcloud cli tool](https://github.com/hetznercloud/cli) - For interacting with the Hetzner Cloud API (Otherwise use the Hetzner web interface)
 - SSH client - For connecting to the servers
 
 And the following is required in order to deploy the platform:
 
-- [Hetzner Cloud](https://www.hetzner.com/cloud) account with a Hetzner Cloud project
+- [Hetzner Cloud](https://www.hetzner.com/cloud) account with one or more Hetzner Cloud projects
 - [Hetzner Cloud API Token](https://console.hetzner.cloud/projects) - For authenticating with the Hetzner Cloud API
 - [Hetzner S3 buckets](https://console.hetzner.cloud/projects) - For storing the Terraform state files, backups and challenge data. We recommend using 3 separate buckets with seperate access keys for security reasons
 - [Cloudflare](https://www.cloudflare.com/) account
 - [Cloudflare API Token](https://dash.cloudflare.com/profile/api-tokens) - For authenticating with the Cloudflare API
 - [3 Cloudflare controlled domains](https://dash.cloudflare.com/) - For allowing the system to allocate a domain for the Kubernetes cluster. Used to allocate management, platform and challenge domains.
+- SMTP mail server - To allow CTFd to send emails to users (Password resets, notifications, etc.). The system is set up to allow outbound connections to [Brevo](https://brevo.com) SMTP on port 587.
+- [Discord](https://discord.com) channels to receive notifications. One for monitoring alerts and one for first-blood notifications.
+- GitHub repository following [CTF Pilot's Challenges template](https://github.com/ctfpilot/challenges-template) for CTF challenges and CTFd pages - A Git repository containing the CTF challenges to be deployed. This should be your own private repository using the CTF Pilot Challenges Template as a base. This may also contain the pages to be used in CTFd.
+- GitHub repository containing the CTFd configuration - We recommend forking [CTF Pilot's CTFd configuration repository](https://github.com/ctfpilot/ctfd).
+- Access tokens to access the GitHub repositories and container registry - Fine-grained personal access token and Personal Access Tokens (PAT) with read access to the repositories containing the CTF challenges and CTFd configuration and GitHub container registry. We recommend setting up a bot account for this purpose.
+- [Elasticsearch endpoint](https://www.elastic.co/) - Elasticsearch instance with an endpoint and user credentials for log aggregation. Used to connect Filebeat to Elasticsearch.
 
+### Environments
+
+CTFp supports three different environments for deployment:
+
+- **Test**: Intended for testing and experimentation. This environment is suitable for trying out new features, configurations, and updates without affecting the production environment. It is recommended to use smaller server sizes and fewer nodes to minimize costs.
+- **Dev**: Intended for development and staging purposes. This environment is suitable for testing new challenges, configurations, and updates before deploying them to production. It should closely resemble the production environment in terms of server sizes and configurations, but can still be scaled down to save costs.
+- **Prod**: Intended for hosting live CTF competitions. This environment should be configured for high availability, performance, and security. It is recommended to use larger server sizes, more nodes, and robust configurations to ensure a smooth experience for participants.
+
+The environments are configured through separate `automated.<env>.tfvars` files, allowing for isolated configurations and deployments.
+
+In the CLI tool, you can specify the environment using the `--test`, `--dev`, or `--prod` flags in the commands. If no flag is provided, the default environment is `test`.
+
+### Configuring the platform
+
+> [!TIP]
+> To understand the full configuration options and their implications, please refer to the documentation in the `automated.<env>.tfvars` or [`template.automated.tfvars`](./template.automated.tfvars) file.
+
+To configure the platform, you need to configure the `automated.<env>.tfvars` file located in the root of the repository.
+
+It contains a number of configuration options for the platform.  
+Each configuration option is within the file, explaining and listed with its possible values.
+
+An automated check, checks if all values are filled out correctly when running the CLI tool.  
+Therefore, be sure to fill out all required values before attempting to deploy the platform.  
+Non-required values are per default commented out, and can be left as is if the default value is acceptable.
+
+The configuration file is the single source of truth for the platform's configuration, and is used by the CLI tool to deploy and manage the platform.  
+If configuration in the configuration file is changed, the changes will be applied to the platform during the next deployment.  
+If the platform is manually changed outside of the CLI tool, the changes will be reverted during the next deployment.
+
+> [!IMPORTANT]
+> The `template.automated.tfvars` file is git tracked, and **MUST NOT** be changed in the repository to include sensitive information.  
+> Instead, copy the file to `automated.<env>.tfvars` and fill out the values there.  
+> The `automated.<env>.tfvars` files are git ignored, and will not be tracked by git.
+>
+> The file can be initialized using the `./ctfp.py init` command.
+
+Each component is not fully configurable, and may in certain situation required advanced configuration. These configurations are not included in the main configuration file.
+These options are either intended to be static, or require manual configuration through the individual Terraform components.  
+Changing these options may lead to instability or data loss, and should be done with caution.
+
+### Commands
+
+The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform. Below is an overview of the available commands:
+
+- `init`: Initializes the platform configuration for the specified environment.
+- `generate-keys`: Generates SSH keys for accessing the servers and optionally inserts them into the configuration file.
+- `generate-images`: Generates custom server images using Packer for the Kubernetes cluster nodes.
+- `deploy`: Deploys the specified component or all components of the platform.
+- `destroy`: Destroys the specified component or all components of the platform.
+
+### Guides
+
+#### Updating sizes of nodes in an existing cluster
+
+> [!TIP]
+> When upgrading existing clusters, it is recommended to drain node pools before changing their sizes, to avoid disruption of running workloads.  
+> Along with updating one node pool at a time, to minimize the impact on the cluster.
+
+When updating the sizes of nodes in an existing cluster, it is important to follow a specific procedure to ensure a smooth transition and avoid downtime or data loss.  
+Below are the steps to update the sizes of nodes in an existing cluster:
+
+1. **Drain the Node Pool**: Before making any changes, drain the node pool that you intend to update. This will safely evict all workloads from the nodes in the pool, allowing them to be rescheduled on other nodes in the cluster.
+    ```bash
+    kubectl drain <node-name> --ignore-daemonsets --delete-local-data
+    ```
+   *You will need to repeat this for each node in the node pool. You can use tools such as [`draino`](https://github.com/planetlabs/draino) to automate this process.*
+
+2. **Update the Configuration**: Modify the `automated.<env>.tfvars` file to reflect the new sizes for the nodes in the node pool. Ensure that you only change the sizes for the specific node pool you are updating.
+3. **Deploy the Changes**: Use the CTFp CLI tool to deploy the changes to the cluster. This will apply the updated configuration and resize the nodes in the specified node pool.
+    ```bash
+    ./ctfp.py deploy cluster --<env>
+    ```
+   *Replace `<env>` with the appropriate environment flag (`--test`, `--dev`, or `--prod`).*
+4. **Monitor the Deployment**: Keep an eye on the deployment process to ensure that the nodes are resized correctly and that there are no issues. You can use `kubectl get nodes` to check the status of the nodes in the cluster.
+5. **Uncordon the Node Pool**: Once the nodes have been resized and are ready, uncordon the node pool to allow workloads to be scheduled on the nodes again.
+    ```bash
+    kubectl uncordon <node-name>
+    ```
+   *Repeat this for each node in the node pool.*
+6. **Verify the Changes**: Finally, verify that the workloads are running correctly on the resized nodes and that there are no issues in the cluster.
+7. **Repeat for Other Node Pools**: If you have multiple node pools to update, repeat the above steps for each node pool, one at a time.
+
+> [!WARNING]
+> Changing node sizes can lead to temporary disruption of workloads.  
+> Always ensure that you have backups of critical data before making changes to the cluster configuration.
+
+Changes to the `scale_type` will only affect new nodes being created, and will not resize existing nodes, as the deployment of these nodes are done as ressources are needed.
+
+You may need to manually intervene to resize existing nodes if required, or delete them, forcing the system to create new nodes with the updated sizes. However, this may lead to downtime for workloads running on the nodes being deleted.
+
+> [!NOTE]
+> Downscaling nodes may not be possible, depending on the initial size of the nodes and the new size.
+
+Hetzner does not support downsizing nodes, if they were initially created with a larger size.  
+In such cases, the nodes will need to be deleted, forcing the system to create new nodes with the desired size.
 
 ## Architecture
 
