@@ -31,14 +31,14 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Environments](#environments)
     - [Configuring the platform](#configuring-the-platform)
     - [CLI Tool](#cli-tool)
-    - [Commands](#commands)
-      - [`init` - Initialize Platform Configuration](#init---initialize-platform-configuration)
-      - [`generate-keys` - Generate SSH Keys](#generate-keys---generate-ssh-keys)
-      - [`insert-keys` - Insert SSH Keys into Configuration](#insert-keys---insert-ssh-keys-into-configuration)
-      - [`generate-images` - Generate Custom Server Images](#generate-images---generate-custom-server-images)
-      - [`generate-backend` - Generate Terraform Backend Configuration](#generate-backend---generate-terraform-backend-configuration)
-      - [`deploy` - Deploy Platform Components](#deploy---deploy-platform-components)
-      - [`destroy` - Destroy Platform Components](#destroy---destroy-platform-components)
+      - [Commands](#commands)
+        - [`init` - Initialize Platform Configuration](#init---initialize-platform-configuration)
+        - [`generate-keys` - Generate SSH Keys](#generate-keys---generate-ssh-keys)
+        - [`insert-keys` - Insert SSH Keys into Configuration](#insert-keys---insert-ssh-keys-into-configuration)
+        - [`generate-images` - Generate Custom Server Images](#generate-images---generate-custom-server-images)
+        - [`generate-backend` - Generate Terraform Backend Configuration](#generate-backend---generate-terraform-backend-configuration)
+        - [`deploy` - Deploy Platform Components](#deploy---deploy-platform-components)
+        - [`destroy` - Destroy Platform Components](#destroy---destroy-platform-components)
     - [Workflow Overview](#workflow-overview)
     - [Guides](#guides)
       - [Updating sizes of nodes in an existing cluster](#updating-sizes-of-nodes-in-an-existing-cluster)
@@ -259,7 +259,7 @@ python3 ctfp.py <command> [options]
 
 Both methods are functionally equivalent. The direct execution method (first example) is more convenient for regular use.
 
-### Commands
+#### Commands
 
 > [!TIP]
 > You can run any command with the `--help` flag to get more information about the command and its options.  
@@ -277,7 +277,7 @@ Both methods are functionally equivalent. The direct execution method (first exa
 
 Below is a detailed overview of each available command:
 
-#### `init` - Initialize Platform Configuration
+##### `init` - Initialize Platform Configuration
 
 Initializes the platform configuration for a specified environment by creating an `automated.<env>.tfvars` file based on the template.
 
@@ -303,7 +303,7 @@ Initializes the platform configuration for a specified environment by creating a
 
 **Output:** Creates `automated.test.tfvars`, `automated.dev.tfvars`, or `automated.prod.tfvars` in the repository root.
 
-#### `generate-keys` - Generate SSH Keys
+##### `generate-keys` - Generate SSH Keys
 
 Generates SSH keys (ed25519) required for accessing the cluster nodes. Optionally inserts the base64-encoded keys directly into the configuration file.
 
@@ -329,7 +329,7 @@ Generates SSH keys (ed25519) required for accessing the cluster nodes. Optionall
 
 **Output:** Creates `keys/k8s-<env>.pub` (public key) and `keys/k8s-<env>` (private key) in the `keys/` directory.
 
-#### `insert-keys` - Insert SSH Keys into Configuration
+##### `insert-keys` - Insert SSH Keys into Configuration
 
 Manually inserts previously generated SSH keys into the configuration file. Useful if keys were generated separately or if you need to update existing keys.
 
@@ -354,7 +354,7 @@ Manually inserts previously generated SSH keys into the configuration file. Usef
 
 **Prerequisite:** Keys must already exist in the `keys/` directory.
 
-#### `generate-images` - Generate Custom Server Images
+##### `generate-images` - Generate Custom Server Images
 
 Generates custom Packer images for Kubernetes cluster nodes. These images are used when provisioning the cluster infrastructure on Hetzner Cloud.
 
@@ -371,7 +371,7 @@ Generates custom Packer images for Kubernetes cluster nodes. These images are us
 
 **Time:** This is typically the longest-running operation, taking 5-15 minutes.
 
-#### `generate-backend` - Generate Terraform Backend Configuration
+##### `generate-backend` - Generate Terraform Backend Configuration
 
 Generates the Terraform backend configuration file (`backend.tf`) for the specified environment. This file configures the S3 backend for storing Terraform state files.
 
@@ -399,7 +399,7 @@ Generates the Terraform backend configuration file (`backend.tf`) for the specif
 
 See more about this command in the [backend directory](./backend).
 
-#### `deploy` - Deploy Platform Components
+##### `deploy` - Deploy Platform Components
 
 Deploys one or more components of the platform to the specified environment. Can deploy individual components or the entire platform at once.
 
@@ -437,7 +437,7 @@ Deploys one or more components of the platform to the specified environment. Can
 
 **Output:** Creates Terraform state files in the `terraform/` directory and outputs deployment status and timing information.
 
-#### `destroy` - Destroy Platform Components
+##### `destroy` - Destroy Platform Components
 
 > [!WARNING]
 > Destroying the platform will **delete all data** associated with the environment, including databases, user data, and challenge instances. This action cannot be undone. Always ensure you have backups before destroying production environments.
