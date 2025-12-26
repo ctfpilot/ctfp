@@ -243,7 +243,7 @@ The CTFp CLI tool is a Python script that can be executed directly from the comm
    chmod +x ctfp.py
    ```
 
-**Running commands:**
+**Running the CLI tool:**
 
 You can now run commands directly:
 
