@@ -236,7 +236,8 @@ Changing these options may lead to instability or data loss, and should be done 
 > - `deploy` - Deploy Platform Components
 > - `destroy` - Destroy Platform Components
 
-The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform. Below is a detailed overview of each available command:
+The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform.  
+Below is a detailed overview of each available command:
 
 #### `init` - Initialize Platform Configuration
 
@@ -443,85 +444,140 @@ graph TD
     C --> D["🔑 Generate SSH Keys<br/>./ctfp.py generate-keys --insert"]
     
     D --> E{{"🖼️ Generate Images<br/>./ctfp.py generate-images<br/><br/>[One-time, 5-15 min]"}}
+    E -->|Images Ready| F["📋 Generate Backends<br/>./ctfp.py generate-backend<br/>(for each component)"]
     
-    E -->|Image Ready| F["📦 Deploy Cluster<br/>./ctfp.py deploy cluster"]
-    F -->|Cluster Running| G["🛠️ Deploy Ops<br/>./ctfp.py deploy ops"]
-    G -->|Ops Services Ready| H["🎯 Deploy Platform<br/>./ctfp.py deploy platform"]
-    H -->|CTFd Ready| I["🎮 Deploy Challenges<br/>./ctfp.py deploy challenges"]
+    F --> G{{"Deploy Components<br/><br/>Option A: Deploy All<br/>./ctfp.py deploy all"}}
+    G -->|All| G1["📦 Deploy Cluster"]
+    G1 --> G2["🛠️ Deploy Ops"]
+    G2 --> G3["🎯 Deploy Platform"]
+    G3 --> G4["🎮 Deploy Challenges"]
     
-    I -->|All Services Deployed| J["🔌 Configure kubectl<br/>source kubectl.sh"]
-    J -->|Connected to Cluster| K{{"✅ LIVE CTF ENVIRONMENT<br/><br/>Monitor via:<br/>- ArgoCD<br/>- Grafana<br/>- Kubernetes"}}
+    G -->|Individual| I1["📦 Deploy Cluster<br/>./ctfp.py deploy cluster"]
+    I1 -->|Review Plan| I1a{"Apply?"}
+    I1a -->|Yes| I1b["✓ Cluster Ready"]
+    I1a -->|No| I1c["❌ Abort"]
+    I1c -->|Fix Config| C
+    I1b --> I2["🛠️ Deploy Ops<br/>./ctfp.py deploy ops"]
+    I2 -->|Review Plan| I2a{"Apply?"}
+    I2a -->|Yes| I2b["✓ Ops Ready"]
+    I2a -->|No| I2c["❌ Abort"]
+    I2c -->|Fix Config| C
+    I2b --> I3["🎯 Deploy Platform<br/>./ctfp.py deploy platform"]
+    I3 -->|Review Plan| I3a{"Apply?"}
+    I3a -->|Yes| I3b["✓ Platform Ready"]
+    I3a -->|No| I3c["❌ Abort"]
+    I3c -->|Fix Config| C
+    I3b --> I4["🎮 Deploy Challenges<br/>./ctfp.py deploy challenges"]
+    I4 -->|Review Plan| I4a{"Apply?"}
+    I4a -->|Yes| I4b["✓ Challenges Ready"]
+    I4a -->|No| I4c["❌ Abort"]
+    I4c -->|Fix Config| C
     
-    K -->|Config Changes| L["🔄 Update & Redeploy<br/>Edit tfvars + deploy component"]
-    L -->|Back to Live| K
+    G4 --> J["🔌 Configure kubectl<br/>source kubectl.sh"]
+    I4b --> J
+    J --> K{{"✅ LIVE CTF<br/><br/>Monitor:<br/>ArgoCD · Grafana · Prometheus<br/>kubectl · Elasticsearch"}}
     
-    K -->|CTF Complete| M["🧹 Destroy Challenges<br/>./ctfp.py destroy challenges"]
-    M --> N["🧹 Destroy Platform<br/>./ctfp.py destroy platform"]
-    N --> O["🧹 Destroy Ops<br/>./ctfp.py destroy ops"]
-    O --> P["🧹 Destroy Cluster<br/>./ctfp.py destroy cluster"]
+    K -->|Health OK| L["🟢 Monitor & Operate<br/>Manage challenges & users"]
+    L -->|Config Updates| M["🔄 Redeploy Component<br/>Edit tfvars + deploy [component]"]
+    M -->|Back to Live| K
+    
+    L -->|Issues| N["🔍 Troubleshoot<br/>Check logs, metrics, events"]
+    N -->|Resolved| K
+    N -->|Rollback| O["↩️ Revert Config<br/>Edit tfvars + redeploy"]
+    O -->|Back to Previous State| K
+    
+    K -->|CTF Complete| P["🧹 Destroy in Reverse<br/>./ctfp.py destroy all<br/><br/>or individually:<br/>challenges → platform → ops → cluster"]
     P --> Q["✨ Clean Environment<br/>All resources destroyed"]
     
-    style A fill:#e1f5ff
-    style B fill:#e1f5ff
-    style C fill:#e1f5ff
-    style D fill:#e1f5ff
-    style E fill:#fff3e0
-    style F fill:#c8e6c9
-    style G fill:#c8e6c9
-    style H fill:#c8e6c9
-    style I fill:#c8e6c9
-    style J fill:#c8e6c9
-    style K fill:#a5d6a7
-    style L fill:#fff9c4
-    style M fill:#ffccbc
-    style N fill:#ffccbc
-    style O fill:#ffccbc
-    style P fill:#ffccbc
-    style Q fill:#f8bbd0
+    style A fill:#e1f5ff,text:#000
+    style B fill:#e1f5ff,text:#000
+    style C fill:#e1f5ff,text:#000
+    style D fill:#e1f5ff,text:#000
+    style E fill:#fff3e0,text:#000
+    style F fill:#fff3e0,text:#000
+    style G fill:#f3e5f5,text:#000
+    style G1 fill:#c8e6c9,text:#000
+    style G2 fill:#c8e6c9,text:#000
+    style G3 fill:#c8e6c9,text:#000
+    style G4 fill:#c8e6c9,text:#000
+    style I1 fill:#c8e6c9,text:#000
+    style I1a fill:#ffe0b2,text:#000
+    style I1b fill:#a5d6a7,text:#000
+    style I1c fill:#ef9a9a,text:#000
+    style I2 fill:#c8e6c9,text:#000
+    style I2a fill:#ffe0b2,text:#000
+    style I2b fill:#a5d6a7,text:#000
+    style I2c fill:#ef9a9a,text:#000
+    style I3 fill:#c8e6c9,text:#000
+    style I3a fill:#ffe0b2,text:#000
+    style I3b fill:#a5d6a7,text:#000
+    style I3c fill:#ef9a9a,text:#000
+    style I4 fill:#c8e6c9,text:#000
+    style I4a fill:#ffe0b2,text:#000
+    style I4b fill:#a5d6a7,text:#000
+    style I4c fill:#ef9a9a,text:#000
+    style J fill:#c8e6c9,text:#000
+    style K fill:#a5d6a7,text:#000
+    style L fill:#a5d6a7,text:#000
+    style M fill:#fff9c4,text:#000
+    style N fill:#ffe0b2,text:#000
+    style O fill:#fff9c4,text:#000
+    style P fill:#ffccbc,text:#000
+    style Q fill:#f8bbd0,text:#000
 ```
 
-**Deployment Sequence Notes:**
+**Workflow Phases:**
 
-The diagram illustrates the critical dependencies between components:
+1. **Setup Phase** (Blue) - One-time configuration
+   - Clone, initialize config, fill configuration values
+2. **Preparation Phase** (Orange) - One-time per Hetzner project
+   - Generate custom images (5-15 min)
+   - Generate Terraform backend configurations for each component
+3. **Deployment Phase** (Purple/Green) - Sequential component deployment
+   - **Option A**: Use `deploy all` for automated full deployment
+   - **Option B**: Deploy components individually for fine-grained control and plan review
+   - Each component must deploy successfully before the next begins
+4. **Live Operations** (Green) - Stable running state
+   - Monitor infrastructure and platform health
+   - Deploy updates and new challenges
+   - Handle troubleshooting as needed
+5. **Teardown Phase** (Red/Orange) - Cleanup after CTF
+   - Destroy components in reverse order to maintain dependencies
+   - Use `destroy all` for automated teardown or individual commands
 
-1. **Initial Setup Phase** (Blue) - One-time configuration
-   - Clone, initialize config, generate keys
-   
-2. **Image Generation** (Orange) - One-time per Hetzner project
-   - Must complete before first cluster deployment
-   
-3. **Deployment Chain** (Light Green) - Strict sequential order
-   - Each component depends on the previous one
-   - `cluster` → `ops` → `platform` → `challenges`
-   - Alternatively use `deploy all` for full deployment
-   
-4. **Live Operations** (Green) - Stable state
-   - Monitor and manage the running CTF
-   - Optional: Update config and redeploy specific components, such as deploying new challenges
-   
-5. **Teardown Phase** (Red/Orange) - Reverse deployment order
-   - Destroys resources in reverse sequence to maintain dependencies
-   - Alternatively use `destroy all` for full teardown
+**Key Decision Points:**
+
+- **Deploy all vs. individual**: 
+  - `deploy all` is faster (automatic), but `deploy [component]` lets you review Terraform plans before applying
+  - If a component fails, you can abort and fix the configuration before continuing
+- **Live operations**: 
+  - Configuration changes are applied automatically on the next deployment
+  - You can roll back by reverting configuration and redeploying
+  - Monitor health before and after changes
 
 **Quick Reference:**
 
-| Phase    | Time     | Command                 | Repeat          |
-| -------- | -------- | ----------------------- | --------------- |
-| Setup    | ~5 min   | `init`, `generate-keys` | Per environment |
-| Images   | 5-15 min | `generate-images`       | One-time only   |
-| Deploy   | ~20 min  | `deploy all`            | Per environment |
-| Manage   | Ongoing  | `kubectl`, ArgoCD, etc. | As needed       |
-| Teardown | ~15 min  | `destroy all`           | When done       |
+| Phase    | Time     | Command                      | Repeat                       |
+| -------- | -------- | ---------------------------- | ---------------------------- |
+| Setup    | ~5 min   | `init`, edit config          | Per environment              |
+| Prep     | 5-15 min | `generate-images`            | One-time per Hetzner project |
+| Backends | ~1 min   | `generate-backend` (4x)      | Per environment              |
+| Deploy   | ~20 min  | `deploy all` OR `deploy [x]` | Per environment              |
+| Manage   | Ongoing  | `kubectl`, ArgoCD, Grafana   | As needed                    |
+| Teardown | ~15 min  | `destroy all`                | When done                    |
 
 **Key Points:**
-- ⚠️ `generate-images` is a one-time operation per Hetzner Cloud project, not per environment
-- 🔄 Configuration changes are applied automatically on the next deployment
-- 🛡️ Always review Terraform plans before applying in production; use `--auto-apply` with caution
-- 📊 Monitor deployments using the timing information displayed by the CLI
-- 🔑 SSH keys must be generated before the first cluster deployment
-- 🔗 Use `source kubectl.sh` (not `./`) to properly set environment variables
+
+- ⚠️ `generate-backend` must run for each component (cluster, ops, platform, challenges) before deployment
+- ⚠️ `generate-images` is one-time per Hetzner Cloud project, not per environment
+- 🛡️ Review Terraform plans with individual `deploy [component]` commands; use `deploy all` only when confident
+- 🔄 Configuration changes apply automatically on next deployment; use the same process to rollback
+- 🔑 SSH keys must be generated before cluster deployment
+- 🔗 Use `source kubectl.sh` (with `source`, not `./`) to properly set environment variables
+- 🔴 If deployment fails, abort, fix configuration, and redeploy—do not force apply
 
 ### Guides
+
 #### Updating sizes of nodes in an existing cluster
 
 > [!TIP]
