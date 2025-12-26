@@ -31,6 +31,13 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Environments](#environments)
     - [Configuring the platform](#configuring-the-platform)
     - [Commands](#commands)
+      - [`init` - Initialize Platform Configuration](#init---initialize-platform-configuration)
+      - [`generate-keys` - Generate SSH Keys](#generate-keys---generate-ssh-keys)
+      - [`insert-keys` - Insert SSH Keys into Configuration](#insert-keys---insert-ssh-keys-into-configuration)
+      - [`generate-images` - Generate Custom Server Images](#generate-images---generate-custom-server-images)
+      - [`deploy` - Deploy Platform Components](#deploy---deploy-platform-components)
+      - [`destroy` - Destroy Platform Components](#destroy---destroy-platform-components)
+    - [Workflow Diagram](#workflow-diagram)
     - [Guides](#guides)
       - [Updating sizes of nodes in an existing cluster](#updating-sizes-of-nodes-in-an-existing-cluster)
   - [Architecture](#architecture)
@@ -214,13 +221,273 @@ Changing these options may lead to instability or data loss, and should be done 
 
 ### Commands
 
-The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform. Below is an overview of the available commands:
+The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform. Below is a detailed overview of each available command:
 
-- `init`: Initializes the platform configuration for the specified environment.
-- `generate-keys`: Generates SSH keys for accessing the servers and optionally inserts them into the configuration file.
-- `generate-images`: Generates custom server images using Packer for the Kubernetes cluster nodes.
-- `deploy`: Deploys the specified component or all components of the platform.
-- `destroy`: Destroys the specified component or all components of the platform.
+#### `init` - Initialize Platform Configuration
+
+Initializes the platform configuration for a specified environment by creating an `automated.<env>.tfvars` file based on the template.
+
+**Syntax:**
+
+```bash
+./ctfp.py init [--force] [--test|--dev|--prod]
+```
+
+**Options:**
+
+- `--force`: Force overwrite the configuration file if it already exists (by default, the tool prompts before overwriting)
+- `--test`: Initialize TEST environment (default)
+- `--dev`: Initialize DEV environment
+- `--prod`: Initialize PROD environment
+
+**Example:**
+
+```bash
+./ctfp.py init --test
+./ctfp.py init --prod --force
+```
+
+**Output:** Creates `automated.test.tfvars`, `automated.dev.tfvars`, or `automated.prod.tfvars` in the repository root.
+
+---
+
+#### `generate-keys` - Generate SSH Keys
+
+Generates SSH keys (ed25519) required for accessing the cluster nodes. Optionally inserts the base64-encoded keys directly into the configuration file.
+
+**Syntax:**
+
+```bash
+./ctfp.py generate-keys [--insert] [--test|--dev|--prod]
+```
+
+**Options:**
+
+- `--insert`: Automatically insert the generated keys into the `automated.<env>.tfvars` file
+- `--test`: Generate keys for TEST environment (default)
+- `--dev`: Generate keys for DEV environment
+- `--prod`: Generate keys for PROD environment
+
+**Example:**
+
+```bash
+./ctfp.py generate-keys --insert --test
+./ctfp.py generate-keys --dev
+```
+
+**Output:** Creates `keys/k8s-<env>.pub` (public key) and `keys/k8s-<env>` (private key) in the `keys/` directory.
+
+---
+
+#### `insert-keys` - Insert SSH Keys into Configuration
+
+Manually inserts previously generated SSH keys into the configuration file. Useful if keys were generated separately or if you need to update existing keys.
+
+**Syntax:**
+
+```bash
+./ctfp.py insert-keys [--test|--dev|--prod]
+```
+
+**Options:**
+
+- `--test`: Insert keys for TEST environment (default)
+- `--dev`: Insert keys for DEV environment
+- `--prod`: Insert keys for PROD environment
+
+**Example:**
+```bash
+./ctfp.py insert-keys --test
+./ctfp.py insert-keys --prod
+```
+
+**Prerequisite:** Keys must already exist in the `keys/` directory.
+
+---
+
+#### `generate-images` - Generate Custom Server Images
+
+Generates custom Packer images for Kubernetes cluster nodes. These images are used when provisioning the cluster infrastructure on Hetzner Cloud.
+
+**Syntax:**
+
+```bash
+./ctfp.py generate-images
+```
+
+> [!NOTE]
+> The `generate-images` command does not use environment flags. It requires you to select the Hetzner Cloud project interactively during execution.
+
+**Output:** Packer creates and uploads custom images to your Hetzner Cloud project.
+
+**Time:** This is typically the longest-running operation, taking 5-15 minutes.
+
+---
+
+#### `deploy` - Deploy Platform Components
+
+Deploys one or more components of the platform to the specified environment. Can deploy individual components or the entire platform at once.
+
+**Syntax:**
+
+```bash
+./ctfp.py deploy <component> [--auto-apply] [--test|--dev|--prod]
+```
+
+**Arguments:**
+
+- `<component>`: Component to deploy: `cluster`, `ops`, `platform`, `challenges`, or `all`
+  - `cluster`: Provisions Kubernetes infrastructure on Hetzner Cloud
+  - `ops`: Deploys operational tools (ArgoCD, monitoring, logging, ingress)
+  - `platform`: Deploys CTFd scoreboard and associated services
+  - `challenges`: Deploys CTF challenges infrastructure
+  - `all`: Deploys all components in sequence
+
+**Options:**
+
+- `--auto-apply`: Automatically apply Terraform changes without interactive prompts (use with extreme caution)
+- `--test`: Deploy to TEST environment (default)
+- `--dev`: Deploy to DEV environment
+- `--prod`: Deploy to PROD environment
+
+**Example:**
+
+```bash
+./ctfp.py deploy all --test
+./ctfp.py deploy cluster --prod
+./ctfp.py deploy platform --dev --auto-apply
+```
+
+**Deployment Order:** When deploying `all`, components are deployed in this order: `cluster` → `ops` → `platform` → `challenges`. Each component must be successfully deployed before the next begins.
+
+**Output:** Creates Terraform state files in the `terraform/` directory and outputs deployment status and timing information.
+
+---
+
+#### `destroy` - Destroy Platform Components
+
+> [!WARNING]
+> Destroying the platform will **delete all data** associated with the environment, including databases, user data, and challenge instances. This action cannot be undone. Always ensure you have backups before destroying production environments.
+
+Destroys one or more components of the platform. This is the reverse of `deploy` and tears down infrastructure, databases, and services.
+
+**Syntax:**
+
+```bash
+./ctfp.py destroy <component> [--auto-apply] [--test|--dev|--prod]
+```
+
+**Arguments:**
+
+- `<component>`: Component to destroy: `cluster`, `ops`, `platform`, `challenges`, or `all`
+
+**Options:**
+
+- `--auto-apply`: Automatically confirm destruction without interactive prompts (use with extreme caution)
+- `--test`: Destroy TEST environment (default)
+- `--dev`: Destroy DEV environment
+- `--prod`: Destroy PROD environment
+
+**Example:**
+
+```bash
+./ctfp.py destroy all --prod
+./ctfp.py destroy challenges --test --auto-apply
+```
+
+**Destruction Order:** When destroying `all`, components are destroyed in reverse order: `challenges` → `platform` → `ops` → `cluster`. This ensures dependencies are properly cleaned up.
+
+
+---
+
+### Workflow Diagram
+
+The following Mermaid diagram shows the typical workflow for deploying and managing CTFp, with the sequence of commands and their relationships:
+
+```mermaid
+graph TD
+    A["🚀 Clone Repository<br/>git clone https://github.com/ctfpilot/ctfp"] --> B["⚙️ Initialize Config<br/>./ctfp.py init"]
+    B --> C["✏️ Edit Configuration<br/>Fill in tfvars file"]
+    C --> D["🔑 Generate SSH Keys<br/>./ctfp.py generate-keys --insert"]
+    
+    D --> E{{"🖼️ Generate Images<br/>./ctfp.py generate-images<br/><br/>[One-time, 5-15 min]"}}
+    
+    E -->|Image Ready| F["📦 Deploy Cluster<br/>./ctfp.py deploy cluster"]
+    F -->|Cluster Running| G["🛠️ Deploy Ops<br/>./ctfp.py deploy ops"]
+    G -->|Ops Services Ready| H["🎯 Deploy Platform<br/>./ctfp.py deploy platform"]
+    H -->|CTFd Ready| I["🎮 Deploy Challenges<br/>./ctfp.py deploy challenges"]
+    
+    I -->|All Services Deployed| J["🔌 Configure kubectl<br/>source kubectl.sh"]
+    J -->|Connected to Cluster| K{{"✅ LIVE CTF ENVIRONMENT<br/><br/>Monitor via:<br/>- ArgoCD<br/>- Grafana<br/>- Kubernetes"}}
+    
+    K -->|Config Changes| L["🔄 Update & Redeploy<br/>Edit tfvars + deploy component"]
+    L -->|Back to Live| K
+    
+    K -->|CTF Complete| M["🧹 Destroy Challenges<br/>./ctfp.py destroy challenges"]
+    M --> N["🧹 Destroy Platform<br/>./ctfp.py destroy platform"]
+    N --> O["🧹 Destroy Ops<br/>./ctfp.py destroy ops"]
+    O --> P["🧹 Destroy Cluster<br/>./ctfp.py destroy cluster"]
+    P --> Q["✨ Clean Environment<br/>All resources destroyed"]
+    
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#e1f5ff
+    style D fill:#e1f5ff
+    style E fill:#fff3e0
+    style F fill:#c8e6c9
+    style G fill:#c8e6c9
+    style H fill:#c8e6c9
+    style I fill:#c8e6c9
+    style J fill:#c8e6c9
+    style K fill:#a5d6a7
+    style L fill:#fff9c4
+    style M fill:#ffccbc
+    style N fill:#ffccbc
+    style O fill:#ffccbc
+    style P fill:#ffccbc
+    style Q fill:#f8bbd0
+```
+
+**Deployment Sequence Notes:**
+
+The diagram illustrates the critical dependencies between components:
+
+1. **Initial Setup Phase** (Blue) - One-time configuration
+   - Clone, initialize config, generate keys
+   
+2. **Image Generation** (Orange) - One-time per Hetzner project
+   - Must complete before first cluster deployment
+   
+3. **Deployment Chain** (Light Green) - Strict sequential order
+   - Each component depends on the previous one
+   - `cluster` → `ops` → `platform` → `challenges`
+   - Alternatively use `deploy all` for full deployment
+   
+4. **Live Operations** (Green) - Stable state
+   - Monitor and manage the running CTF
+   - Optional: Update config and redeploy specific components, such as deploying new challenges
+   
+5. **Teardown Phase** (Red/Orange) - Reverse deployment order
+   - Destroys resources in reverse sequence to maintain dependencies
+   - Alternatively use `destroy all` for full teardown
+
+**Quick Reference:**
+
+| Phase    | Time     | Command                 | Repeat          |
+| -------- | -------- | ----------------------- | --------------- |
+| Setup    | ~5 min   | `init`, `generate-keys` | Per environment |
+| Images   | 5-15 min | `generate-images`       | One-time only   |
+| Deploy   | ~20 min  | `deploy all`            | Per environment |
+| Manage   | Ongoing  | `kubectl`, ArgoCD, etc. | As needed       |
+| Teardown | ~15 min  | `destroy all`           | When done       |
+
+**Key Points:**
+- ⚠️ `generate-images` is a one-time operation per Hetzner Cloud project, not per environment
+- 🔄 Configuration changes are applied automatically on the next deployment
+- 🛡️ Always review Terraform plans before applying in production; use `--auto-apply` with caution
+- 📊 Monitor deployments using the timing information displayed by the CLI
+- 🔑 SSH keys must be generated before the first cluster deployment
+- 🔗 Use `source kubectl.sh` (not `./`) to properly set environment variables
 
 ### Guides
 
