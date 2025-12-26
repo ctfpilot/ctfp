@@ -1055,14 +1055,8 @@ class Terraform:
         Load S3 backend credentials from automated.tfvars, to set Terraform S3 connection credentials
         '''
         
-        # Check if automated.tfvars exists
-        tfvars_path = self.get_path_tfvars()
-        if not os.path.exists(tfvars_path):
-            Logger.error(f"{self.get_filename_tfvars()} not found. Please create the file and try again")
-            exit(1)
-
         # Load tfvars file
-        tfvars_data = TFVARS.safe_load_tfvars(tfvars_path)
+        tfvars_data = TFVARS.safe_load_tfvars(self.get_path_tfvars())
         
         # Set environment variables for S3 backend
         os.environ["AWS_ACCESS_KEY_ID"] = tfvars_data.get("terraform_backend_s3_access_key", "")
