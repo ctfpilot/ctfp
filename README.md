@@ -627,7 +627,7 @@ For commercial licensing, please contact **[The0Mikkel](https://github.com/The0M
 Without commercial licensing, the platform **MUST NOT** be used for commercial purposes, including but not limited to:
 
 - Hosting CTF competitions for profit
-- Hosting a CTF as a commercial organization
+- Hosting a CTF as a commercial organization, even if the CTF itself is free or only provided to internal users
 - Offering CTF hosting as a paid service
 - Using the platform in any commercial product or service
 
