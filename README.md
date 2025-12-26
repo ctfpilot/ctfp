@@ -35,6 +35,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
       - [`generate-keys` - Generate SSH Keys](#generate-keys---generate-ssh-keys)
       - [`insert-keys` - Insert SSH Keys into Configuration](#insert-keys---insert-ssh-keys-into-configuration)
       - [`generate-images` - Generate Custom Server Images](#generate-images---generate-custom-server-images)
+      - [`generate-backend` - Generate Terraform Backend Configuration](#generate-backend---generate-terraform-backend-configuration)
       - [`deploy` - Deploy Platform Components](#deploy---deploy-platform-components)
       - [`destroy` - Destroy Platform Components](#destroy---destroy-platform-components)
     - [Workflow Diagram](#workflow-diagram)
@@ -221,7 +222,22 @@ Changing these options may lead to instability or data loss, and should be done 
 
 ### Commands
 
+> [!TIP]
+> You can run any command with the `--help` flag to get more information about the command and its options.  
+> For example: `./ctfp.py deploy --help`
+>
+> Available commands:
+> 
+> - `init` - Initialize Platform Configuration
+> - `generate-keys` - Generate SSH Keys
+> - `insert-keys` - Insert SSH Keys into Configuration
+> - `generate-images` - Generate Custom Server Images
+> - `generate-backend` - Generate Terraform Backend Configuration
+> - `deploy` - Deploy Platform Components
+> - `destroy` - Destroy Platform Components
+
 The CTFp CLI tool provides a variety of commands for managing the deployment and lifecycle of the platform. Below is a detailed overview of each available command:
+
 #### `init` - Initialize Platform Configuration
 
 Initializes the platform configuration for a specified environment by creating an `automated.<env>.tfvars` file based on the template.
@@ -297,6 +313,7 @@ Manually inserts previously generated SSH keys into the configuration file. Usef
 ```
 
 **Prerequisite:** Keys must already exist in the `keys/` directory.
+
 #### `generate-images` - Generate Custom Server Images
 
 Generates custom Packer images for Kubernetes cluster nodes. These images are used when provisioning the cluster infrastructure on Hetzner Cloud.
@@ -313,6 +330,34 @@ Generates custom Packer images for Kubernetes cluster nodes. These images are us
 **Output:** Packer creates and uploads custom images to your Hetzner Cloud project.
 
 **Time:** This is typically the longest-running operation, taking 5-15 minutes.
+
+#### `generate-backend` - Generate Terraform Backend Configuration
+
+Generates the Terraform backend configuration file (`backend.tf`) for the specified environment. This file configures the S3 backend for storing Terraform state files.
+
+**Syntax:**
+
+```bash
+./ctfp.py generate-backend <component> <bucket> <region> <endpoint>
+```
+
+**Arguments:**
+
+- `<component>`: Component for which to generate the backend configuration: `cluster`, `ops`, `platform`, or `challenges`
+- `<bucket>`: Name of the S3 bucket to use for storing the Terraform state
+- `<region>`: Region where the S3 bucket is located
+- `<endpoint>`: Endpoint URL for the S3-compatible storage. For exampel `nbg1.your-objectstorage.com` for Hetzner Cloud Object Storage in `nbg1` region.
+
+**Example:**
+
+```bash
+./ctfp.py generate-backend cluster ctfp-cluster-state nbg1 nbg1.your-objectstorage.com
+./ctfp.py generate-backend platform ctfp-platform-state fsn1 fsn1.your-objectstorage.com
+```
+
+**Output:** Creates a HCL configuration for the specified component's Terraform backend in the `backend/generated/` directory.
+
+See more about this command in the [backend directory](./backend).
 
 #### `deploy` - Deploy Platform Components
 
