@@ -850,11 +850,14 @@ The challenge deployment system, utilizes a combination of GitOps principles and
 It is built to use [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template) for preparing the challenge definitions, and ArgoCD for deploying the challenge configurations to the Kubernetes cluster.  
 Here, ArgoCD continuously monitors the defined GitHub repository for changes, and automatically applies updates to the cluster.
 
-Static challanges are deploys as configurations for CTFd through [CTFd-manager](https://github.com/ctfpilot/ctfd-manager), while Shared challenges are deployed as single instances through ArgoCD.
+Static challanges are deployed as configurations for CTFd through [CTFd-manager](https://github.com/ctfpilot/ctfd-manager), while Shared challenges are deployed as single instances through ArgoCD.
 Instanced challenges are managed through [KubeCTF](https://github.com/ctfpilot/kube-ctf), where ArgoCD deploys deployment templates to [KubeCTF](https://github.com/ctfpilot/kube-ctf).
 
 Container images can be stored in any container registry, as long as the Kubernetes cluster has access to pull the images.  
 Per default, pull secrets are configured for GitHub Container Registry, and are currently **not** configurable through the platform configuration.
+Any additional pull secrets must be created manually in the cluster, and referenced in the challenge deployment configuration.
+
+For more information on how to develop challenges, see the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template). An example challenges repository can be found at [CTF Pilot's Challenges example repository](https://github.com/ctfpilot/challenges-example).
 
 ### Network
 
