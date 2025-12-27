@@ -839,7 +839,7 @@ Specifically, it manages the following:
 
 Challenges are deployed and managed through Git repositories, with configurations defined in challenge definition files. Use the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template) for challenge development.
 
-Per default, the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) deployment templates use taints to control which nodes challenge instances are scheduled on. Therefore, the cluster must have at least one node with the taint `cluster.ctfpilot.com/node=scaler:PreferNoSchedule` if using Instanced challenges, to ensure challenge instances are properly scheduled.
+Per default, the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) deployment templates use taints to control which nodes challenge instances are scheduled on. Therefore, the cluster must have at least one node with the taint `cluster.ctfpilot.com/node=scaler:PreferNoSchedule` if using Instanced challenges, to ensure challenge instances are properly scheduled and deployed.
 
 ### Challenge deployment
 
