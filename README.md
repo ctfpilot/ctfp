@@ -49,6 +49,8 @@ This platform deploys real world infrastructure, and will incur costs when deplo
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
     - [Overview](#overview)
+      - [Cluster](#cluster)
+        - [Cluster requirements](#cluster-requirements)
     - [Challenge deployment](#challenge-deployment)
     - [Network](#network)
       - [Cluster networking](#cluster-networking)
@@ -731,6 +733,46 @@ ctfp/
 ### Overview
 
 ![CTFp Architecture](./docs/attachments/architecture/overview.svg)
+
+The above figure, details how the different components come together to form the complete CTFp platform.  
+It highlights the central elements: [CTFd](https://github.com/ctfpilot/ctfd), DB Cluster, Redis, [CTFd-manager](https://github.com/ctfpilot/ctfd-manager), [KubeCTF](https://github.com/ctfpilot/kube-ctf), monitoring and deployment flow.
+
+*The figure serves as an overview of the platform's architecture, and does therefore not include all components and services involved in the platform.*
+
+#### Cluster
+
+The Cluster component is responsible for provisioning and managing the Kubernetes cluster infrastructure on Hetzner Cloud.
+
+It deploys a [kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner) cluster within the Hetzner Cloud environment, setting up the necessary servers, networking, and storage resources required for the cluster to operate.
+
+Specifically, it handles:
+
+- **Cluster provisioning**: Creating and configuring the Kubernetes cluster using Hetzner Cloud resources.
+- **Node management**: Setting up and managing the worker nodes that will run the workloads.  
+  This including configuring node pools, scaling, and updating nodes as needed, along with setting up the node-autoscaler for automatic scaling based on demand.
+- **Networking**: Configuring the network settings to ensure proper communication between cluster components.  
+  This includes setting up a private network, configuring VPN connectivity between the nodes and setting up Flannel CNI for pod networking.  
+  Opens up required firewall rules to allow communication between nodes, and outbound connections to required services.
+- **Storage**: Setting up storage controller (CSI) to use Hetzner Block storage volumes.
+- **Traefik proxy**: Deploying Traefik as the ingress controller for managing incoming traffic to the cluster.
+
+If an alternative cluster setup is desired, the Cluster component can be replaced with a different Kubernetes cluster, as long as it meets the requirements for running the platform.
+
+##### Cluster requirements
+
+The Kubernetes cluster used for CTFp must meet the following requirements:
+
+- Kubernetes version 1.33 or higher
+- Traefik ingress controller, with correctly configured load balancer
+- Persistent storage support (CSI). You may use whatever storage solution you prefer, as long as it supports dynamic provisioning of Persistent Volumes, and is set as the default storage class.
+- Provides a kubeconfig file for the cluster, to allow the CLI tool to interact with the cluster. This config should have full admin access to the cluster.
+- Has at least a single node with the taint `cluster.ctfpilot.com/node=scaler:PreferNoSchedule` for running challenge instances.  
+  *May be skipped, if no instanced challenges are to be deployed, or you change the taints in the challenge deployment configuration.*
+- Enough resources to run the platform components.  
+  *This depends on the CTFd setup, challenges and CTF size.*
+- Has correct firewall rules to allow outbound connections to required services, such as logging aggregation, SMTP servers, Discord, Cloudflare API, GitHub, and reverse connections from challenges (if they need internet access).
+- Flannel CNI installed for networking.
+- Cert-manager is not installed, as it is managed by the Ops component.
 
 ### Challenge deployment
 
