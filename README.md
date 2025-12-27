@@ -861,9 +861,31 @@ For more information on how to develop challenges, see the [CTF Pilot's Challeng
 
 ### Network
 
+To visualize the network architecture of CTFp, the following diagrams provide an overview of both the cluster networking and challenge networking setups.
+
 #### Cluster networking
 
 ![CTFp Cluster Networking Overview](./docs/attachments/architecture/cluster-network-architecture.svg)
+
+CTFp requires three domains, as it configures different services under different domains:
+
+- **Management domain**: Used for accessing the management services, such as ArgoCD, Grafana, and Prometheus.  
+  This domain should only be distributed to administrators.
+- **Platform domain**: Used for accessing the CTFd scoreboard and related services.  
+  This domain is distributed to participants for accessing the CTF platform.
+- **CTF domain**: Used for accessing the challenges.  
+  This domain is also distributed to participants for accessing the challenges.
+
+The platform does not require you to allocate the full top-level domain (TLD) for CTFp, as subdomains for each of the three domains can be configured.
+
+Management and Platform domains are configured to be proxied through Cloudflare, to take advantage of their CDN and DDoS protection services.  
+CTF domain is not proxied, as challenges often require direct access to the challenge instances.
+
+Domain management is built into the system, and DNS entries are therefore automatically created and managed through Cloudflare's API.
+
+Hetzner Cloud's Load Balancers are used to distribute incoming traffic to the Traefik ingress controllers deployed on each node in the cluster.  
+Within the cluster, Traefik handles routing of incoming requests to the appropriate services based on the configured ingress rules.  
+Network is shared between nodes using Hetzner Cloud's private networking, ensuring efficient and secure communication between cluster components.
 
 #### Challenge networking
 
