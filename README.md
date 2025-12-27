@@ -861,7 +861,7 @@ For more information on how to develop challenges, see the [CTF Pilot's Challeng
 
 ### Network
 
-The following diagrams provide an overview of CTFp's cluster and challenge networking setups
+The following diagrams provide an overview of CTFp's cluster and challenge networking setups.
 
 #### Cluster networking
 
