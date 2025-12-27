@@ -50,7 +50,6 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Directory structure](#directory-structure)
     - [Overview](#overview)
       - [Cluster](#cluster)
-        - [Cluster requirements](#cluster-requirements)
       - [Ops](#ops)
       - [Platform](#platform)
       - [Challenges](#challenges)
@@ -761,7 +760,7 @@ Specifically, it handles:
 
 If an alternative cluster setup is desired, the Cluster component can be replaced with a different Kubernetes cluster, as long as it meets the requirements for running the platform.
 
-##### Cluster requirements
+**Cluster requirements**:
 
 The Kubernetes cluster used for CTFp must meet the following requirements:
 
