@@ -3,10 +3,10 @@
 > [!TIP]
 > If you are looking for **how to build challenges for CTFp**, please check out the **[CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template)** and **[CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit)** repositories.
 
-CTFp (CTF Pilot's CTF Platform) is a CTF platform designed to host large-scale Capture The Flag (CTF) competitions, with focus on scalability, resilience and ease of use.  
+CTFp (CTF Pilot's CTF Platform) is a CTF platform designed to host large-scale Capture The Flag (CTF) competitions, with a focus on scalability, resilience and ease of use.  
 The platform uses Kubernetes as the underlying orchestration system, where both the management, scoreboard and challenge infrastructure are deployed as Kubernetes resources. It then leverages GitOps through [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) for managing the platform's configuration and deployments, including the CTF challenges.
 
-CTFp acts as the orchestration layer for deploying and managing the platform, while utilizing a variety of CTF Pilots components for providing the full functionality of the platform.
+CTFp acts as the orchestration layer for deploying and managing the platform, while utilizing a variety of CTF Pilot's components for providing the full functionality of the platform.
 
 CTFp provides a CLI tool for managing the deployment of the platform, but it is possible to use the individual Terraform components directly if desired. To further work with the platform after initial deployment, you will primarily interact with the Kubernetes cluster using `kubectl`, ArgoCD and the other monitoring systems deployed.
 
@@ -44,7 +44,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
       - [Updating sizes of nodes in a running platform](#updating-sizes-of-nodes-in-a-running-platform)
       - [Deploying a new challenge](#deploying-a-new-challenge)
       - [Updating a challenge](#updating-a-challenge)
-      - [Deplyoing a page](#deplyoing-a-page)
+      - [Deploying a page](#deploying-a-page)
       - [The CLI tool does not seem to support my setup](#the-cli-tool-does-not-seem-to-support-my-setup)
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
@@ -524,7 +524,7 @@ The workflow for deploying and managing CTFp can be summarized in the following 
 
 > [!TIP]
 > When upgrading existing clusters, it is recommended to drain node pools before changing their sizes, to avoid disruption of running workloads.  
-> Along with updating one node pool at a time, to minimize the impact on the cluster.
+> Update one node pool at a time, to minimize the impact on the cluster.
 
 When updating the sizes of nodes in an existing cluster, it is important to follow a specific procedure to ensure a smooth transition and avoid downtime or data loss.  
 Below are the steps to update the sizes of nodes in an existing cluster:
@@ -564,7 +564,7 @@ Below are the steps to update the sizes of nodes in an existing cluster:
 > Changing node sizes can lead to temporary disruption of workloads.  
 > Always ensure that you have backups of critical data before making changes to the cluster configuration.
 
-Changes to the `scale_type` will only affect new nodes being created, and will not resize existing nodes, as the deployment of these nodes are done as resources are needed.
+Changes to the `scale_type` will only affect new nodes being created, and will not resize existing nodes, as the deployment of these nodes is done as resources are needed.
 
 You may need to manually intervene to resize existing nodes if required, or delete them, forcing the system to create new nodes with the updated sizes. However, this may lead to downtime for workloads running on the nodes being deleted.
 
@@ -584,7 +584,7 @@ Challenges are split into three types:
 - `shared` - Challenge with a single instance for all teams to connect to.
 - `instanced` - Challenge with individual instances for each team.
 
-The challenge should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenge Schema](https://github.com/ctfpilot/challenge-schema).
+The challenge should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and built using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenge Schema](https://github.com/ctfpilot/challenge-schema).
 
 In the configuration file, you will need to add the challenge under the `Challenges configuration` section.
 
@@ -639,7 +639,7 @@ In order to deploy the new challenge, you need to deploy the `challenges` compon
 ./ctfp.py deploy challenges --<env>
 ```
 
-Removing a challenge required you to remove it from the configuration file, and then deploy the `challenges` component again.
+To remove a challenge, delete it from the configuration file, and then deploy the `challenges` component again.
 
 Challenge changes are automatically and continuously deployed through ArgoCD, so no manual intervention is required after the initial deployment.
 
@@ -650,7 +650,7 @@ Challenge updates are handled through the Git repository containing the challeng
 If a challenges slug has been changed, you need to remove the old slug from the configuration file, and add the new slug.
 For this, follow the [Deploying a new challenge](#deploying-a-new-challenge) guide.
 
-#### Deplyoing a page
+#### Deploying a page
 
 To deploy a new page to CTFd, you will need to add the page to a Git repository that should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Page Schema](https://github.com/ctfpilot/page-schema).
 
@@ -850,7 +850,7 @@ The challenge deployment system, utilizes a combination of GitOps principles and
 It is built to use [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template) for preparing the challenge definitions, and ArgoCD for deploying the challenge configurations to the Kubernetes cluster.  
 Here, ArgoCD continuously monitors the defined GitHub repository for changes, and automatically applies updates to the cluster.
 
-Static challanges are deployed as configurations for CTFd through [CTFd-manager](https://github.com/ctfpilot/ctfd-manager), while Shared challenges are deployed as single instances through ArgoCD.
+Static challenges are deployed as configurations for CTFd through [CTFd-manager](https://github.com/ctfpilot/ctfd-manager), while Shared challenges are deployed as single instances through ArgoCD.
 Instanced challenges are managed through [KubeCTF](https://github.com/ctfpilot/kube-ctf), where ArgoCD deploys deployment templates to [KubeCTF](https://github.com/ctfpilot/kube-ctf).
 
 Container images can be stored in any container registry, as long as the Kubernetes cluster has access to pull the images.  
@@ -861,7 +861,7 @@ For more information on how to develop challenges, see the [CTF Pilot's Challeng
 
 ### Network
 
-To visualize the network architecture of CTFp, the following diagrams provide an overview of both the cluster networking and challenge networking setups.
+The following diagrams provide an overview of CTFp's cluster and challenge networking setups
 
 #### Cluster networking
 
@@ -897,7 +897,7 @@ Challenges are accessed through the CTF domain, which is specifically designated
 This load balancer is set up to forward all incoming traffic to the Traefik ingress controllers deployed within the Kubernetes cluster.
 
 Traefik supports TCP and HTTP(S) routing, allowing it to handle a wide range of challenge types and protocols.  
-However, a limited numebr of middlewares are available for TCP routing, so ensure that your challenges are compatible with the available features.
+However, a limited number of middleware options are available for TCP routing, so ensure that your challenges are compatible with the available features.
 
 IP whitelisting is implemented at the ingress level, allowing challenges to restrict access based on IP addresses or CIDR ranges.
 
@@ -908,7 +908,7 @@ Shared and Instanced challenges are deployed within either `ctfpilot-challenges`
 The two namespaces are configured with network policies to restrict any outgoing local traffic, allowing only outbound internet access.
 
 Challenges can therefore not talk to each other, nor communicate across multiple deployments.  
-If you challenge require multiple containers, they need to be deployed within the same challenge deployment, and set up in a sidecar pattern.
+If your challenge require multiple containers, they need to be deployed within the same challenge deployment, and set up in a sidecar pattern.
 
 Cluster DNS is not available for challenges, so any service discovery must be handled through external DNS services.
 Challenges allow for multiple endpoints to be defined, across both HTTP(S) and TCP protocols.
