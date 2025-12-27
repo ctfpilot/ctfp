@@ -1,11 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram id="PnxN1FyzeRLTzJJ5o4E7" name="Page-1">
-        <mxGraphModel dx="2106" dy="1547" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1438" dy="1547" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="52" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="1" vertex="1">
-                    <mxGeometry x="-368" y="-90" width="1076" height="627" as="geometry"/>
+                    <mxGeometry x="-368" y="-102" width="1076" height="639" as="geometry"/>
                 </mxCell>
                 <mxCell id="38" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f8cecc;strokeColor=#b85450;arcSize=5;" parent="1" vertex="1">
                     <mxGeometry x="-25" y="13" width="720" height="509" as="geometry"/>
@@ -59,7 +59,7 @@
                     <mxGeometry x="-161" y="457" width="60" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="55" value="Cluster Network architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#050505;fontSize=20;fontStyle=1" parent="1" vertex="1">
-                    <mxGeometry x="51" y="-70" width="368" height="30" as="geometry"/>
+                    <mxGeometry x="-14" y="-86" width="368" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="66" value="Load balancer" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="2.5" y="186" width="120" height="60" as="geometry"/>
