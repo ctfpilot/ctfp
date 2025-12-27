@@ -891,6 +891,46 @@ Network is shared between nodes using Hetzner Cloud's private networking, ensuri
 
 ![CTFp Challenge Networking Overview](./docs/attachments/architecture/challenge-network-architecture.svg)
 
+As described in the [Cluster networking](#cluster-networking) section, CTFp utilizes three main domains for different purposes.  
+Challenges are accessed through the CTF domain, which is specifically designated for hosting and serving challenge instances, and are therefore not proxied through Cloudflare, rather point directly to the Hetzner Cloud Load Balancers.
+
+This load balancer is set up to forward all incoming traffic to the Traefik ingress controllers deployed within the Kubernetes cluster.
+
+Traefik supports TCP and HTTP(S) routing, allowing it to handle a wide range of challenge types and protocols.  
+However, a limited numebr of middlewares are available for TCP routing, so ensure that your challenges are compatible with the available features.
+
+IP whitelisting is implemented at the ingress level, allowing challenges to restrict access based on IP addresses or CIDR ranges.
+
+By default, HTTP(S) traffic is configured with fallback middleware, providing custom error pages for various HTTP error responses (e.g., 404, 502, 503).  
+When an instanced challenge is being provisioned, the custom error page will inform the user that the challenge is being started and automatically refresh the page until the challenge is ready.
+
+Shared and Instanced challenges are deployed within either `ctfpilot-challenges` or `ctfpilot-challenges-instanced` namespaces, while static challenges are only deployed to CTFd through [CTFd-manager](https://github.com/ctfpilot/ctfd-manager).  
+The two namespaces are configured with network policies to restrict any outgoing local traffic, allowing only outbound internet access.
+
+Challenges can therefore not talk to each other, nor communicate across multiple deployments.  
+If you challenge require multiple containers, they need to be deployed within the same challenge deployment, and set up in a sidecar pattern.
+
+Cluster DNS is not available for challenges, so any service discovery must be handled through external DNS services.
+Challenges allow for multiple endpoints to be defined, across both HTTP(S) and TCP protocols.
+
+TCP endpoints are handled either through custom Traefik port, or as a SSL TCP endpoint using SNI routing.  
+Hetzner limits the amount of ports available for Load Balancers, so ensure that you plan accordingly when deploying challenges requiring TCP endpoints.  
+*Currently, configuring custom ports for TCP endpoints is not supported through the platform configuration, and must be set up manually after deployment, or manually in the cluster Terraform module.*
+
+SSL TCP connections can be made using one of the following command examples:
+
+```bash
+# Using openssl
+openssl s_client -connect <challenge-domain>:443 -servername <challenge-domain>
+
+# Netcat
+ncat --ssl <challenge-domain> 443
+```
+
+*The netcat command is the one displayed in the [CTFd plugin for Kube-CTF](https://github.com/ctfpilot/ctfd-kubectf-plugin).*
+
+We understand that this increases the complexity of challenge connection, but it provides a way to easily and dynamically allocate TCP endpoints without the need for managing multiple ports on the Load Balancer.
+
 ## Getting help
 
 If you need help or have questions regarding CTFp, you can reach out through the following channels:
