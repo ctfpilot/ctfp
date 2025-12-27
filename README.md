@@ -913,8 +913,8 @@ If you challenge require multiple containers, they need to be deployed within th
 Cluster DNS is not available for challenges, so any service discovery must be handled through external DNS services.
 Challenges allow for multiple endpoints to be defined, across both HTTP(S) and TCP protocols.
 
-TCP endpoints are handled either through custom Traefik port, or as a SSL TCP endpoint using SNI routing.  
-Hetzner limits the amount of ports available for Load Balancers, so ensure that you plan accordingly when deploying challenges requiring TCP endpoints.  
+TCP endpoints are handled either through custom Traefik port (only available for shared TCP challenges), or as a SSL TCP endpoint using SNI routing (recommended).  
+Hetzner limits the amount of ports available for Load Balancers, so ensure that you plan accordingly when deploying challenges requiring TCP endpoints, using custom ports.  
 *Currently, configuring custom ports for TCP endpoints is not supported through the platform configuration, and must be set up manually after deployment, or manually in the cluster Terraform module.*
 
 SSL TCP connections can be made using one of the following command examples:
