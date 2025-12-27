@@ -48,6 +48,8 @@ This platform deploys real world infrastructure, and will incur costs when deplo
       - [The CLI tool does not seem to support my setup](#the-cli-tool-does-not-seem-to-support-my-setup)
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
+    - [Overview](#overview)
+    - [Challenge deployment](#challenge-deployment)
   - [Getting help](#getting-help)
   - [Contributing](#contributing)
   - [Background](#background)
@@ -711,6 +713,14 @@ ctfp/
 ├── template.automated.tfvars  # Template for CTFp CLI configuration
 └── ...                        # Other files and directories, such as license, contributing guidelines, etc.
 ```
+
+### Overview
+
+![CTFp Architecture](./docs/attachments/architecture/overview.svg)
+
+### Challenge deployment
+
+![CTFp Challenge Deployment](./docs/attachments/architecture/challenge-deployment.svg)
 
 ## Getting help
 
