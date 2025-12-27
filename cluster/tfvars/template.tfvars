@@ -35,20 +35,22 @@ cluster_dns_ctf        = "<dns-ctf-domain>"        # The domain name to use for 
 # Cluster configuration
 # ------------------------
 # WARNING: Changing region while the cluster is running will cause all servers in the group to be destroyed and recreated.
-# For optimal performance, it is recommended to use the same region for all servers.
-# Region 1 is used for scale nodes and loadbalancer.
-# Possible values: fsn1, hel1, nbg1
-region_1     = "fsn1"       # Region for subgroup 1
-region_2     = "fsn1"       # Region for subgroup 2
-region_3     = "fsn1"       # Region for subgroup 3
+# For optimal performance, it is recommended to use the same region for all servers. If you want redundancy, use different regions for each group.
+# Region 1 is used for challs nodes, scale nodes and loadbalancer.
+# Possible values: fsn1, hel1, nbg1, ash, hil, sin - See https://docs.hetzner.com/cloud/general/locations/
+region_1     = "nbg1"       # Region for group 1, challs nodes, scale nodes and loadbalancer
+region_2     = "nbg1"       # Region for group 2
+region_3     = "nbg1"       # Region for group 3
 network_zone = "eu-central" # Hetzner network zone. Possible values: "eu-central", "us-east", "us-west", "ap-southeast". Regions must be within the network zone.
 
 # Servers
-# Server definitions are split into three groups: Control Plane, Agents, and Scale. Control plane and agents has three groups each, and scale has one group.
+# Server definitions are split into four groups: Control Plane, Agents, Challs and Scale. Control plane and agents has three groups each, while challs and scale is one group each.
 # Each group can be scaled and defined independently, to allow for smooth transitions between different server types and sizes.
 # Control planes are the servers that run the Kubernetes control plane, and are responsible for managing the cluster. 
 # Agents are the servers that run the workloads, and scale is used to scale the cluster up or down dynamically.
-# Scale is automatically scaled agent nodes, which is handled by the cluster autoscaler. It is optional, and can be used to scale the cluster up or down dynamically.
+# Challs are the servers that run the CTF challenges.
+# Scale is automatically scaled agent nodes, which is handled by the cluster autoscaler. It is optional, and can be used to scale the cluster up or down dynamically if there is not enough ressources in the cluster.
+# Challs and scale nodes are placed in region_1, and are tainted to make normal ressources prefer agent nodes, but allow scheduling on challs and scale nodes if needed.
 
 # Server types. See https://www.hetzner.com/cloud
 # Control plane nodes - Nodes that run the Kubernetes control plane components.
@@ -59,7 +61,7 @@ control_plane_type_3 = "cx23" # Control plane group 3
 agent_type_1         = "cx33" # Agent group 1
 agent_type_2         = "cx33" # Agent group 2
 agent_type_3         = "cx33" # Agent group 3
-# Challenge nodes - Nodes dedicated to running CTF challenges. These nodes are tainted to only run challenge workloads.
+# Challenge nodes - Nodes dedicated to running CTF challenges.
 challs_type          = "cx33" # CTF challenge nodes
 # Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
 scale_type           = "cx33" # Scale group
