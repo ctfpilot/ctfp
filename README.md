@@ -700,7 +700,7 @@ CTFp is composed of four main components, each responsible for different aspects
 3. **Platform**: Handles the deployment and configuration of the CTFd scoreboard and its associated services.  
    This includes setting up the database, caching, and storage solutions required for the scoreboard to function effectively.  
    This can be found in the [`platform`](./platform) directory, and as the `platform` component in the CLI tool.
-4. **Challenges**: Manages the deployment and configuration of the CTF challenges. 
+4. **Challenges**: Manages the deployment and configuration of the CTF challenges.  
    This includes setting up the necessary resources and configurations to host and manage the challenges securely and efficiently.  
    This can be found in the [`challenges`](./challenges) directory, and as the `challenges` component in the CLI tool.
 
