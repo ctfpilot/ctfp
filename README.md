@@ -51,6 +51,9 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Overview](#overview)
       - [Cluster](#cluster)
         - [Cluster requirements](#cluster-requirements)
+      - [Ops](#ops)
+      - [Platform](#platform)
+      - [Challenges](#challenges)
     - [Challenge deployment](#challenge-deployment)
     - [Network](#network)
       - [Cluster networking](#cluster-networking)
@@ -773,6 +776,71 @@ The Kubernetes cluster used for CTFp must meet the following requirements:
 - Has correct firewall rules to allow outbound connections to required services, such as logging aggregation, SMTP servers, Discord, Cloudflare API, GitHub, and reverse connections from challenges (if they need internet access).
 - Flannel CNI installed for networking.
 - Cert-manager is not installed, as it is managed by the Ops component.
+
+#### Ops
+
+The Ops component is responsible for deploying and managing the operational tools, services, and configurations required for the platform to function.
+
+It deploys essential infrastructure components on top of the Kubernetes cluster, providing foundational services that other platform components depend on. This component must be deployed after the Cluster and before the Platform and Challenges components.
+
+Specifically, it deploys the following:
+
+- **ArgoCD**: GitOps continuous delivery tool used to deploy and manage applications within the Kubernetes cluster. ArgoCD continuously synchronizes the cluster state with Git repositories, enabling declarative infrastructure management.
+- **Cert-manager**: Certificate management system for automating TLS/SSL certificate provisioning and renewal. It integrates with Cloudflare for DNS validation challenges.
+- **Traefik configuration**: Deploys additional Helm chart configuration for the Traefik ingress controller already present in the cluster, enabling advanced routing and middleware features, along with additonal logging with filebeat log aggregation.
+- **Descheduler**: Continuously rebalances the cluster by evicting workloads from nodes, ensuring optimal resource utilization and distribution across available nodes.
+- **Error Fallback**: Deploys [CTF Pilot's Error Fallback](https://github.com/ctfpilot/error-fallback) page service, providing custom error pages for HTTP error responses (e.g., 404, 502, 503).
+- **Filebeat**: Log aggregation and forwarding system that sends logs to Elasticsearch or other log aggregation services, enabling centralized logging and analysis.
+- **MariaDB Operator**: Kubernetes operator for managing MariaDB database instances. Allows automated provisioning, scaling, and management of MySQL-compatible databases.
+- **Redis Operator**: Kubernetes operator for managing Redis cache instances. Enables automated deployment and management of Redis clusters for caching and data storage.
+- **Prometheus & Grafana Stack**: Comprehensive monitoring and visualization solution. Prometheus scrapes metrics from cluster components, while Grafana provides dashboards for monitoring cluster health, resource usage, and application performance. Custom dashboards for Kuberenetes, CTFd, and KubeCTF are included.
+- **Alertmanager**: Alerting system integrated with Prometheus, used to send notifications based on defined alerting rules. Configured to send alerts to Discord channels for monitoring purposes.
+
+#### Platform
+
+The Platform component is responsible for deploying and managing the CTFd scoreboard and its associated services.
+
+It handles the complete setup of the CTF competition's scoring system, database infrastructure, and management services. The Platform component must be deployed after both the Cluster and Ops components, as it depends on services provided by the Ops component.
+
+Specifically, it deploys the following:
+
+- **CTFd**: The main CTF scoreboard application. This is deployed as a customizable instance that manages team registration, challenge submissions, scoring, and leaderboards. It deploys using the provided CTFd configuration from the defined GitHub repository. See [CTF Pilot's CTFd configuration](https://github.com/ctfpilot/ctfd) for more information.
+- [**CTFd-manager**](https://github.com/ctfpilot/ctfd-manager): A companion service for CTFd that provides automated configuration management and administrative functions. It handles initial setup of CTFd and continuous synchronization of pages and challenges.
+- **MariaDB database cluster**: A highly available database cluster for storing CTFd data, user accounts, challenge information, and competition state. Deployed using the MariaDB Operator with automated backups to S3.
+- **Redis caching layer**: A Redis cluster for caching CTFd data and improving performance.
+- **S3 storage configuration**: Integration with S3-compatible object storage for storing challenge files, user uploads, and other assets uploaded to CTFd.
+- **Metrics and monitoring**: Deploys metrics exporters and monitoring configurations specific to the CTFd instance for tracking performance and availability.
+- **Pages deployment**: Automatically deploys CTF-related pages (e.g., rules, schedule, information pages) from the defined GitHub repository using [CTFd-manager](https://github.com/ctfpilot/ctfd-manager).
+- **Traefik ingress configuration**: Sets up ingress routing rules to expose CTFd and related services through the Traefik ingress controller.
+- **Initial CTFd setup**: Configures initial CTFd settings, such as competition name, start/end times, and other global settings using [CTFd-manager](https://github.com/ctfpilot/ctfd-manager).
+
+The Platform automatically sets up Kubernetes secrets and configurations for the components deployed, so that these information is not required to be tracked within Git.  
+This means, that critical secrets are stored within Kubernetes secrets once the Platform component is deployed.
+
+Backups of the database are automatically created and stored in the configured S3 storage, allowing for disaster recovery and data retention. Currently backups are configured to run every 15 minutes, and retained for 30 days.  
+Backups are stored as cleartext SQL dump files, so ensure that the S3 storage has proper access policies in place to prevent unauthorized access.
+
+#### Challenges
+
+The Challenges component is responsible for managing the deployment and configuration of CTF challenges within the platform.
+
+It handles the infrastructure setup required to host, isolate, and manage challenges across the Kubernetes cluster. Challenge instances can be deployed in different modes (static, shared or instanced), and the component manages the networking, resource allocation, and lifecycle of challenge containers. The Challenges component must be deployed after the Cluster, Ops, and Platform components.
+
+Specifically, it manages the following:
+
+- **Challenge deployment infrastructure**: Sets up the necessary Kubernetes resources for hosting challenges. This includes namespaces, network policies, and RBAC configurations for proper challenge isolation and access control.
+- **KubeCTF integration**: Integrates with [KubeCTF](https://github.com/ctfpilot/kube-ctf) to enable dynamic challenge instance management. [KubeCTF](https://github.com/ctfpilot/kube-ctf) handles the creation, scaling, and destruction of challenge instances.
+- **Challenge mode support**: Supports three deployment modes:
+  - **Static challenges**: Challenges that are deployed as static files (e.g., forensics challenges) and are only deployed to CTFd through [CTFd-manager](https://github.com/ctfpilot/ctfd-manager).
+  - **Shared challenges**: Challenges that have a single instance shared among all teams (e.g., web challenges). This is deployed through ArgoCD.
+  - **Instanced challenges**: Challenges that have individual instances for each team (e.g., dynamic web challenges). This is managed through [KubeCTF](https://github.com/ctfpilot/kube-ctf).
+- **IP whitelisting**: Implements IP-based access control to challenges, allowing restrictions on which IPs or networks can access specific challenges. For public access, the `0.0.0.0/0` CIDR can be used.
+- **Custom fallback pages**: Deploys custom error pages for various challenge states (e.g., instancing fallback page for when a challenge is being provisioned).
+- **Challenge deployment and configuration management**: Deploys challenge deployment configurations through ArgoCD, allowing for GitOps-style management of challenge definitions and updates, controlling it through defined GitHub repository and defined challenge slugs to be deployed.
+
+Challenges are deployed and managed through Git repositories, with configurations defined in challenge definition files. Use the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template) for challenge development.
+
+Per default, the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) deployment templates use taints to control which nodes challenge instances are scheduled on. Therefore, the cluster must have at least one node with the taint `cluster.ctfpilot.com/node=scaler:PreferNoSchedule` if using Instanced challenges, to ensure challenge instances are properly scheduled.
 
 ### Challenge deployment
 
