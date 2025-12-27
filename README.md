@@ -51,7 +51,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
     - [Overview](#overview)
     - [Challenge deployment](#challenge-deployment)
     - [Network](#network)
-    - [Cluster networking](#cluster-networking)
+      - [Cluster networking](#cluster-networking)
       - [Challenge networking](#challenge-networking)
   - [Getting help](#getting-help)
   - [Contributing](#contributing)
@@ -738,7 +738,7 @@ ctfp/
 
 ### Network
 
-### Cluster networking
+#### Cluster networking
 
 ![CTFp Cluster Networking Overview](./docs/attachments/architecture/cluster-network-architecture.svg)
 
