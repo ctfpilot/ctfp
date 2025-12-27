@@ -597,7 +597,7 @@ challenges_instanced = {
 }
 ```
 
-An example of this, using the [`CTF Pilot's Challenges example repository`](https://github.com/ctfpilot/challenges-example), would look like this:
+An example of this, using [CTF Pilot's Challenges example repository](https://github.com/ctfpilot/challenges-example), would look like this:
 
 ```hcl
 challenges_static = {
@@ -631,8 +631,7 @@ For this, follow the [Deploying a new challenge](#deploying-a-new-challenge) gui
 
 #### Deplyoing a page
 
-To deploy a new page to CTFd, you will need to add the page to a Git repository that should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit).  
-You can see the page schema in the [CTF Pilot's Page Schema](https://github.com/ctfpilot/page-schema).
+To deploy a new page to CTFd, you will need to add the page to a Git repository that should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Page Schema](https://github.com/ctfpilot/page-schema).
 
 In the configuration file, you will need to add the page under the `Pages configuration` section.
 
@@ -644,7 +643,7 @@ pages = [
 ]
 ```
 
-An example of this, using the [`CTF Pilot's Challenges example repository`](https://github.com/ctfpilot/challenges-example), would look like this:
+An example of this, using the [CTF Pilot's Challenges example repository](https://github.com/ctfpilot/challenges-example), would look like this:
 
 ```hcl
 pages = ["index"]
@@ -662,15 +661,19 @@ Page changes are automatically and continuously deployed through ArgoCD, so no m
 
 ## Architecture
 
-The CTFp platform is composed of four main components, each responsible for different aspects of the platform's functionality:
+CTFp is composed of four main components, each responsible for different aspects of the platform's functionality:
 
-1. **Cluster**: Responsible for provisioning and managing the underlying Kubernetes cluster infrastructure on Hetzner Cloud. This includes setting up the necessary servers, networking, and storage resources required for the cluster to operate.
+1. **Cluster**: Responsible for provisioning and managing the underlying Kubernetes cluster infrastructure on Hetzner Cloud.  
+   This includes setting up the necessary servers, networking, and storage resources required for the cluster to operate.  
    This can be found in the [`cluster`](./cluster) directory, and as the `cluster` component in the CLI tool.
-2. **Ops** (Operations): Focuses on deploying and managing the operational tools and monitoring systems for the platform. This includes setting up ArgoCD, monitoring, logging, ingress controllers, and other essential services that ensure the smooth operation of the platform.
+2. **Ops** (Operations): Focuses on deploying and managing the operational tools and monitoring systems for the platform.  
+   This includes setting up ArgoCD, monitoring, logging, ingress controllers, and other essential services that ensure the smooth operation of the platform.  
    This can be found in the [`ops`](./ops) directory, and as the `ops` component in the CLI tool.
-3. **Platform**: Handles the deployment and configuration of the CTFd scoreboard and its associated services. This includes setting up the database, caching, and storage solutions required for the scoreboard to function effectively.
+3. **Platform**: Handles the deployment and configuration of the CTFd scoreboard and its associated services.  
+   This includes setting up the database, caching, and storage solutions required for the scoreboard to function effectively.  
    This can be found in the [`platform`](./platform) directory, and as the `platform` component in the CLI tool.
-4. **Challenges**: Manages the deployment and configuration of the CTF challenges. This includes setting up the necessary resources and configurations to host and manage the challenges securely and efficiently.
+4. **Challenges**: Manages the deployment and configuration of the CTF challenges. 
+   This includes setting up the necessary resources and configurations to host and manage the challenges securely and efficiently.  
    This can be found in the [`challenges`](./challenges) directory, and as the `challenges` component in the CLI tool.
 
 Each component is designed to be modular and can be deployed independently or together, allowing for flexibility in managing the platform's infrastructure and services.
