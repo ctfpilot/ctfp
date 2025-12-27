@@ -139,6 +139,17 @@ To create the server images used for the Kubernetes cluster nodes, run:
 ./ctfp.py generate-images
 ```
 
+To use the Terraform modules, you need to generate the backend configuration for each component.
+
+```bash
+./ctfp.py generate-backend cluster <bucket> <region> <endpoint>
+./ctfp.py generate-backend ops <bucket> <region> <endpoint>
+./ctfp.py generate-backend platform <bucket> <region> <endpoint>
+./ctfp.py generate-backend challenges <bucket> <region> <endpoint>
+```
+
+*Replace `<bucket>`, `<region>` and `<endpoint>` with your S3 bucket details.*
+
 Finally, you can deploy the entire platform with:
 
 ```bash
