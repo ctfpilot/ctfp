@@ -719,21 +719,21 @@ ctfp/
 
 ### Overview
 
-![CTFp Architecture](./docs/attachments/architecture/overview.svg)
+![CTFp Architecture](./docs/attachments/architecture/overview.png)
 
 ### Challenge deployment
 
-![CTFp Challenge Deployment](./docs/attachments/architecture/challenge-deployment.svg)
+![CTFp Challenge Deployment](./docs/attachments/architecture/challenge-deployment.png)
 
 ### Network
 
 ### Cluster networking
 
-![CTFp Cluster Networking Overview](./docs/attachments/architecture/cluster-network-architecture.svg)
+![CTFp Cluster Networking Overview](./docs/attachments/architecture/cluster-network-architecture.png)
 
 #### Challenge networking
 
-![CTFp Challenge Networking Overview](./docs/attachments/architecture/challenge-network-architecture.svg)
+![CTFp Challenge Networking Overview](./docs/attachments/architecture/challenge-network-architecture.png)
 
 ## Getting help
 
