@@ -45,6 +45,7 @@ This platform deploys real world infrastructure, and will incur costs when deplo
       - [Deploying a new challenge](#deploying-a-new-challenge)
       - [Updating a challenge](#updating-a-challenge)
       - [Deplyoing a page](#deplyoing-a-page)
+      - [The CLI tool does not seem to support my setup](#the-cli-tool-does-not-seem-to-support-my-setup)
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
   - [Getting help](#getting-help)
@@ -658,6 +659,17 @@ In order to deploy the new page, you need to deploy the `platform` component usi
 To remove a page, you need to remove it from the configuration file, and then deploy the `platform` component again.
 
 Page changes are automatically and continuously deployed through ArgoCD, so no manual intervention is required after the initial deployment.
+
+#### The CLI tool does not seem to support my setup
+
+The CLI tool is designed to cover a wide range of deployment scenarios, but it may be that your specific setup require some custom setup in each Terraform component.
+
+Each component is located in its own directory, and can be deployed manually using OpenTofu/terraform commands.
+
+However, be aware that the CLI tool also manages the Terraform backend configuration, and you will need to set this up manually if you choose to deploy the components manually.
+
+Documentation is located within each component directory, explaining the configuration options and how to deploy the component manually.  
+A template tfvars file is also located in each component directory in `tfvars/template.tfvars`, explaining the configuration options available for that component.
 
 ## Architecture
 
