@@ -893,12 +893,13 @@ Network is shared between nodes using Hetzner Cloud's private networking, ensuri
 
 ## Getting help
 
-The project is built and maintained by the CTF Pilot team, which is a community-driven effort.
-
 If you need help or have questions regarding CTFp, you can reach out through the following channels:
 
 - **GitHub Issues**: You can open an issue in the [CTFp GitHub repository](https://github.com/ctfpilot/ctfp/issues) for bug reports, feature requests, or general questions.
 - **Discord**: Join the [CTF Pilot Discord server](https://discord.ctfpilot.com) to engage with the community, ask questions, and get support from other users and contributors.
+
+*The project is delivered as-is, and we do not provide official support services. However, we encourage community engagement and collaboration to help each other out.*  
+*Contributors and maintainers may assist with questions and issues as time permits.*
 
 ## Contributing
 
