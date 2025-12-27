@@ -3,22 +3,22 @@
 > [!TIP]
 > If you are looking for **how to build challenges for CTFp**, please check out the **[CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template)** and **[CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit)** repositories.
 
-CTFp (CTF Pilot's CTF Platform) is a CTF platform designed to host large-scale Capture The Flag (CTF) competitions, with a focus on scalability, resilience and ease of use.  
-The platform uses Kubernetes as the underlying orchestration system, where both the management, scoreboard and challenge infrastructure are deployed as Kubernetes resources. It then leverages GitOps through [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) for managing the platform's configuration and deployments, including the CTF challenges.
+CTFp (CTF Pilot's CTF Platform) is a CTF platform designed to host large-scale Capture The Flag (CTF) competitions, with a focus on scalability, resilience, and ease of use.  
+The platform uses Kubernetes as the underlying orchestration system, where the management, scoreboard, and challenge infrastructure are deployed as Kubernetes resources. It then leverages GitOps through [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) for managing the platform's configuration and deployments, including the CTF challenges.
 
-CTFp acts as the orchestration layer for deploying and managing the platform, while utilizing a variety of CTF Pilot's components for providing the full functionality of the platform.
+CTFp acts as the orchestration layer for deploying and managing the platform, while utilizing a variety of CTF Pilot's components to provide the full functionality of the platform.
 
-CTFp provides a CLI tool for managing the deployment of the platform, but it is possible to use the individual Terraform components directly if desired. To further work with the platform after initial deployment, you will primarily interact with the Kubernetes cluster using `kubectl`, ArgoCD and the other monitoring systems deployed.
+CTFp provides a CLI tool for managing the deployment of the platform, but it is possible to use the individual Terraform components directly if desired. To manage the platform after initial deployment, you will primarily interact with the Kubernetes cluster using `kubectl`, ArgoCD, and the other monitoring systems deployed.
 
 > [!IMPORTANT]
-> In order to run CTFp properly, you will need to have a working knowledge of **Cloud**, **Kubernetes**, **Terraform/OpenTofu**, **GitOps** and **CTFd**.  
+> In order to run CTFp properly, you will need to have a working knowledge of **Cloud**, **Kubernetes**, **Terraform/OpenTofu**, **GitOps**, and **CTFd**.  
 > The platform is designed to work with CTF Pilot's Challenges ecosystem, to ensure secure hosting of CTF challenges.
 >
 > This platform is not intended for beginners, and it is assumed that you have prior experience with these technologies and systems.  
-> Incorrect handling of Kubernetes resources can lead to data loss, downtime and security vulnerabilities.  
+> Incorrect handling of Kubernetes resources can lead to data loss, downtime, and security vulnerabilities.  
 > Incorrectly configured challenges may lead to security vulnerabilities or platform instability.
 
-This platform deploys real world infrastructure, and will incur costs when deployed.
+This platform deploys real-world infrastructure and will incur costs when deployed.
 
 ## Table of Contents
 
@@ -101,7 +101,7 @@ CTFp offers a wide range of features to facilitate the deployment and management
   - **Environment management** for handling multiple deployment environments (Test, Dev, Prod)
   - **State management** with automated backend configuration, with states stored in S3
   - **Plan generation and review** before applying changes
-  - **Sub 20 minute deployment time** for the entire platform (excluding image generation)
+  - **Under 20 minutes** deployment time for the entire platform (excluding image generation)
   - **Fully configured through configuration files** for easy setup and management
 
 ## Quick start
@@ -117,7 +117,7 @@ git clone https://github.com/ctfpilot/ctfp
 cd ctfp
 ```
 
-First you need to initialize the platform configuration for your desired environment (test, dev, prod):
+First, you need to initialize the platform configuration for your desired environment (test, dev, prod):
 
 ```bash
 ./ctfp.py init
@@ -127,7 +127,7 @@ First you need to initialize the platform configuration for your desired environ
 > You can add `--test`, `--dev` or `--prod` to specify the environment you want to initialize.  
 > The default environment is `test` (`--test`).
 >
-> Used in all commands, except the `generate-images` command, as it asks for the Hetzner Cloud project to use when generating images.
+> Used in all commands except the `generate-images` command, as it asks for the Hetzner Cloud project to use when generating images.
 
 Next, you need to fill out the configuration located in the `automated.<env>.tfvars` file.
 
@@ -152,7 +152,7 @@ To use the Terraform modules, you need to generate the backend configuration for
 ./ctfp.py generate-backend challenges <bucket> <region> <endpoint>
 ```
 
-*Replace `<bucket>`, `<region>` and `<endpoint>` with your S3 bucket details.*
+*Replace `<bucket>`, `<region>`, and `<endpoint>` with your S3 bucket details.*
 
 Finally, you can deploy the entire platform with:
 
@@ -185,7 +185,7 @@ In order to even deploy the platform, the following software needs to be install
 - [OpenTofu](https://opentofu.org) (Alternative version of [Terraform](https://www.terraform.io/downloads.html))
 - [Packer](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli#installing-packer) - For initial generation of server images
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - For interacting with the Kubernetes cluster
-- [hcloud cli tool](https://github.com/hetznercloud/cli) - For interacting with the Hetzner Cloud API (Otherwise use the Hetzner web interface)
+- [hcloud CLI tool](https://github.com/hetznercloud/cli) - For interacting with the Hetzner Cloud API (Otherwise use the Hetzner web interface)
 - SSH client - For connecting to the servers
 - Python 3 - For running the CTFp CLI tool
 - Python package [`python-hcl2`](https://github.com/amplify-education/python-hcl2) - Required by the CTFp CLI tool for parsing Terraform configuration files
@@ -194,10 +194,10 @@ And the following is required in order to deploy the platform:
 
 - [Hetzner Cloud](https://www.hetzner.com/cloud) account with one or more Hetzner Cloud projects
 - [Hetzner Cloud API Token](https://console.hetzner.cloud/projects) - For authenticating with the Hetzner Cloud API
-- [Hetzner S3 buckets](https://console.hetzner.cloud/projects) - For storing the Terraform state files, backups and challenge data. We recommend using 3 separate buckets with separate access keys for security reasons
+- [Hetzner S3 buckets](https://console.hetzner.cloud/projects) - For storing the Terraform state files, backups, and challenge data. We recommend using 3 separate buckets with separate access keys for security reasons
 - [Cloudflare](https://www.cloudflare.com/) account
 - [Cloudflare API Token](https://dash.cloudflare.com/profile/api-tokens) - For authenticating with the Cloudflare API
-- [3 Cloudflare controlled domains](https://dash.cloudflare.com/) - For allowing the system to allocate a domain for the Kubernetes cluster. Used to allocate management, platform and challenge domains.
+- [3 Cloudflare-managed domains](https://dash.cloudflare.com/) - For allowing the system to allocate a domain for the Kubernetes cluster. Used to allocate management, platform, and challenge domains.
 - SMTP mail server - To allow CTFd to send emails to users (Password resets, notifications, etc.). The system is set up to allow outbound connections to [Brevo](https://brevo.com) SMTP on port 587.
 - [Discord](https://discord.com) channels to receive notifications. One for monitoring alerts and one for first-blood notifications.
 - GitHub repository following [CTF Pilot's Challenges template](https://github.com/ctfpilot/challenges-template) for CTF challenges and CTFd pages - A Git repository containing the CTF challenges to be deployed. This should be your own private repository using the CTF Pilot Challenges Template as a base. This may also contain the pages to be used in CTFd.
@@ -242,7 +242,7 @@ If the platform is manually changed outside of the CLI tool, the changes will be
 >
 > The file can be initialized using the `./ctfp.py init` command.
 
-Each component is not fully configurable, and may in certain situation required advanced configuration. These configurations are not included in the main configuration file.
+Each component is not fully configurable, and may in certain situations require advanced configuration. These configurations are not included in the main configuration file.
 These options are either intended to be static, or require manual configuration through the individual Terraform components.  
 Changing these options may lead to instability or data loss, and should be done with caution.
 
@@ -571,7 +571,7 @@ You may need to manually intervene to resize existing nodes if required, or dele
 > [!NOTE]
 > Downscaling nodes may not be possible, depending on the initial size of the nodes and the new size.
 
-Hetzner does not support downsizing nodes, if they were initially created with a larger size.  
+Hetzner does not support downsizing nodes if they were initially created with a larger size.  
 In such cases, the nodes will need to be deleted, forcing the system to create new nodes with the desired size.
 
 #### Deploying a new challenge
@@ -647,12 +647,12 @@ Challenge changes are automatically and continuously deployed through ArgoCD, so
 
 Challenge updates are handled through the Git repository containing the challenges.
 
-If a challenges slug has been changed, you need to remove the old slug from the configuration file, and add the new slug.
+If a challenge's slug has been changed, you need to remove the old slug from the configuration file, and add the new slug.
 For this, follow the [Deploying a new challenge](#deploying-a-new-challenge) guide.
 
 #### Deploying a page
 
-To deploy a new page to CTFd, you will need to add the page to a Git repository that should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and build using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Page Schema](https://github.com/ctfpilot/page-schema).
+To deploy a new page to CTFd, you will need to add the page to a Git repository that should be formatted using the [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template), and built using the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Page Schema](https://github.com/ctfpilot/page-schema).
 
 In the configuration file, you will need to add the page under the `Pages configuration` section.
 
@@ -682,7 +682,7 @@ Page changes are automatically and continuously deployed through ArgoCD, so no m
 
 #### The CLI tool does not seem to support my setup
 
-The CLI tool is designed to cover a wide range of deployment scenarios, but it may be that your specific setup require some custom setup in each Terraform component.
+The CLI tool is designed to cover a wide range of deployment scenarios, but it may be that your specific setup requires some customization in each Terraform component.
 
 Each component is located in its own directory, and can be deployed manually using OpenTofu/terraform commands.
 
@@ -751,10 +751,10 @@ Specifically, it handles:
 
 - **Cluster provisioning**: Creating and configuring the Kubernetes cluster using Hetzner Cloud resources.
 - **Node management**: Setting up and managing the worker nodes that will run the workloads.  
-  This including configuring node pools, scaling, and updating nodes as needed, along with setting up the node-autoscaler for automatic scaling based on demand.
+  This includes configuring node pools, scaling, and updating nodes as needed, along with setting up the node-autoscaler for automatic scaling based on demand.
 - **Networking**: Configuring the network settings to ensure proper communication between cluster components.  
   This includes setting up a private network, configuring VPN connectivity between the nodes and setting up Flannel CNI for pod networking.  
-  Opens up required firewall rules to allow communication between nodes, and outbound connections to required services.
+  It opens the required firewall rules to allow communication between nodes, and outbound connections to required services.
 - **Storage**: Setting up storage controller (CSI) to use Hetzner Block storage volumes.
 - **Traefik proxy**: Deploying Traefik as the ingress controller for managing incoming traffic to the cluster.
 
@@ -786,13 +786,13 @@ Specifically, it deploys the following:
 
 - **ArgoCD**: GitOps continuous delivery tool used to deploy and manage applications within the Kubernetes cluster. ArgoCD continuously synchronizes the cluster state with Git repositories, enabling declarative infrastructure management.
 - **Cert-manager**: Certificate management system for automating TLS/SSL certificate provisioning and renewal. It integrates with Cloudflare for DNS validation challenges.
-- **Traefik configuration**: Deploys additional Helm chart configuration for the Traefik ingress controller already present in the cluster, enabling advanced routing and middleware features, along with additonal logging with filebeat log aggregation.
+- **Traefik configuration**: Deploys additional Helm chart configuration for the Traefik ingress controller already present in the cluster, enabling advanced routing and middleware features, along with additional logging with Filebeat log aggregation.
 - **Descheduler**: Continuously rebalances the cluster by evicting workloads from nodes, ensuring optimal resource utilization and distribution across available nodes.
 - **Error Fallback**: Deploys [CTF Pilot's Error Fallback](https://github.com/ctfpilot/error-fallback) page service, providing custom error pages for HTTP error responses (e.g., 404, 502, 503).
 - **Filebeat**: Log aggregation and forwarding system that sends logs to Elasticsearch or other log aggregation services, enabling centralized logging and analysis.
 - **MariaDB Operator**: Kubernetes operator for managing MariaDB database instances. Allows automated provisioning, scaling, and management of MySQL-compatible databases.
 - **Redis Operator**: Kubernetes operator for managing Redis cache instances. Enables automated deployment and management of Redis clusters for caching and data storage.
-- **Prometheus & Grafana Stack**: Comprehensive monitoring and visualization solution. Prometheus scrapes metrics from cluster components, while Grafana provides dashboards for monitoring cluster health, resource usage, and application performance. Custom dashboards for Kuberenetes, CTFd, and KubeCTF are included.
+- **Prometheus & Grafana Stack**: Comprehensive monitoring and visualization solution. Prometheus scrapes metrics from cluster components, while Grafana provides dashboards for monitoring cluster health, resource usage, and application performance. Custom dashboards for Kubernetes, CTFd, and KubeCTF are included.
 - **Alertmanager**: Alerting system integrated with Prometheus, used to send notifications based on defined alerting rules. Configured to send alerts to Discord channels for monitoring purposes.
 
 #### Platform
@@ -813,8 +813,8 @@ Specifically, it deploys the following:
 - **Traefik ingress configuration**: Sets up ingress routing rules to expose CTFd and related services through the Traefik ingress controller.
 - **Initial CTFd setup**: Configures initial CTFd settings, such as competition name, start/end times, and other global settings using [CTFd-manager](https://github.com/ctfpilot/ctfd-manager).
 
-The Platform automatically sets up Kubernetes secrets and configurations for the components deployed, so that these information is not required to be tracked within Git.  
-This means, that critical secrets are stored within Kubernetes secrets once the Platform component is deployed.
+The Platform automatically sets up Kubernetes secrets and configurations for the components deployed, so that this information is not required to be tracked within Git.  
+This means that critical secrets are stored within Kubernetes secrets once the Platform component is deployed.
 
 Backups of the database are automatically created and stored in the configured S3 storage, allowing for disaster recovery and data retention. Currently backups are configured to run every 15 minutes, and retained for 30 days.  
 Backups are stored as cleartext SQL dump files, so ensure that the S3 storage has proper access policies in place to prevent unauthorized access.
@@ -839,7 +839,7 @@ Specifically, it manages the following:
 
 Challenges are deployed and managed through Git repositories, with configurations defined in challenge definition files. Use the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template) for challenge development.
 
-Per default, the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) deployment templates use taints to control which nodes challenge instances are scheduled on. Therefore, the cluster must have at least one node with the taint `cluster.ctfpilot.com/node=scaler:PreferNoSchedule` if using Instanced challenges, to ensure challenge instances are properly scheduled and deployed.
+By default, the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) deployment templates use taints to control which nodes challenge instances are scheduled on. Therefore, the cluster must have at least one node with the taint `cluster.ctfpilot.com/node=scaler:PreferNoSchedule` if using Instanced challenges, to ensure challenge instances are properly scheduled and deployed.
 
 ### Challenge deployment
 
@@ -854,7 +854,7 @@ Static challenges are deployed as configurations for CTFd through [CTFd-manager]
 Instanced challenges are managed through [KubeCTF](https://github.com/ctfpilot/kube-ctf), where ArgoCD deploys deployment templates to [KubeCTF](https://github.com/ctfpilot/kube-ctf).
 
 Container images can be stored in any container registry, as long as the Kubernetes cluster has access to pull the images.  
-Per default, pull secrets are configured for GitHub Container Registry, and are currently **not** configurable through the platform configuration.  
+By default, pull secrets are configured for GitHub Container Registry, and are currently **not** configurable through the platform configuration.  
 Any additional pull secrets must be created manually in the cluster, and referenced in the challenge deployment configuration.
 
 For more information on how to develop challenges, see the [CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit) and [CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template). An example challenges repository can be found at [CTF Pilot's Challenges example repository](https://github.com/ctfpilot/challenges-example).
@@ -892,7 +892,7 @@ Network is shared between nodes using Hetzner Cloud's private networking, ensuri
 ![CTFp Challenge Networking Overview](./docs/attachments/architecture/challenge-network-architecture.svg)
 
 As described in the [Cluster networking](#cluster-networking) section, CTFp utilizes three main domains for different purposes.  
-Challenges are accessed through the CTF domain, which is specifically designated for hosting and serving challenge instances, and are therefore not proxied through Cloudflare, rather point directly to the Hetzner Cloud Load Balancers.
+Challenges are accessed through the CTF domain, which is specifically designated for hosting and serving challenge instances, and are therefore not proxied through Cloudflare; they point directly to the Hetzner Cloud Load Balancers.
 
 This load balancer is set up to forward all incoming traffic to the Traefik ingress controllers deployed within the Kubernetes cluster.
 
@@ -908,13 +908,13 @@ Shared and Instanced challenges are deployed within either `ctfpilot-challenges`
 The two namespaces are configured with network policies to restrict any outgoing local traffic, allowing only outbound internet access.
 
 Challenges can therefore not talk to each other, nor communicate across multiple deployments.  
-If your challenge require multiple containers, they need to be deployed within the same challenge deployment, and set up in a sidecar pattern.
+If your challenge requires multiple containers, they need to be deployed within the same challenge deployment, and set up in a sidecar pattern.
 
 Cluster DNS is not available for challenges, so any service discovery must be handled through external DNS services.
 Challenges allow for multiple endpoints to be defined, across both HTTP(S) and TCP protocols.
 
-TCP endpoints are handled either through custom Traefik port (only available for shared TCP challenges), or as a SSL TCP endpoint using SNI routing (recommended).  
-Hetzner limits the amount of ports available for Load Balancers, so ensure that you plan accordingly when deploying challenges requiring TCP endpoints, using custom ports.  
+TCP endpoints are handled either through a custom Traefik port (only available for shared TCP challenges), or as an SSL TCP endpoint using SNI routing (recommended).  
+Hetzner limits the number of ports available for Load Balancers, so ensure that you plan accordingly when deploying challenges requiring TCP endpoints using custom ports.  
 *Currently, configuring custom ports for TCP endpoints is not supported through the platform configuration, and must be set up manually after deployment, or manually in the cluster Terraform module.*
 
 SSL TCP connections can be made using one of the following command examples:
@@ -957,9 +957,9 @@ To administrate the CLA signing process, we are using **[CLA assistant lite](htt
 
 ## Background
 
-CTF Pilot started as a CTF Platform project, originating in **[Brunnerne](https://github.com/brunnerne)**.
+CTF Pilot started as a CTF platform project, originating in **[Brunnerne](https://github.com/brunnerne)**.
 
-The goal of the project, is to provide a scalable, resilient and easy to use CTF platform for hosting large scale Capture The Flag competitions, starting with BrunnerCTF 2025.
+The goal of the project is to provide a scalable, resilient, and easy-to-use CTF platform for hosting large-scale Capture The Flag competitions, starting with BrunnerCTF 2025.
 
 The project is still in active development, and we welcome contributions from the community to help improve and expand the platform's capabilities.
 
