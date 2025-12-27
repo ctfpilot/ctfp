@@ -28,8 +28,8 @@ network_zone = "eu-central" # Hetzner network zone. Possible values: "eu-central
 # Control planes are the servers that run the Kubernetes control plane, and are responsible for managing the cluster. 
 # Agents are the servers that run the workloads, and scale is used to scale the cluster up or down dynamically.
 # Challs are the servers that run the CTF challenges.
-# Scale is automatically scaled agent nodes, which is handled by the cluster autoscaler. It is optional, and can be used to scale the cluster up or down dynamically if there is not enough ressources in the cluster.
-# Challs and scale nodes are placed in region_1, and are tainted to make normal ressources prefer agent nodes, but allow scheduling on challs and scale nodes if needed.
+# Scale is automatically scaled agent nodes, which is handled by the cluster autoscaler. It is optional, and can be used to scale the cluster up or down dynamically if there is not enough resources in the cluster.
+# Challs and scale nodes are placed in region_1, and are tainted to make normal resources prefer agent nodes, but allow scheduling on challs and scale nodes if needed.
 
 # Server types. See https://www.hetzner.com/cloud
 # Control plane nodes - Nodes that run the Kubernetes control plane components.
