@@ -46,6 +46,8 @@ This platform deploys real-world infrastructure and will incur costs when deploy
       - [Updating a challenge](#updating-a-challenge)
       - [Deploying a page](#deploying-a-page)
       - [The CLI tool does not seem to support my setup](#the-cli-tool-does-not-seem-to-support-my-setup)
+      - [Restoring the database from a backup](#restoring-the-database-from-a-backup)
+      - [Restoring the CTFd-manager](#restoring-the-ctfd-manager)
   - [Architecture](#architecture)
     - [Directory structure](#directory-structure)
     - [Overview](#overview)
@@ -690,6 +692,105 @@ However, be aware that the CLI tool also manages the Terraform backend configura
 
 Documentation is located within each component directory, explaining the configuration options and how to deploy the component manually.  
 A template tfvars file is also located in each component directory in `tfvars/template.tfvars`, explaining the configuration options available for that component.
+
+#### Restoring the database from a backup
+
+By default, the platform is set up to create automated backups of the database every 15 minutes, and store them in the configured S3 bucket.
+
+You can restore the database from any available backup by timestamp.
+
+To restore the database from a backup, follow these steps:
+
+1. **Identify the Backup**: Determine the timestamp of the backup you want to restore from. Backups are stored in the S3 bucket specified in the configuration file, under the `s3_bucket` setting. You can list the backups using your S3 management tool or CLI.
+2. **Create a restore resource**: The MariaDB operator provides an easy-to-use restore resource that can be used to restore the database from a backup.  
+   Create a YAML file named `mariadb-restore.yaml` with the following content, replacing `<timestamp>` with the timestamp of the backup you want to restore from:
+
+    ```yaml
+    apiVersion: k8s.mariadb.com/v1alpha1
+    kind: Restore
+    metadata:
+      name: restore
+      namespace: db
+    spec:
+      mariaDbRef:
+        name: ctfd-db
+        namespace: db
+      backupRef:
+        name: db-backup-ctfd-db
+      targetRecoveryTime: 2025-07-17T20:25:00Z
+    ```
+
+    Replace the `targetRecoveryTime` value with the desired timestamp in [RFC 3339 format](https://www.ietf.org/rfc/rfc3339.txt). The time does not need to be exact, as the restore operation will restore to the nearest available backup before the specified time.
+
+    *This requires the platform to be running, with the database operator and platform component both deployed, as this will set up the necessary resources for the restore operation.*
+3. **Apply the restore resource**: Apply the restore resource using `kubectl`:
+
+    ```bash
+    kubectl apply -f mariadb-restore.yaml
+    ```
+
+4. **Monitor the restore process**: Monitor the restore process by checking the status of the restore resource:
+
+    ```bash
+    kubectl -n db get restore
+    ```
+
+5. **Cleanup**: Once the restore is complete, you can delete the restore resource:
+
+    ```bash
+    kubectl -n db delete -f mariadb-restore.yaml
+    ```
+
+If you are restoring the full platform, you need to first deploy the `cluster`, `ops`, `platform`, and `challenges` components, before applying the restore resource.  
+After this, follow the ["Restoring the CTFd-manager"](#restoring-the-ctfd-manager) guide to restore the CTFd-manager data.
+
+If you want to restore the database to another MariaDB instance, you can copy the backup files from the S3 bucket, and use the MariaDB tools to restore the database manually.  
+The backup files are cleartext SQL dump files.
+
+#### Restoring the CTFd-manager
+
+The CTFd-manager is responsible for maintaining page and challenge states within CTFd, and has local configuration to keep track of what challenges are deployed and their IDs within CTFd.  
+To ensure there does not exist a disconnect, and the manager can correctly connect and manage the challenges, it is important to restore the CTFd-manager data alongside the database.
+
+You must manually update the challenge IDs in the challenge manager.
+In order to do this, the following flow can be used:
+
+1. Retrieve the current challenge-id mapping from the ctfd-manager
+
+   ```sh
+    kubectl -n challenge-config get configmap ctfd-challenges -o yaml > challenges.yaml
+   ```
+
+2. Open the `challenges.yaml` file and update the challenge ids. (See CTFd dashboard for challenge names and IDs)
+
+3. Apply the updated challenge mapping:
+
+   ```sh
+   kubectl -n challenge-config apply -f challenges.yaml
+   ```
+
+4. Generate new access token for the CTFd manager. This is done on the admin user in CTFd.
+5. Update the access token in the secrets for the CTFd manager:
+
+   ```sh
+   kubectl -n challenge-config edit configmap ctfd-access-token
+   ```
+
+6. Replace the `token` value with the new access token generated in step 4.
+
+7. Restart the ctfd-manager to ensure it picks up the new configs:
+
+   ```sh
+   kubectl -n challenge-config rollout restart deployment ctfd-manager
+   ```
+
+   *If it does not pick up the data, you can empty out the `challenge-configmap-hashset` configmap to force a reload.*
+
+The CTFd manager is now updated with the new challenge IDs and access token.  
+The system should therefore self-heal with files and missing elements of the challenges.
+
+If you are restoring the full platform, you need to first deploy the `cluster`, `ops`, `platform`, and `challenges` components, before applying the restore resource.  
+*You need to restore the CTFd-manager after restoring the database. You may restore the CTFd-manager before deploying the `challenges` component, but the configmap `ctfd-challenges` will then be empty, and you will need to manually format it.*
 
 ## Architecture
 
