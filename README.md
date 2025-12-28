@@ -290,13 +290,13 @@ Both methods are functionally equivalent. The direct execution method (first exa
 >
 > Available commands:
 >
-> - `init` - Initialize Platform Configuration
-> - `generate-keys` - Generate SSH Keys
-> - `insert-keys` - Insert SSH Keys into Configuration
-> - `generate-images` - Generate Custom Server Images
-> - `generate-backend` - Generate Terraform Backend Configuration
-> - `deploy` - Deploy Platform Components
-> - `destroy` - Destroy Platform Components
+> - [`init`](#init---initialize-platform-configuration) - Initialize Platform Configuration
+> - [`generate-keys`](#generate-keys---generate-ssh-keys) - Generate SSH Keys
+> - [`insert-keys`](#insert-keys---insert-ssh-keys-into-configuration) - Insert SSH Keys into Configuration
+> - [`generate-images`](#generate-images---generate-custom-server-images) - Generate Custom Server Images
+> - [`generate-backend`](#generate-backend---generate-terraform-backend-configuration) - Generate Terraform Backend Configuration
+> - [`deploy`](#deploy---deploy-platform-components) - Deploy Platform Components
+> - [`destroy`](#destroy---destroy-platform-components) - Destroy Platform Components
 
 Below is a detailed overview of each available command:
 
