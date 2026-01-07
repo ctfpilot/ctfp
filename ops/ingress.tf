@@ -22,7 +22,7 @@ resource "kubernetes_secret" "traefik_basic_auth" {
   ]
 }
 
-# Traefic basic auth middleware
+# Traefik basic auth middleware
 resource "kubernetes_manifest" "traefik_basic_auth" {
   manifest = {
     apiVersion = "traefik.io/v1alpha1"
