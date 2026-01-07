@@ -13,7 +13,7 @@ resource "helm_release" "mariadb-operator-crds" {
   chart   = "mariadb-operator-crds"
   version = var.mariadb_operator_version
 
-  // timeot 10min
+  // timeout 10min
   timeout = 600
 
   // Force use of longhorn storage class
@@ -36,7 +36,7 @@ resource "helm_release" "mariadb-operator" {
   chart   = "mariadb-operator"
   version = var.mariadb_operator_version
 
-  # timeot 10min
+  # timeout 10min
   timeout = 600
 
   // Force use of longhorn storage class
