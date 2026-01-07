@@ -53,6 +53,7 @@ CLUSTER_TFVARS = [
     "agent_type_1",
     "agent_type_2",
     "agent_type_3",
+    "challs_type",
     "scale_type",
     "control_plane_count_1",
     "control_plane_count_2",
