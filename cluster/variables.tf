@@ -105,48 +105,48 @@ variable "network_zone" {
 variable "control_plane_type_1" {
   type        = string
   description = "Control plane group 1 server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "control_plane_type_2" {
   type        = string
   description = "Control plane group 2 server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "control_plane_type_3" {
   type        = string
   description = "Control plane group 3 server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "agent_type_1" {
   type        = string
   description = "Agent group 1 server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "agent_type_2" {
   type        = string
   description = "Agent group 2 server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "agent_type_3" {
   type        = string
   description = "Agent group 3 server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "challs_type" {
   type        = string
   description = "CTF challenge nodes server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 variable "scale_type" {
   type        = string
   description = "Scale group server type"
-  default     = "cx32"
+  default     = "cx33"
 }
 
 variable "load_balancer_type" {
