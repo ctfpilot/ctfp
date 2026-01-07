@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 56,
+  "id": 14,
   "links": [],
   "panels": [
     {
@@ -108,14 +108,14 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (deployment) (\r\n  kube_deployment_labels{\r\n    namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\",\r\n    label_instanced_challenges_ctfpilot_com_deployment!=\"\",\r\n    label_instanced_challenges_ctfpilot_com_owner=\"276\"\r\n  }\r\n)",
+          "expr": "count by (deployment) (\r\n  kube_deployment_labels{\r\n    namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\",\r\n    label_instanced_challenges_ctfpilot_com_deployment!=\"\",\r\n    label_instanced_challenges_ctfpilot_com_owner=\"$teamid\"\r\n  }\r\n)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Panel Title",
+      "title": "Team instances",
       "transformations": [
         {
           "id": "rowsToFields",
@@ -133,9 +133,13 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "100",
-          "value": "100"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
@@ -143,9 +147,9 @@
         },
         "definition": "label_values(label_instanced_challenges_ctfpilot_com_owner)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Team id",
-        "multi": false,
+        "multi": true,
         "name": "teamid",
         "options": [],
         "query": {
