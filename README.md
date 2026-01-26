@@ -2,6 +2,8 @@
 
 > [!TIP]
 > If you are looking for **how to build challenges for CTFp**, please check out the **[CTF Pilot's Challenges Template](https://github.com/ctfpilot/challenges-template)** and **[CTF Pilot's Challenge Toolkit](https://github.com/ctfpilot/challenge-toolkit)** repositories.
+>
+> To learn more about the ecosystem, and view all related repositories, please visit the **[CTF Pilot organization page](https://github.com/ctfpilot)**.
 
 CTFp (CTF Pilot's CTF Platform) is a CTF platform designed to host large-scale Capture The Flag (CTF) competitions, with a focus on scalability, resilience, and ease of use.  
 The platform uses Kubernetes as the underlying orchestration system, where the management, scoreboard, and challenge infrastructure are deployed as Kubernetes resources. It then leverages GitOps through [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) for managing the platform's configuration and deployments, including the CTF challenges.
