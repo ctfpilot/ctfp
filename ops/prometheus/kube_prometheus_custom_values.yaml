@@ -1,0 +1,147 @@
+grafana:
+  enabled: true
+  grafana.ini:
+    server:
+      root_url: "https://grafana.${cluster_dns_management}"
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      folder: /tmp/dashboards
+      provider:
+        allowUiUpdates: true
+        foldersFromFilesStructure: true
+
+      annotations:
+        k8s-sidecar-target-directory: "/tmp/dashboards/kubernetes"
+    alerts:
+      enabled: true
+      label: grafana_alert
+      labelValue: "1"
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "db"
+          orgId: 1
+          folder: "db"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/db
+        - name: "redis"
+          orgId: 1
+          folder: "redis"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/redis
+        - name: "k8s"
+          orgId: 1
+          folder: "k8s"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/k8s
+        - name: "traefik"
+          orgId: 1
+          folder: "traefik"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/traefik
+        - name: "ctf"
+          orgId: 1
+          folder: "ctf"
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/ctf
+  dashboards:
+    db:
+      mysql-overview:
+        gnetId: 7362
+        revision: 5
+        datasource: Prometheus
+      mysql-replication:
+        gnetId: 7371
+        revision: 1
+        datasource: Prometheus
+      mariadb-galera:
+        gnetId: 13106
+        revision: 3
+        datasource: Prometheus
+      mysql-quickstart:
+        gnetId: 14057
+        revision: 1
+        datasource: Prometheus
+    redis:
+      redis-overview:
+        gnetId: 11145
+        revision: 1
+        datasource: Prometheus
+    k8s:
+      kubernetes-cluster:
+        gnetId: 6417
+        revision: 1
+        datasource: Prometheus
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels: null
+    podMonitorSelector:
+      matchLabels: null
+    ruleSelector:
+      matchLabels: null
+    scrapeConfigSelector:
+      matchLabels: null
+
+kube-state-metrics:
+  enabled: true
+  metricLabelsAllowlist:
+    - pods=[ctfpilot.com/component,instanced.challenges.ctfpilot.com/deployment,instanced.challenges.ctfpilot.com/owner,challenges.ctfpilot.com/type,challenges.ctfpilot.com/name,challenges.ctfpilot.com/version,challenges.ctfpilot.com/configmap,challenges.ctfpilot.com/category,challenges.ctfpilot.com/enabled,challenges.ctfpilot.com/version]
+    - services=[ctfpilot.com/component,instanced.challenges.ctfpilot.com/deployment,instanced.challenges.ctfpilot.com/owner,challenges.ctfpilot.com/type,challenges.ctfpilot.com/name,challenges.ctfpilot.com/version,challenges.ctfpilot.com/configmap,challenges.ctfpilot.com/category,challenges.ctfpilot.com/enabled,challenges.ctfpilot.com/version]
+    - deployments=[ctfpilot.com/component,instanced.challenges.ctfpilot.com/deployment,instanced.challenges.ctfpilot.com/owner,challenges.ctfpilot.com/type,challenges.ctfpilot.com/name,challenges.ctfpilot.com/version,challenges.ctfpilot.com/configmap,challenges.ctfpilot.com/category,challenges.ctfpilot.com/enabled,challenges.ctfpilot.com/version]
+    - configmaps=[ctfpilot.com/component,instanced.challenges.ctfpilot.com/deployment,instanced.challenges.ctfpilot.com/owner,challenges.ctfpilot.com/type,challenges.ctfpilot.com/name,challenges.ctfpilot.com/version,challenges.ctfpilot.com/configmap,challenges.ctfpilot.com/category,challenges.ctfpilot.com/enabled,challenges.ctfpilot.com/version,page.ctfpilot.com/slug,page.ctfpilot.com/version,page.ctfpilot.com/enabled,page.ctfpilot.com/configmap]
+    - ingresses=[ctfpilot.com/component,instanced.challenges.ctfpilot.com/deployment,instanced.challenges.ctfpilot.com/owner,challenges.ctfpilot.com/type,challenges.ctfpilot.com/name,challenges.ctfpilot.com/version,challenges.ctfpilot.com/configmap,challenges.ctfpilot.com/category,challenges.ctfpilot.com/enabled,challenges.ctfpilot.com/version]
+
+alertmanager:
+  config:
+    route:
+      group_by: ["alertname"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 48h
+      # Default alerter
+      receiver: "null"
+      routes:
+        # "Muted" alerts, currently only false positive "Watchdog" resides here
+        - receiver: "null"
+          matchers:
+            - alertname =~ "Watchdog|InfoInhibitor"
+        # Nosiy alerts
+        - receiver: "null"
+          matchers:
+            - alertname =~ "UnusedCpu|UnusedMemory|KubeSchedulerDown|KubeControllerManagerDown|KubeProxyDown"
+
+        # Matches anything
+        - receiver: "discord"
+    receivers:
+      - name: discord
+        discord_configs:
+          - webhook_url: "${discord_webhook_url}"
+      - name: "null"
+# prometheus-node-exporter:
+#   hostRootFsMount:
+#     enabled: true
+#   tolerations: []
+#   resources: {}
+#   securityContext:
+#     runAsUser: 0
+#     privileged: true

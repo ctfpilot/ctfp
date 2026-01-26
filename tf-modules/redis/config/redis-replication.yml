@@ -1,0 +1,65 @@
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: RedisReplication
+metadata:
+  name: redis-replication
+  namespace: ${namespace}
+spec:
+  clusterSize: 3
+  podSecurityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  kubernetesConfig:
+    image: quay.io/opstree/redis:v7.0.15
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 101m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+    updateStrategy:
+      type: RollingUpdate
+    # redisSecret:
+    #   name: redis-secret
+    #   key: password
+  redisExporter:
+    enabled: true
+    image: quay.io/opstree/redis-exporter:v1.48.0
+    imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  env:
+  - name: REDIS_EXPORTER_INCL_SYSTEM_METRICS
+    value: "true"
+  readinessProbe:
+    failureThreshold: 5
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    successThreshold: 1
+    timeoutSeconds: 5
+  livenessProbe:
+    failureThreshold: 5
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    successThreshold: 1
+    timeoutSeconds: 5
+  storage:
+    volumeClaimTemplate:
+      spec:
+        # storageClassName: longhorn
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi
+  sentinel:
+    customConfig:
+      - down-after-milliseconds mymaster 2000
+      - failover-timeout mymaster 10000
+      - parallel-syncs mymaster 1
+    

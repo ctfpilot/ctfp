@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis-monitoring-cluster-${namespace}
+  namespace: prometheus
+  labels:
+    release: prometheus
+    redis-operator: "true"
+spec:
+  selector:
+    matchLabels:
+      redis_setup_type: cluster
+  endpoints:
+    - port: redis-exporter
+      interval: 30s
+      scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+      - ${namespace}
