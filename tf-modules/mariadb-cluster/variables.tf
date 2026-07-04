@@ -52,3 +52,10 @@ variable "mariadb_version" {
   description = "The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator"
   nullable    = false
 }
+
+variable "timezone" {
+  type        = string
+  description = "A UTC offset (e.g. \"+2:00\") or a named zone (e.g. \"Europe/Copenhagen\", which is DST-aware unlike a fixed offset). Used as both the MariaDB cluster's timeZone (immutable after cluster creation - changing it on an existing cluster will fail) and the Backup resource's cron schedule timezone (mutable, takes effect on the next scheduled run)."
+  nullable    = false
+  default     = "+2:00"
+}

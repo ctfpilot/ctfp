@@ -132,6 +132,7 @@ PLATFORM_TFVARS = [
     "db_root_password",
     "db_user",
     "db_password",
+    "db_timezone",
     # DB backup configuration
     "s3_bucket",
     "s3_region",
