@@ -9,7 +9,7 @@ on:
 jobs:
   release:
     name: Release
-    uses: ctfpilot/ci/.github/workflows/release.yml@v1.3.0
+    uses: ctfpilot/ci/.github/workflows/release.yml@v1.5.1
     permissions:
       contents: write
       packages: write
