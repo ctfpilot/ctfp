@@ -43,6 +43,9 @@ s3_endpoint   = "<endpoint>"   # S3 endpoint for backups
 s3_access_key = "<access_key>" # Access key for S3 for backups
 s3_secret_key = "<secret_key>" # Secret key for S3 for backups
 
+# Redis
+ctfd_redis_password = "<password>" # Password for the CTFd Redis instance
+
 # ------------------------
 # CTFd Manager configuration
 # ------------------------

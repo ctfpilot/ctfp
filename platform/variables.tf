@@ -101,6 +101,13 @@ variable "db_password" {
   nullable    = false
 }
 
+variable "ctfd_redis_password" {
+  type        = string
+  description = "Password for the CTFd Redis instance"
+  sensitive   = true
+  nullable    = false
+}
+
 variable "ctfd_secret_key" {
   type        = string
   description = "Secret key for CTFd"

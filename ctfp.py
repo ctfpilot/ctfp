@@ -138,6 +138,8 @@ PLATFORM_TFVARS = [
     "s3_endpoint",
     "s3_access_key",
     "s3_secret_key",
+    # Redis configuration
+    "ctfd_redis_password",
     
     # CTFd Manager configuration
     "ctfd_manager_password",
