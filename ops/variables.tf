@@ -60,6 +60,12 @@ variable "traefik_basic_auth" {
   description = "Username and password for basic auth. Format: { user = \"username\", password = \"password\" }"
 }
 
+variable "traefik_redis_password" {
+  description = "Password for the Traefik Redis backend"
+  type        = string
+  sensitive   = true
+}
+
 variable "filebeat_elasticsearch_host" {
   type        = string
   nullable    = false

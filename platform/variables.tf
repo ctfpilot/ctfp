@@ -285,3 +285,9 @@ variable "mariadb_version" {
   nullable    = false
   default     = "25.8.1"
 }
+
+variable "traefik_redis_password" {
+  description = "Password for the Traefik Redis backend"
+  type        = string
+  sensitive   = true
+}

@@ -80,6 +80,9 @@ OPS_TFVARS = [
     "cloudflare_dns_ctf", 
     "cluster_dns_management", 
     
+    # Traefik configuration
+    "traefik_redis_password",
+    
     # Filebeat configuration
     "filebeat_elasticsearch_host",
     "filebeat_elasticsearch_username",
@@ -119,6 +122,9 @@ PLATFORM_TFVARS = [
     "ghcr_username",
     "ghcr_token",
     "git_token",
+    
+    # Traefik configuration
+    "traefik_redis_password",
 
     # Filebeat configuration
     "filebeat_elasticsearch_host",

@@ -18,6 +18,11 @@ ghcr_token    = "<token>"    # GitHub Container Registry token. This token is us
 git_token     = "<token>"    # GitHub repo token. Only let this token have read access to the needed repositories.
 
 # ----------------------
+# Management configuration
+# ----------------------
+traefik_redis_password = "<password>" # Password for the Traefik Redis backend
+
+# ----------------------
 # Filebeat configuration
 # ----------------------
 filebeat_elasticsearch_host     = "<host>"     # The hostname of the Elasticsearch instance for Filebeat to send logs to. Must be a https 443 endpoint.
