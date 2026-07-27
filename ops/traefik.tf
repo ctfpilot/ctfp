@@ -177,7 +177,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - key: "cluster.ctfpilot.com/node"
             value: "scaler"
             effect: "PreferNoSchedule"
-        logs:
+        log:
           access:
             enabled: true
             format: json
