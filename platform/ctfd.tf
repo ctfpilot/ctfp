@@ -102,7 +102,9 @@ resource "kubernetes_secret_v1" "ctfd-redis-connection" {
   }
 
   data = {
-    "url" = "redis://:${var.ctfd_redis_password}@redis-replication-master.${kubernetes_namespace_v1.ctfd.metadata.0.name}.svc.cluster.local:6379/0"
+    "url"             = "redis://:${var.ctfd_redis_password}@redis-replication-master.${kubernetes_namespace_v1.ctfd.metadata.0.name}.svc.cluster.local:6379/0"
+    "cluster_enabled" = "0"
+    "cluster"         = null
   }
 
   depends_on = [
