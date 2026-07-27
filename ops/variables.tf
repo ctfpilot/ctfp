@@ -165,5 +165,5 @@ variable "kube_prometheus_stack_version" {
 variable "redis_operator_version" {
   type        = string
   description = "The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
-  default     = "0.22.2"
+  default     = "0.25.0"
 }
