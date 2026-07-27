@@ -349,15 +349,16 @@ class GenerateImages(Command):
     name = "generate-images"
     help = "Generate server images"
     description = "Generate server images"
+    version = "v2.21.0"
     
     def register_subcommand(self):
-        # No arguments to register
+        self.subparser.add_argument("--version", type=str, default=self.version, help="Version of the create.sh script to use (default: v2.21.0)")
         return
     
     def run(self, args):
         Logger.info("Generating server images")
         try:
-            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"")
+            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/refs/tags/{self.version}/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"")
             if rc != 0:
                 raise Exception
         except Exception:
