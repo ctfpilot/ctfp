@@ -37,13 +37,13 @@ control_plane_type_1 = "cx23" # Control plane group 1
 control_plane_type_2 = "cx23" # Control plane group 2
 control_plane_type_3 = "cx23" # Control plane group 3
 # Agent nodes - Nodes that run general workloads, excluding CTF challenges.
-agent_type_1         = "cx33" # Agent group 1
-agent_type_2         = "cx33" # Agent group 2
-agent_type_3         = "cx33" # Agent group 3
+agent_type_1 = "cx33" # Agent group 1
+agent_type_2 = "cx33" # Agent group 2
+agent_type_3 = "cx33" # Agent group 3
 # Challenge nodes - Nodes dedicated to running CTF challenges.
-challs_type          = "cx33" # CTF challenge nodes
+challs_type = "cx33" # CTF challenge nodes
 # Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
-scale_type           = "cx33" # Scale group
+scale_type = "cx33" # Scale group
 
 # Server count 
 # Control plane nodes - Nodes that run the Kubernetes control plane components.
