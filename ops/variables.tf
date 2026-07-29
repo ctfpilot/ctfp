@@ -141,7 +141,7 @@ variable "image_filebeat" {
 variable "argocd_version" {
   type        = string
   description = "The version of ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm"
-  default     = "8.2.5"
+  default     = "10.2.1"
 }
 
 variable "cert_manager_version" {

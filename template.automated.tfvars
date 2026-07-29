@@ -269,7 +269,7 @@ challenges_branch     = ""                          # Branch of the Git reposito
 # You can override these values by uncommenting and setting your own versions here.
 
 # kube_hetzner_version          = "2.21.0" # The version of the Kube-Hetzner module to use. More information at https://github.com/mysticaltech/terraform-hcloud-kube-hetzner
-# argocd_version                = "8.2.5"  # The version of the ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm
+# argocd_version                = "10.2.1"  # The version of the ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm
 # cert_manager_version          = "1.17.1" # The version of the Cert-Manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager
 # descheduler_version           = "0.34.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
 # mariadb_operator_version      = "25.8.1" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
