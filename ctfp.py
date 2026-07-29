@@ -70,6 +70,7 @@ CLUSTER_TFVARS = [
 ]
 OPS_TFVARS = [
     # Generic information
+    "deployment_type",
     "email", 
     "discord_webhook_url",
     
@@ -115,6 +116,7 @@ OPS_TFVARS = [
 ]
 PLATFORM_TFVARS = [
     # Generic information
+    "deployment_type",
     "cluster_dns_management", 
     "cluster_dns_platform",
     
@@ -205,6 +207,7 @@ PLATFORM_TFVARS = [
 ]
 CHALLENGES_TFVARS = [
     # Generic information
+    "deployment_type",
     "cluster_dns_management",
     "cluster_dns_ctf",
     

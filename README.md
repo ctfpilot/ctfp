@@ -32,6 +32,7 @@ This platform deploys real-world infrastructure and will incur costs when deploy
     - [Pre-requisites](#pre-requisites)
     - [Environments](#environments)
     - [Configuring the platform](#configuring-the-platform)
+      - [Deployment types](#deployment-types)
     - [CLI Tool](#cli-tool)
       - [Commands](#commands)
         - [`init` - Initialize Platform Configuration](#init---initialize-platform-configuration)
@@ -249,6 +250,17 @@ If the platform is manually changed outside of the CLI tool, the changes will be
 Each component is not fully configurable, and may in certain situations require advanced configuration. These configurations are not included in the main configuration file.
 These options are either intended to be static, or require manual configuration through the individual Terraform components.  
 Changing these options may lead to instability or data loss, and should be done with caution.
+
+#### Deployment types
+
+CTFp supports three different deployment types, which can be configured in the `automated.<env>.tfvars` file:
+
+- **Standard**: Standard deployment with core services being deployed with 2 or more replicas, while some services are deployed with 1 replica. This is the recommended deployment type for production (minimum 2 control plane nodes, 2 agent nodes, 1 challs node).
+- **High Availability (HA)**: High availability deployment with all services being deployed with 2 or more replicas, and HA enabled where possible. This is the recommended deployment type for large-scale events that require high availability and redundancy. Requires a minimum of 3 control plane nodes, 3 agent nodes and 1 challs node.
+- **Single node**: Single node deployment with all services being deployed with 1 replica, and HA being disabled where possible, this is the recommended deployment type for small clusters (1 control plane node, 1 agent node, 1 challs node). This is not recommended for production.
+
+These deployment types are designed to provide flexibility in terms of scalability, redundancy, and resource usage.  
+It does not define the number of nodes in the cluster, but rather the number of replicas of each service being deployed within the platform, as well as outline a number of nodes that is recommended for the specific deployment type.
 
 ### CLI Tool
 
