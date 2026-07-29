@@ -83,7 +83,7 @@ module "kube-hetzner" {
       kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "control-planes"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -110,7 +110,7 @@ module "kube-hetzner" {
       kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "control-planes"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -131,7 +131,7 @@ module "kube-hetzner" {
       kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "control-planes"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -163,7 +163,7 @@ module "kube-hetzner" {
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "agents"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -193,7 +193,7 @@ module "kube-hetzner" {
       # kubelet_args = ["kube-reserved=cpu=50m,memory=300Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "agents"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -220,7 +220,7 @@ module "kube-hetzner" {
       ]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "agents"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -249,7 +249,7 @@ module "kube-hetzner" {
       ]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "challs"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false

@@ -48,17 +48,22 @@ scale_type = "cx33" # Scale group
 # Server count 
 # Control plane nodes - Nodes that run the Kubernetes control plane components.
 # Minimum of 1 control plane across all groups. 1 in each group is recommended for HA.
-control_plane_count_1 = 1 # Number of control plane nodes in group 1
-control_plane_count_2 = 1 # Number of control plane nodes in group 2
-control_plane_count_3 = 1 # Number of control plane nodes in group 3
+# Maximum of 10 control plane nodes in total. More than 10 is not supported due to placement group limitations.
+control_plane_count_1 = 1 # Number of control plane nodes in group 1.
+control_plane_count_2 = 1 # Number of control plane nodes in group 2.
+control_plane_count_3 = 1 # Number of control plane nodes in group 3.
 # Agent nodes - Nodes that run general workloads, excluding CTF challenges.
 # Minimum of 1 agent across all groups. 1 in each group is recommended for HA.
-agent_count_1 = 1 # Number of agent nodes in group 1
-agent_count_2 = 1 # Number of agent nodes in group 2
-agent_count_3 = 1 # Number of agent nodes in group 3
+# Maximum of 10 agent nodes total. More than 10 is not supported due to placement group limitations.
+agent_count_1 = 1 # Number of agent nodes in group 1.
+agent_count_2 = 1 # Number of agent nodes in group 2.
+agent_count_3 = 1 # Number of agent nodes in group 3.
 # Challenge nodes - Nodes dedicated to running CTF challenges. These nodes are tainted to only run challenge workloads.
+# Minimum of 1 challenge node is required. If no challenge nodes are deployed, challenges cannot be deployed. 
+# Maximum of 10 challenge nodes is supported due to placement group limitations.
 challs_count = 1 # Number of challenge nodes.
 # Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
+# Scale nodes are not placed in a placement group, and can be scaled as much as Hetzner cloud allows.
 scale_max = 0 # Maximum number of scale nodes. Set to 0 to disable autoscaling.
 
 load_balancer_type = "lb11" # Load balancer type, see https://www.hetzner.com/cloud/load-balancer
