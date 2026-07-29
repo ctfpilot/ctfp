@@ -6,6 +6,7 @@ resource "kubernetes_namespace_v1" "cert_manager" {
 
 module "cert_manager" {
   source = "terraform-iaac/cert-manager/kubernetes"
+  version = "3.2.1"
 
   cluster_issuer_email                   = var.email
   cluster_issuer_name                    = "cert-manager-global"
@@ -14,7 +15,6 @@ module "cert_manager" {
 
   namespace_name   = kubernetes_namespace_v1.cert_manager.metadata.0.name
   create_namespace = false
-
 
   solvers = [
     {

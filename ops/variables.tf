@@ -192,7 +192,7 @@ variable "argocd_version" {
 variable "cert_manager_version" {
   type        = string
   description = "The version of cert-manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager"
-  default     = "1.17.1"
+  default     = "1.20.0"
 }
 
 variable "descheduler_version" {
