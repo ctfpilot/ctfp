@@ -101,6 +101,13 @@ variable "db_password" {
   nullable    = false
 }
 
+variable "ctfd_redis_password" {
+  type        = string
+  description = "Password for the CTFd Redis instance"
+  sensitive   = true
+  nullable    = false
+}
+
 variable "ctfd_secret_key" {
   type        = string
   description = "Secret key for CTFd"
@@ -277,4 +284,10 @@ variable "mariadb_version" {
   description = "The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator"
   nullable    = false
   default     = "25.8.1"
+}
+
+variable "traefik_redis_password" {
+  description = "Password for the Traefik Redis backend"
+  type        = string
+  sensitive   = true
 }

@@ -27,8 +27,8 @@ resource "kubernetes_manifest" "traefik_servicemonitor" {
 }
 
 module "traefik-redis" {
-  source = "../tf-modules/redis"
+  source = "../tf-modules/redis/cluster"
 
   namespace      = "traefik"
-  redis_password = ""
+  redis_password = var.traefik_redis_password
 }
