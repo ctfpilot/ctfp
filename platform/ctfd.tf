@@ -85,15 +85,11 @@ module "database" {
   ]
 }
 
-locals {
-  redis_password = ""
-}
-
 module "redis" {
-  source = "../tf-modules/redis"
+  source = "../tf-modules/redis/replication"
 
   namespace      = kubernetes_namespace_v1.ctfd.metadata.0.name
-  redis_password = local.redis_password
+  redis_password = var.ctfd_redis_password
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -107,9 +103,9 @@ resource "kubernetes_secret_v1" "ctfd-redis-connection" {
   }
 
   data = {
-    "url"             = ""
-    "cluster_enabled" = "1"
-    "cluster"         = "redis-cluster-leader:6379,redis-cluster-leader-additional:6379,redis-cluster-master:6379"
+    "url"             = "redis://:${var.ctfd_redis_password}@redis-replication-master.${kubernetes_namespace_v1.ctfd.metadata.0.name}.svc.cluster.local:6379/0"
+    "cluster_enabled" = "0"
+    "cluster"         = null
   }
 
   depends_on = [

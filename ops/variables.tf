@@ -60,6 +60,12 @@ variable "traefik_basic_auth" {
   description = "Username and password for basic auth. Format: { user = \"username\", password = \"password\" }"
 }
 
+variable "traefik_redis_password" {
+  description = "Password for the Traefik Redis backend"
+  type        = string
+  sensitive   = true
+}
+
 variable "filebeat_elasticsearch_host" {
   type        = string
   nullable    = false
@@ -165,5 +171,5 @@ variable "kube_prometheus_stack_version" {
 variable "redis_operator_version" {
   type        = string
   description = "The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
-  default     = "0.22.2"
+  default     = "0.25.0"
 }

@@ -57,6 +57,8 @@ discord_webhook_url = "<discord-webhook-url>" # Discord webhook URL for notifica
 # password: The password for the basic auth
 traefik_basic_auth = { user = "<basic-username>", password = "<basic-password>" }
 
+traefik_redis_password = "<password>" # Password for the Traefik Redis backend
+
 # ----------------------
 # Docker images
 # ----------------------

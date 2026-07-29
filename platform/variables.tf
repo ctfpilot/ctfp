@@ -101,6 +101,13 @@ variable "db_password" {
   nullable    = false
 }
 
+variable "ctfd_redis_password" {
+  type        = string
+  description = "Password for the CTFd Redis instance"
+  sensitive   = true
+  nullable    = false
+}
+
 variable "ctfd_secret_key" {
   type        = string
   description = "Secret key for CTFd"
@@ -289,4 +296,10 @@ variable "db_timezone" {
     condition     = can(regex("^([+-](0?[0-9]|1[0-4]):[0-5][0-9]|[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*)$", var.db_timezone))
     error_message = "db_timezone must be a UTC offset between -14:00 and +14:00 (e.g. \"+2:00\", \"-05:00\") or a named zone (e.g. \"UTC\", \"Europe/Copenhagen\")."
   }
+}
+
+variable "traefik_redis_password" {
+  description = "Password for the Traefik Redis backend"
+  type        = string
+  sensitive   = true
 }

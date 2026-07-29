@@ -37,13 +37,13 @@ control_plane_type_1 = "cx23" # Control plane group 1
 control_plane_type_2 = "cx23" # Control plane group 2
 control_plane_type_3 = "cx23" # Control plane group 3
 # Agent nodes - Nodes that run general workloads, excluding CTF challenges.
-agent_type_1         = "cx33" # Agent group 1
-agent_type_2         = "cx33" # Agent group 2
-agent_type_3         = "cx33" # Agent group 3
+agent_type_1 = "cx33" # Agent group 1
+agent_type_2 = "cx33" # Agent group 2
+agent_type_3 = "cx33" # Agent group 3
 # Challenge nodes - Nodes dedicated to running CTF challenges.
-challs_type          = "cx33" # CTF challenge nodes
+challs_type = "cx33" # CTF challenge nodes
 # Scale nodes - Nodes that are automatically scaled by the cluster autoscaler. These nodes are used to scale the cluster up or down dynamically.
-scale_type           = "cx33" # Scale group
+scale_type = "cx33" # Scale group
 
 # Server count 
 # Control plane nodes - Nodes that run the Kubernetes control plane components.
@@ -120,6 +120,8 @@ discord_webhook_url = "<discord-webhook-url>" # Discord webhook URL for notifica
 # password: The password for the basic auth
 traefik_basic_auth = { user = "<basic-username>", password = "<basic-password>" }
 
+traefik_redis_password = "<password>" # Password for the Traefik Redis backend
+
 # ----------------------
 # Filebeat configuration
 # ----------------------
@@ -164,6 +166,9 @@ s3_region     = "<region>"     # S3 region for backups
 s3_endpoint   = "<endpoint>"   # S3 endpoint for backups
 s3_access_key = "<access_key>" # Access key for S3 for backups
 s3_secret_key = "<secret_key>" # Secret key for S3 for backups
+
+# Redis
+ctfd_redis_password = "<password>" # Password for the CTFd Redis instance
 
 # ------------------------
 # CTFd Manager configuration
@@ -265,11 +270,11 @@ challenges_branch     = ""                          # Branch of the Git reposito
 # Values are maintained within each component as defaults.
 # You can override these values by uncommenting and setting your own versions here.
 
-# kube_hetzner_version          = "2.18.2" # The version of the Kube-Hetzner module to use. More information at https://github.com/mysticaltech/terraform-hcloud-kube-hetzner
+# kube_hetzner_version          = "2.21.0" # The version of the Kube-Hetzner module to use. More information at https://github.com/mysticaltech/terraform-hcloud-kube-hetzner
 # argocd_version                = "8.2.5"  # The version of the ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm
 # cert_manager_version          = "1.17.1" # The version of the Cert-Manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager
 # descheduler_version           = "0.34.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
 # mariadb_operator_version      = "25.8.1" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
 # kube_prometheus_stack_version = "62.3.1" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
-# redis_operator_version        = "0.22.2" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
+# redis_operator_version        = "0.25.0" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
 # mariadb_version               = "25.8.1" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator

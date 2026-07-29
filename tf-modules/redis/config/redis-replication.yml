@@ -8,8 +8,47 @@ spec:
   podSecurityContext:
     runAsUser: 1000
     fsGroup: 1000
+  sentinel:
+    size: 3
+    image: quay.io/opstree/redis-sentinel:v7.4.8
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+    failoverTimeout: 5000
+    downAfterMilliseconds: 2000
+    # Sentinel-specific Redis auth secret. If omitted, the operator falls back
+    # to spec.kubernetesConfig.redisSecret.
+    # redisSecret:
+    #   name: redis-secret
+    #   key: password
+
+    # Pod placement: keep Sentinel pods away from the Redis replication pods so
+    # a single node failure cannot remove a Redis member and a Sentinel at once.
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - redis-replication
+            topologyKey: kubernetes.io/hostname
+    # Spread the Sentinels across nodes.
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            role: sentinel
   kubernetesConfig:
-    image: quay.io/opstree/redis:v7.0.15
+    image: quay.io/opstree/redis:v7.4.8
     imagePullPolicy: IfNotPresent
     resources:
       requests:
@@ -20,12 +59,12 @@ spec:
         memory: 1Gi
     updateStrategy:
       type: RollingUpdate
-    # redisSecret:
-    #   name: redis-secret
-    #   key: password
+    redisSecret:
+      name: redis-secret
+      key: password
   redisExporter:
     enabled: true
-    image: quay.io/opstree/redis-exporter:v1.48.0
+    image: quay.io/opstree/redis-exporter:v1.84.0
     imagePullPolicy: Always
     resources:
       requests:
@@ -35,31 +74,25 @@ spec:
         cpu: 100m
         memory: 128Mi
   env:
-  - name: REDIS_EXPORTER_INCL_SYSTEM_METRICS
-    value: "true"
+    - name: REDIS_EXPORTER_INCL_SYSTEM_METRICS
+      value: "true"
   readinessProbe:
-    failureThreshold: 5
-    initialDelaySeconds: 30
-    periodSeconds: 15
+    failureThreshold: 3
+    initialDelaySeconds: 5
+    periodSeconds: 2
     successThreshold: 1
-    timeoutSeconds: 5
+    timeoutSeconds: 1
   livenessProbe:
-    failureThreshold: 5
-    initialDelaySeconds: 30
-    periodSeconds: 15
+    failureThreshold: 3
+    initialDelaySeconds: 15
+    periodSeconds: 2
     successThreshold: 1
-    timeoutSeconds: 5
+    timeoutSeconds: 1
   storage:
     volumeClaimTemplate:
       spec:
         # storageClassName: longhorn
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         resources:
           requests:
             storage: 10Gi
-  sentinel:
-    customConfig:
-      - down-after-milliseconds mymaster 2000
-      - failover-timeout mymaster 10000
-      - parallel-syncs mymaster 1
-    

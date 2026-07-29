@@ -177,7 +177,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - key: "cluster.ctfpilot.com/node"
             value: "scaler"
             effect: "PreferNoSchedule"
-        logs:
+        log:
           access:
             enabled: true
             format: json
@@ -236,6 +236,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           redis:
             cluster: true
             endpoints: redis-cluster-leaders:6379
+            password: ${var.traefik_redis_password}
       EOF
     }
   }
