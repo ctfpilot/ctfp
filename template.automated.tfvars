@@ -294,3 +294,16 @@ challenges_branch     = ""                          # Branch of the Git reposito
 # kube_prometheus_stack_version = "62.3.1" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
 # redis_operator_version        = "0.25.0" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
 # mariadb_version               = "25.8.1" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator
+
+# ----------------------
+# Replicas
+# ----------------------
+# Values are maintained in the variables.tf file.
+# You can override these values by uncommenting and setting your own replicas here.
+# If set to null, behavior follows the deployment type. If set, it will override the deployment type.
+
+# argocd_redis_ha = null # Whether to enable Redis HA for ArgoCD deployment. If not specified, it will be enabled if the deployment type is 'ha'.
+# argocd_controller_replicas = null # Number of replicas for the ArgoCD controller deployment. If not specified, it will be set to 1.
+# argocd_server_replicas = null # Number of replicas for the ArgoCD server deployment. If not specified, it will be set to 1 or 2 (ha)
+# argocd_repo_server_replicas = null # Number of replicas for the ArgoCD repo server deployment. If not specified, it will be set to 1 or 2 (ha)
+# argocd_application_set_replicas = null # Number of replicas for the ArgoCD ApplicationSet controller deployment. If not specified, it will be set to 1 or

@@ -129,6 +129,41 @@ variable "argocd_github_secret" {
   description = "The GitHub secret for ArgoCD webhooks - Send webhook to /api/webhook with this secret as the secret header. This is used to trigger ArgoCD to sync the repositories."
 }
 
+variable "argocd_redis_ha" {
+  nullable    = true
+  description = "Whether to enable Redis HA for ArgoCD deployment. If not specified, it will be enabled if the deployment type is 'ha'."
+  type        = bool
+  default     = null
+}
+
+variable "argocd_controller_replicas" {
+  nullable    = true
+  description = "Number of replicas for the ArgoCD controller deployment. If not specified, it will be set to 1."
+  type        = number
+  default     = null
+}
+
+variable "argocd_server_replicas" {
+  nullable    = true
+  description = "Number of replicas for the ArgoCD server deployment. If not specified, it will be set to 1 or 2 (ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
+variable "argocd_repo_server_replicas" {
+  nullable    = true
+  description = "Number of replicas for the ArgoCD repo server deployment. If not specified, it will be set to 1 or 2 (ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
+variable "argocd_application_set_replicas" {
+  nullable    = true
+  description = "Number of replicas for the ArgoCD ApplicationSet controller deployment. If not specified, it will be set to 1 or 2 (ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
 variable "grafana_admin_password" {
   sensitive   = true
   type        = string

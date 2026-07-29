@@ -113,6 +113,13 @@ OPS_TFVARS = [
     "mariadb_operator_version",
     "kube_prometheus_stack_version",
     "redis_operator_version",
+    
+    # Replicas
+    "argocd_redis_ha",
+    "argocd_controller_replicas",
+    "argocd_server_replicas",
+    "argocd_repo_server_replicas",
+    "argocd_application_set_replicas",
 ]
 PLATFORM_TFVARS = [
     # Generic information
