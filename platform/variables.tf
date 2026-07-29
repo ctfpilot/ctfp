@@ -101,6 +101,18 @@ variable "db_password" {
   nullable    = false
 }
 
+variable "db_timezone" {
+  type        = string
+  description = "A UTC offset (e.g. \"+2:00\") or a named zone (e.g. \"Europe/Copenhagen\", which is DST-aware unlike a fixed offset). Used as both the MariaDB cluster's timeZone (immutable after cluster creation - changing it on an existing cluster will fail) and the backup schedule's cron timezone (mutable, takes effect on the next scheduled run)."
+  nullable    = false
+  default     = "UTC"
+
+  validation {
+    condition     = can(regex("^([+-](0?[0-9]|1[0-4]):[0-5][0-9]|[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*)$", var.db_timezone))
+    error_message = "db_timezone must be a UTC offset between -14:00 and +14:00 (e.g. \"+2:00\", \"-05:00\") or a named zone (e.g. \"UTC\", \"Europe/Copenhagen\")."
+  }
+}
+
 variable "ctfd_redis_password" {
   type        = string
   description = "Password for the CTFd Redis instance"
