@@ -106,3 +106,4 @@ traefik_redis_password = "<password>" # Password for the Traefik Redis backend
 # argocd_server_replicas = null # Number of replicas for the ArgoCD server deployment. If not specified, it will be set to 1 or 2 (ha)
 # argocd_repo_server_replicas = null # Number of replicas for the ArgoCD repo server deployment. If not specified, it will be set to 1 or 2 (ha)
 # argocd_application_set_replicas = null # Number of replicas for the ArgoCD ApplicationSet controller deployment. If not specified, it will be set to 1 or
+# errors_replicas = null # Number of replicas for the error fallback deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type.

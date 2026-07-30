@@ -176,6 +176,13 @@ variable "image_error_fallback" {
   default     = "ghcr.io/ctfpilot/error-fallback:1.2.1"
 }
 
+variable "errors_replicas" {
+  nullable    = true
+  description = "Number of replicas for the error fallback deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
 variable "image_filebeat" {
   type        = string
   description = "The docker image for Filebeat"

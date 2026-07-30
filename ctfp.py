@@ -120,6 +120,7 @@ OPS_TFVARS = [
     "argocd_server_replicas",
     "argocd_repo_server_replicas",
     "argocd_application_set_replicas",
+    "errors_replicas",
 ]
 PLATFORM_TFVARS = [
     # Generic information
