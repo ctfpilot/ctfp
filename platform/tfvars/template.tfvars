@@ -53,6 +53,7 @@ kubectf_auth_secret = "<secret>" # The secret to use for the authSecret in the C
 db_root_password = "<password>" # Root password for the MariaDB cluster
 db_user          = "ctfd"       # Database user
 db_password      = "password"   # Database password
+# db_timezone    = "UTC"              # Timezone for the MariaDB cluster (e.g. "+2:00" or "UTC") and the backup cron schedule. DB timezone is immutable after cluster creation; backup schedule timezone can be changed anytime. Default is "UTC".
 
 # S3 backup
 s3_bucket     = "<bucket>"     # S3 bucket name for backups

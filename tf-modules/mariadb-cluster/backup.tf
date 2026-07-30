@@ -27,7 +27,7 @@ resource "kubernetes_manifest" "mariadb-cluster-backup" {
       }
 
       maxRetention = "720h" # 30 days
-      timeZone     = "Europe/Copenhagen"
+      timeZone     = var.timezone
       compression  = "gzip"
 
       schedule = {
