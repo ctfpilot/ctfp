@@ -76,6 +76,20 @@ variable "traefik_redis_password" {
   sensitive   = true
 }
 
+variable "traefik_min_replicas" {
+  nullable    = true
+  description = "Minimum number of Traefik replicas. If not specified, it will be set to 1 (single-node) or 3 (standard/ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
+variable "traefik_max_replicas" {
+  nullable    = true
+  description = "Maximum number of Traefik replicas. If not specified, it will be set to 10 (single-node) or 25 (standard/ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
 variable "filebeat_elasticsearch_host" {
   type        = string
   nullable    = false

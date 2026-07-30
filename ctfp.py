@@ -123,6 +123,8 @@ OPS_TFVARS = [
     "errors_replicas",
     "default_web_replicas",
     "prometheus_replicas",
+    "traefik_min_replicas",
+    "traefik_max_replicas",
 ]
 PLATFORM_TFVARS = [
     # Generic information

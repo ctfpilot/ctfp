@@ -310,3 +310,5 @@ challenges_branch     = ""                          # Branch of the Git reposito
 # errors_replicas = null # Number of replicas for the error fallback deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type.
 # default_web_replicas = null # Number of replicas for the default web deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type.
 # prometheus_replicas = null # Number of replicas for the Prometheus deployment. If not specified, it will be set to 1 (single-node or standard) or 2 (ha) based on the deployment type.
+# traefik_min_replicas = null # Minimum number of Traefik replicas. If not specified, it will be set to 1 (single-node) or 3 (standard/ha) based on the deployment type.
+# traefik_max_replicas = null # Maximum number of Traefik replicas. If not specified, it will be set to 10 (single-node) or 25 (standard/ha) based on the deployment type.
