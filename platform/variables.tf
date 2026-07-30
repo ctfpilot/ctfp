@@ -305,7 +305,7 @@ variable "mariadb_version" {
   type        = string
   description = "The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator"
   nullable    = false
-  default     = "25.8.1"
+  default     = "26.6.0"
 }
 
 variable "traefik_redis_password" {

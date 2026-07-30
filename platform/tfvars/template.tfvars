@@ -142,4 +142,4 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 # Values are maintained in the variables.tf file.
 # You can override these values by uncommenting and setting your own versions here.
 
-# mariadb_version = "25.8.1" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator
+# mariadb_version = "26.6.0" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator

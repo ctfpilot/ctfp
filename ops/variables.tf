@@ -232,7 +232,7 @@ variable "descheduler_version" {
 variable "mariadb_operator_version" {
   type        = string
   description = "The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator"
-  default     = "25.8.1"
+  default     = "26.6.0"
 }
 
 variable "kube_prometheus_stack_version" {

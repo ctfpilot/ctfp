@@ -56,8 +56,8 @@ resource "kubernetes_manifest" "mariadb-cluster" {
       galera = {
         enabled = true
         primary = {
-          podIndex          = 0
-          automaticFailover = true
+          podIndex     = 0
+          autoFailover = true
         }
 
         sst                = "mariabackup"
