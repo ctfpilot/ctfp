@@ -275,7 +275,7 @@ challenges_branch     = ""                          # Branch of the Git reposito
 # You can override these values by uncommenting and setting your own images here.
 
 # image_error_fallback      = "ghcr.io/ctfpilot/error-fallback:1.2.1"      # The docker image for the error fallback deployment. See https://github.com/ctfpilot/error-fallback
-# image_filebeat            = "docker.elastic.co/beats/filebeat:8.19.0"    # The docker image for Filebeat
+# image_filebeat            = "docker.elastic.co/beats/filebeat:8.19.19"    # The docker image for Filebeat
 # image_ctfd_manager        = "ghcr.io/ctfpilot/ctfd-manager:1.0.1"        # Docker image for the CTFd Manager deployment
 # image_ctfd_exporter       = "ghcr.io/the0mikkel/ctfd-exporter:1.1.1"     # Docker image for the CTFd Exporter
 # image_instancing_fallback = "ghcr.io/ctfpilot/instancing-fallback:1.0.2" # The docker image for the instancing fallback deployment. See https://github.com/ctfpilot/instancing-fallback

@@ -79,7 +79,7 @@ traefik_redis_password = "<password>" # Password for the Traefik Redis backend
 # You can override these values by uncommenting and setting your own images here.
 
 # image_error_fallback = "ghcr.io/ctfpilot/error-fallback:1.2.1" # The docker image for the error fallback deployment. See https://github.com/ctfpilot/error-fallback
-# image_filebeat = "docker.elastic.co/beats/filebeat:8.19.0"      # The docker image for Filebeat
+# image_filebeat = "docker.elastic.co/beats/filebeat:8.19.19"      # The docker image for Filebeat
 
 # ----------------------
 # Versions

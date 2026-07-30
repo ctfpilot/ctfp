@@ -207,7 +207,7 @@ variable "errors_replicas" {
 variable "image_filebeat" {
   type        = string
   description = "The docker image for Filebeat"
-  default     = "docker.elastic.co/beats/filebeat:8.19.0"
+  default     = "docker.elastic.co/beats/filebeat:8.19.19"
 }
 
 # Variables
