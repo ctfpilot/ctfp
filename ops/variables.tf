@@ -226,7 +226,7 @@ variable "cert_manager_version" {
 variable "descheduler_version" {
   type        = string
   description = "The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler"
-  default     = "0.34.0"
+  default     = "0.36.0"
 }
 
 variable "mariadb_operator_version" {
