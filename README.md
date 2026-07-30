@@ -982,7 +982,7 @@ The following diagrams provide an overview of CTFp's cluster and challenge netwo
 
 ![CTFp Cluster Networking Overview](./docs/attachments/architecture/cluster-network-architecture.svg)
 
-CTFp requires three domains, as it configures different services under different domains:
+CTFp supports up to three top-level domains (TLD), as it allows configuring different services under different domains:
 
 - **Management domain**: Used for accessing the management services, such as ArgoCD, Grafana, and Prometheus.  
   This domain should only be distributed to administrators.
@@ -991,7 +991,8 @@ CTFp requires three domains, as it configures different services under different
 - **CTF domain**: Used for accessing the challenges.  
   This domain is also distributed to participants for accessing the challenges.
 
-The platform does not require you to allocate the full top-level domain (TLD) for CTFp, as subdomains for each of the three domains can be configured.
+The platform does not require you to allocate the full TLDs for CTFp, as subdomains for each of the three domains can be configured.  
+If running one or two TLDs, you must configure the subdomains correctly, so that they don't overlap across the three domains.
 
 Management and Platform domains are configured to be proxied through Cloudflare, to take advantage of their CDN and DDoS protection services.  
 CTF domain is not proxied, as challenges often require direct access to the challenge instances.
@@ -1001,6 +1002,11 @@ Domain management is built into the system, and DNS entries are therefore automa
 Hetzner Cloud's Load Balancers are used to distribute incoming traffic to the Traefik ingress controllers deployed on each node in the cluster.  
 Within the cluster, Traefik handles routing of incoming requests to the appropriate services based on the configured ingress rules.  
 Network is shared between nodes using Hetzner Cloud's private networking, ensuring efficient and secure communication between cluster components.
+
+> [!TIP]
+> It is recommended to run the platform with three domains, to separate the management, platform, and challenge traffic, and limit any risk that may be present when running challenges on the same TLD as the platform or management services.
+> 
+> For small clusters and development clusters, the three top-level domains can be combined into a single domain, as long as the subdomains are configured correctly, such that they don't overlap across the three domains.
 
 #### Challenge networking
 
