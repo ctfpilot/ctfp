@@ -16,6 +16,21 @@ module "cert_manager" {
   namespace_name   = kubernetes_namespace_v1.cert_manager.metadata.0.name
   create_namespace = false
 
+  additional_set = [
+    {
+      name = "replicaCount",
+      value = var.deployment_type == "ha" ? 2 : 1
+    },
+    {
+      name = "webhook.replicaCount",
+      value = var.deployment_type == "ha" ? 3 : 1
+    },
+    {
+      name = "cainjector.replicaCount",
+      value = var.deployment_type == "ha" ? 2 : 1
+    }
+  ]
+
   solvers = [
     {
       dns01 = {
