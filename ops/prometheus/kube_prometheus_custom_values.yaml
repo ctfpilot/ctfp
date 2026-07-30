@@ -103,8 +103,6 @@ prometheus:
       matchLabels: null
     replicas: ${prometheus_replicas}
     podAntiAffinity: "hard"
-    externalLabels:
-      cluster: ha-1
 
 kube-state-metrics:
   enabled: true
