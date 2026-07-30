@@ -292,7 +292,7 @@ challenges_branch     = ""                          # Branch of the Git reposito
 # cert_manager_version          = "1.20.0" # The version of the Cert-Manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager
 # descheduler_version           = "0.36.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
 # mariadb_operator_version      = "26.6.0" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
-# kube_prometheus_stack_version = "62.3.1" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
+# kube_prometheus_stack_version = "87.21.0" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
 # redis_operator_version        = "0.25.0" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
 # mariadb_version               = "26.6.0" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator
 

@@ -238,7 +238,7 @@ variable "mariadb_operator_version" {
 variable "kube_prometheus_stack_version" {
   type        = string
   description = "The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/"
-  default     = "62.3.1"
+  default     = "87.21.0"
 }
 
 variable "redis_operator_version" {
