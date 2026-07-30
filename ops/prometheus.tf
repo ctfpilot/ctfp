@@ -4,6 +4,10 @@ resource "kubernetes_namespace_v1" "prometheus" {
   }
 }
 
+locals {
+  prometheus_replicas = var.prometheus_replicas != null ? var.prometheus_replicas : var.deployment_type == "ha" ? 2 : 1
+}
+
 # --- Grafana Dashboards ConfigMaps ---
 resource "kubernetes_config_map" "grafana-dashboards-k8s" {
   metadata {
@@ -152,6 +156,7 @@ resource "helm_release" "prometheus" {
     templatefile("${path.module}/prometheus/kube_prometheus_custom_values.yaml", {
       cluster_dns_management = var.cluster_dns_management,
       discord_webhook_url    = var.discord_webhook_url,
+      prometheus_replicas    = local.prometheus_replicas
     })
   ]
 

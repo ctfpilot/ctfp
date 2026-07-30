@@ -100,6 +100,13 @@ variable "prometheus_storage_size" {
   description = "The size of the persistent volume claim for Prometheus data storage. Format: <size><unit> (e.g., 20Gi, 100Gi)"
 }
 
+variable "prometheus_replicas" {
+  nullable    = true
+  description = "Number of replicas for the Prometheus deployment. If not specified, it will be set to 1 (single-node or standard) or 2 (ha) based on the deployment type."
+  type        = number
+  default     = null
+}
+
 variable "discord_webhook_url" {
   type        = string
   description = "Discord webhook URL for notifications"

@@ -122,6 +122,7 @@ OPS_TFVARS = [
     "argocd_application_set_replicas",
     "errors_replicas",
     "default_web_replicas",
+    "prometheus_replicas",
 ]
 PLATFORM_TFVARS = [
     # Generic information
