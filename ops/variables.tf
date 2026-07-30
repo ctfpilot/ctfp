@@ -225,3 +225,10 @@ variable "redis_operator_version" {
   description = "The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator"
   default     = "0.25.0"
 }
+
+variable "default_web_replicas" {
+  nullable    = true
+  description = "Number of replicas for the default web deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type."
+  type        = number
+  default     = null
+}

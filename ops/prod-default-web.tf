@@ -9,6 +9,10 @@ resource "kubernetes_namespace" "prod-default-web" {
   }
 }
 
+locals {
+  default_web_replicas = var.default_web_replicas != null ? var.default_web_replicas : (var.deployment_type == "single-node" ? 1 : var.deployment_type == "standard" ? 2 : 3)
+}
+
 # Ingress
 resource "kubernetes_ingress_v1" "prod-default-web" {
   metadata {
@@ -95,7 +99,7 @@ resource "kubernetes_deployment_v1" "prod-default-web" {
   }
 
   spec {
-    replicas = 3
+    replicas = local.default_web_replicas
 
     selector {
       match_labels = {
