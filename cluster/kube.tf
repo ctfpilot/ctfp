@@ -80,7 +80,7 @@ module "kube-hetzner" {
       count  = var.control_plane_count_1
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
-      kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+      kubelet_args = ["kube-reserved=cpu=250m,memory=1Gi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
       placement_group = "control-planes"
@@ -107,7 +107,7 @@ module "kube-hetzner" {
       ],
       taints       = [],
       count        = var.control_plane_count_2
-      kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+      kubelet_args = ["kube-reserved=cpu=250m,memory=1Gi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
       placement_group = "control-planes"
@@ -128,7 +128,7 @@ module "kube-hetzner" {
       ],
       taints       = [],
       count        = var.control_plane_count_3
-      kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+      kubelet_args = ["kube-reserved=cpu=250m,memory=1Gi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
       placement_group = "control-planes"
@@ -156,8 +156,8 @@ module "kube-hetzner" {
         "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=400m,memory=750Mi",
         "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=1m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
@@ -185,8 +185,8 @@ module "kube-hetzner" {
         "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=400m,memory=750Mi",
         "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=1m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
@@ -215,8 +215,8 @@ module "kube-hetzner" {
         "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=400m,memory=750Mi",
         "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=1m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
@@ -241,11 +241,11 @@ module "kube-hetzner" {
       ]
       count = var.challs_count
       kubelet_args = [
-        "kube-reserved=cpu=150m,memory=750Mi,ephemeral-storage=1Gi",
-        "system-reserved=cpu=300m,memory=750Mi",
-        "eviction-soft=memory.available<2Gi", # Recommend 3Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=10m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
+        "system-reserved=cpu=400m,memory=750Mi",
+        "eviction-soft=memory.available<1Gi",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
@@ -420,11 +420,11 @@ module "kube-hetzner" {
         }
       ]
       kubelet_args = [
-        "kube-reserved=cpu=150m,memory=750Mi,ephemeral-storage=1Gi",
-        "system-reserved=cpu=300m,memory=750Mi",
-        "eviction-soft=memory.available<512Mi", # Recommend 3Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=10m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
+        "system-reserved=cpu=400m,memory=750Mi",
+        "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
     }
   ]
