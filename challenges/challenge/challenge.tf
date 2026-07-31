@@ -71,7 +71,7 @@ module "argocd-challenge" {
   argocd_labels = {
     "part-of"   = "ctfpilot"
     "component" = "challenge"
-    "version"   = var.revision
+    "version"   = replace(var.revision, "/", "-")
     "category"  = var.category
     "instance"  = var.identifier
   }
