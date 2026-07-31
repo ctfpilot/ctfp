@@ -175,7 +175,7 @@ resource "kubernetes_manifest" "mariadb-cluster" {
       }
 
       affinity = {
-        antiAffinityEnabled = true
+        antiAffinityEnabled = var.anti_affinity
       }
 
       tolerations = [

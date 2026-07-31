@@ -4,12 +4,12 @@ metadata:
   name: redis-replication
   namespace: ${namespace}
 spec:
-  clusterSize: 3
+  clusterSize: ${replication_size}
   podSecurityContext:
     runAsUser: 1000
     fsGroup: 1000
   sentinel:
-    size: 3
+    size: ${replication_size}
     image: quay.io/opstree/redis-sentinel:v7.4.8
     imagePullPolicy: IfNotPresent
     resources:
@@ -37,7 +37,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                    - redis-replication
+                    - redis-replication-s
             topologyKey: kubernetes.io/hostname
     # Spread the Sentinels across nodes.
     topologySpreadConstraints:

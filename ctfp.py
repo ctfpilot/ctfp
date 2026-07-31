@@ -139,6 +139,7 @@ PLATFORM_TFVARS = [
     
     # Traefik configuration
     "traefik_redis_password",
+    "traefik_redis_cluster_size",
 
     # Filebeat configuration
     "filebeat_elasticsearch_host",
@@ -153,6 +154,7 @@ PLATFORM_TFVARS = [
     "db_user",
     "db_password",
     "db_timezone",
+    "db_anti_affinity",
     # DB backup configuration
     "s3_bucket",
     "s3_region",
@@ -161,6 +163,7 @@ PLATFORM_TFVARS = [
     "s3_secret_key",
     # Redis configuration
     "ctfd_redis_password",
+    "ctfd_redis_replicas",
     
     # CTFd Manager configuration
     "ctfd_manager_password",

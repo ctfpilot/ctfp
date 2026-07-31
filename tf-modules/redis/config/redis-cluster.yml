@@ -4,7 +4,7 @@ metadata:
   name: redis-cluster
   namespace: ${namespace}
 spec:
-  clusterSize: 3
+  clusterSize: ${cluster_size}
   podSecurityContext:
     runAsUser: 1000
     fsGroup: 1000

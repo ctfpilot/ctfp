@@ -123,11 +123,25 @@ variable "db_timezone" {
   }
 }
 
+variable "db_anti_affinity" {
+  type        = bool
+  description = "Whether to enable anti-affinity for the MariaDB cluster pods. Defaults to true for standard and HA, and false for single-node deployment types. More information at https://github.com/mariadb-operator/mariadb-operator/blob/main/docs/high_availability.md#pod-anti-affinity"
+  nullable    = true
+  default     = null
+}
+
 variable "ctfd_redis_password" {
   type        = string
   description = "Password for the CTFd Redis instance"
   sensitive   = true
   nullable    = false
+}
+
+variable "ctfd_redis_replicas" {
+  type        = number
+  description = "Number of Redis replicas for CTFd. Defaults to 3 for standard and HA, and 1 for single-node deployment types."
+  nullable    = true
+  default     = null
 }
 
 variable "ctfd_secret_key" {
@@ -312,4 +326,11 @@ variable "traefik_redis_password" {
   description = "Password for the Traefik Redis backend"
   type        = string
   sensitive   = true
+}
+
+variable "traefik_redis_cluster_size" {
+  type        = number
+  description = "Number of Redis cluster nodes for Traefik. Defaults to 3 for standard and HA, and 1 for single-node deployment types."
+  nullable    = true
+  default     = null
 }

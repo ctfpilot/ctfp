@@ -45,7 +45,9 @@ module "ctfd-pull-secret" {
 }
 
 locals {
-  db_name = "ctfd-db"
+  db_name                     = "ctfd-db"
+  db_anti_affinity            = var.db_anti_affinity != null ? var.db_anti_affinity : (var.deployment_type != "single-node" ? true : false)
+  ctfd_redis_replication_size = var.ctfd_redis_replicas != null ? var.ctfd_redis_replicas : (var.deployment_type != "single-node" ? 3 : 1)
 }
 
 module "db-cluster" {
@@ -63,6 +65,8 @@ module "db-cluster" {
 
   mariadb_version = var.mariadb_version
   timezone        = var.db_timezone
+
+  anti_affinity = local.db_anti_affinity
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -88,8 +92,9 @@ module "database" {
 module "redis" {
   source = "../tf-modules/redis/replication"
 
-  namespace      = kubernetes_namespace_v1.ctfd.metadata.0.name
-  redis_password = var.ctfd_redis_password
+  namespace        = kubernetes_namespace_v1.ctfd.metadata.0.name
+  redis_password   = var.ctfd_redis_password
+  replication_size = local.ctfd_redis_replication_size
 
   depends_on = [
     kubernetes_namespace_v1.ctfd

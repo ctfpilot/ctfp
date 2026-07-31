@@ -59,3 +59,10 @@ variable "timezone" {
   nullable    = false
   default     = "UTC"
 }
+
+variable "anti_affinity" {
+  type        = bool
+  description = "Whether to enable anti-affinity for the MariaDB cluster pods. More information at https://github.com/mariadb-operator/mariadb-operator/blob/main/docs/high_availability.md#pod-anti-affinity"
+  nullable    = false
+  default     = true
+}

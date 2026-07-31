@@ -139,6 +139,7 @@ discord_webhook_url = "<discord-webhook-url>" # Discord webhook URL for notifica
 traefik_basic_auth = { user = "<basic-username>", password = "<basic-password>" }
 
 traefik_redis_password = "<password>" # Password for the Traefik Redis backend
+# traefik_redis_cluster_size = null   # Number of Redis cluster nodes for Traefik. Defaults to 3 for standard and HA, and 1 for single-node deployment types.
 
 # ----------------------
 # Filebeat configuration
@@ -175,7 +176,8 @@ kubectf_container_secret = "<kubectf-container-secret>" # The secret to use for 
 db_root_password = "<db-root-password>" # Root password for the MariaDB cluster
 db_user          = "<db-user>"          # Database user
 db_password      = "<db-password>"      # Database password
-# db_timezone    = "UTC"              # Timezone for the MariaDB cluster (e.g. "+2:00" or "UTC") and the backup cron schedule. DB timezone is immutable after cluster creation; backup schedule timezone can be changed anytime. Default is "UTC".
+# db_timezone      = "UTC"              # Timezone for the MariaDB cluster (e.g. "+2:00" or "UTC") and the backup cron schedule. DB timezone is immutable after cluster creation; backup schedule timezone can be changed anytime. Default is "UTC".
+# db_anti_affinity = null               # Whether to enable anti-affinity for the MariaDB cluster pods. Defaults to true for standard and HA, and false for single-node deployment types. More information at https://github.com/mariadb-operator/mariadb-operator/blob/main/docs/high_availability.md#pod-anti-affinity.
 
 # S3 backup
 s3_bucket     = "<bucket>"     # S3 bucket name for backups
@@ -186,6 +188,7 @@ s3_secret_key = "<secret_key>" # Secret key for S3 for backups
 
 # Redis
 ctfd_redis_password = "<password>" # Password for the CTFd Redis instance
+# ctfd_redis_replicas = null       # Number of Redis replicas for CTFd. Defaults to 3 for standard and HA, and 1 for single-node deployment types.
 
 # ------------------------
 # CTFd Manager configuration
