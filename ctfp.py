@@ -64,6 +64,8 @@ CLUSTER_TFVARS = [
     "challs_count",
     "scale_max",
     "load_balancer_type",
+    "traefik_additional_ports",
+    "traefik_trusted_ips",
     
     # Versions
     "kube_hetzner_version",
