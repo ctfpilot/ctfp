@@ -43,13 +43,13 @@ chall_whitelist_ips = ["<ip1>", "<ip2>"] # List of IPs to whitelist for challeng
 
 challenges_static = {
   "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
-} # List of static challenges to deploy. Needs to be the slugs of the challenges
+} # List of static challenges to deploy. Needs to be the slugs of the challenges, in the format `{ \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }`. Challenge slug may be defined as `<challenge_slug>:<branch>` to deploy a specific branch of the challenge. If no branch is specified, the default branch will be used.
 challenges_shared = {
   "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
-} # List of shared challenges to deploy. Needs to be the slugs of the challenges
+} # List of shared challenges to deploy. Needs to be the slugs of the challenges, in the format `{ \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }`. Challenge slug may be defined as `<challenge_slug>:<branch>` to deploy a specific branch of the challenge. If no branch is specified, the default branch will be used.
 challenges_instanced = {
   "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
-} # List of instanced challenges to deploy. Needs to be the slugs of the challenges
+} # List of instanced challenges to deploy. Needs to be the slugs of the challenges, in the format `{ \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }`. Challenge slug may be defined as `<challenge_slug>:<branch>` to deploy a specific branch of the challenge. If no branch is specified, the default branch will be used.
 
 challenges_repository = "<url>"    # URL of the Git repository containing the challenge definitions
 challenges_branch     = "<branch>" # Branch of the Git repository to use for the challenge definitions. Leave empty for environment based branch (environment == prod ? main : develop)

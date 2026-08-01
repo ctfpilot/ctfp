@@ -15,7 +15,7 @@ variable "category" {
 }
 
 variable "identifier" {
-  description = "The identifier of the challenge"
+  description = "The identifier of the challenge. The identifier may contain the revision in the format of `<identifier>:<revision>`. If the revision is not specified, the variable provided revision will be used."
 }
 
 variable "path" {
@@ -54,6 +54,11 @@ variable "helm" {
   default     = null
 }
 
+locals {
+  revision = strcontains(var.identifier, ":") ? split(":", var.identifier)[1] : var.revision
+  identifier = strcontains(var.identifier, ":") ? split(":", var.identifier)[0] : var.identifier
+}
+
 module "argocd-challenge" {
   source = "../../tf-modules/argocd/application"
 
@@ -61,19 +66,19 @@ module "argocd-challenge" {
 
   argocd_namespace          = var.argocd_namespace
   application_namespace     = var.challenge_namespace
-  application_name          = var.application_name != null ? var.application_name : "${var.category}-${var.identifier}"
+  application_name          = var.application_name != null ? var.application_name : "${var.category}-${local.identifier}"
   application_repo_url      = var.application_repo_url
-  application_repo_path     = var.path != null ? var.path : "challenges/${var.category}/${var.identifier}/k8s/challenge"
-  application_repo_revision = var.revision
+  application_repo_path     = var.path != null ? var.path : "challenges/${var.category}/${local.identifier}/k8s/challenge"
+  application_repo_revision = local.revision
   application_project       = var.argocd_project
   helm                      = var.helm
 
   argocd_labels = {
     "part-of"   = "ctfpilot"
     "component" = "challenge"
-    "version"   = replace(var.revision, "/", "-")
+    "version"   = replace(local.revision, "/", "-")
     "category"  = var.category
-    "instance"  = var.identifier
+    "instance"  = local.identifier
   }
 }
 
