@@ -4,7 +4,7 @@ metadata:
   name: redis-cluster
   namespace: ${namespace}
 spec:
-  clusterSize: 3
+  clusterSize: ${cluster_size}
   podSecurityContext:
     runAsUser: 1000
     fsGroup: 1000
@@ -13,8 +13,8 @@ spec:
     imagePullPolicy: IfNotPresent
     resources:
       requests:
-        cpu: 101m
-        memory: 128Mi
+        cpu: 50m
+        memory: 64Mi
       limits:
         cpu: 500m
         memory: 1Gi

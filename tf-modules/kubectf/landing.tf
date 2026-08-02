@@ -65,7 +65,7 @@ resource "kubernetes_deployment_v1" "landing" {
             }
             requests = {
               cpu    = "10m"
-              memory = "50Mi"
+              memory = "32Mi"
             }
           }
 

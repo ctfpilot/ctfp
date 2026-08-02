@@ -90,7 +90,7 @@ resource "kubernetes_deployment_v1" "ctfd_exporter" {
             }
             requests = {
               cpu    = "10m"
-              memory = "128Mi"
+              memory = "64Mi"
             }
           }
         }

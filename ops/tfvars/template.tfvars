@@ -1,4 +1,17 @@
 # ------------------------
+# Deployment type
+# ------------------------
+# Deployment type represents the type of deployment to be used for the platform.
+# It defines how many replicas of each service is deployed. It does not affect node deployment.
+# You may overwrite the number of replicas for each service at the bottom of this file, but it is not recommended to do so unless you know what you are doing.
+#
+# Options:
+# - "standard": Standard deployment with core services being deployed with 2 or more replicas, while some services are deployed with 1 replica. This is the recommended deployment type for production (minimum 2 control plane nodes, 2 agent nodes, 1 challs node).
+# - "single-node": Single node deployment with all services being deployed with 1 replica, and HA being disabled where possible, this is the recommended deployment type for small clusters (1 control plane node, 1 agent node, 1 challs node). This is not recommended for production.
+# - "ha": High availability deployment with all services being deployed with 2 or more replicas, and HA enabled where possible. This is the recommended deployment type for large-scale events that require high availability and redundancy. Requires a minimum of 3 control plane nodes, 3 agent nodes and 1 challs node.
+deployment_type = "standard" # Deployment type for the cluster. Options: "standard", "single-node", "ha"
+
+# ------------------------
 # Kubernetes variables
 # ------------------------
 kubeconfig = "AA==" # The base64 encoded kubeconfig file (base64 -w 0 <file>)
@@ -66,7 +79,7 @@ traefik_redis_password = "<password>" # Password for the Traefik Redis backend
 # You can override these values by uncommenting and setting your own images here.
 
 # image_error_fallback = "ghcr.io/ctfpilot/error-fallback:1.2.1" # The docker image for the error fallback deployment. See https://github.com/ctfpilot/error-fallback
-# image_filebeat = "docker.elastic.co/beats/filebeat:8.19.0"      # The docker image for Filebeat
+# image_filebeat = "docker.elastic.co/beats/filebeat:8.19.19"      # The docker image for Filebeat
 
 # ----------------------
 # Versions
@@ -74,9 +87,27 @@ traefik_redis_password = "<password>" # Password for the Traefik Redis backend
 # Values are maintained in the variables.tf file.
 # You can override these values by uncommenting and setting your own versions here.
 
-# argocd_version                = "8.2.5"  # The version of the ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm
-# cert_manager_version          = "1.17.1" # The version of the Cert-Manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager
-# descheduler_version           = "0.34.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
-# mariadb_operator_version      = "25.8.1" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
-# kube_prometheus_stack_version = "62.3.1" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
+# argocd_version                = "10.2.1"  # The version of the ArgoCD Helm chart to deploy. More information at https://github.com/argoproj/argo-helm
+# cert_manager_version          = "1.20.0" # The version of the Cert-Manager Helm chart to deploy. More information at https://github.com/cert-manager/cert-manager
+# descheduler_version           = "0.36.0" # The version of descheduler Helm chart to deploy. More information at https://github.com/kubernetes-sigs/descheduler
+# mariadb_operator_version      = "26.6.0" # The version of the MariaDB Operator Helm chart to deploy. More information at https://github.com/mariadb-operator/mariadb-operator
+# kube_prometheus_stack_version = "87.21.0" # The version of the kube-prometheus-stack Helm chart to deploy. More information at https://github.com/prometheus-community/helm-charts/
 # redis_operator_version        = "0.22.2" # The version of the Redis Operator Helm chart to deploy. More information at https://github.com/OT-CONTAINER-KIT/redis-operator
+
+# ----------------------
+# Replicas
+# ----------------------
+# Values are maintained in the variables.tf file.
+# You can override these values by uncommenting and setting your own replicas here.
+# If set to null, behavior follows the deployment type. If set, it will override the deployment type.
+
+# argocd_redis_ha = null # Whether to enable Redis HA for ArgoCD deployment. If not specified, it will be enabled if the deployment type is 'ha'.
+# argocd_controller_replicas = null # Number of replicas for the ArgoCD controller deployment. If not specified, it will be set to 1.
+# argocd_server_replicas = null # Number of replicas for the ArgoCD server deployment. If not specified, it will be set to 1 or 2 (ha)
+# argocd_repo_server_replicas = null # Number of replicas for the ArgoCD repo server deployment. If not specified, it will be set to 1 or 2 (ha)
+# argocd_application_set_replicas = null # Number of replicas for the ArgoCD ApplicationSet controller deployment. If not specified, it will be set to 1 or 2 (ha) based on the deployment type.
+# errors_replicas = null # Number of replicas for the error fallback deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type.
+# default_web_replicas = null # Number of replicas for the default web deployment. If not specified, it will be set to 1 (single-node), 2 (standard), or 3 (ha) based on the deployment type.
+# prometheus_replicas = null # Number of replicas for the Prometheus deployment. If not specified, it will be set to 1 (single-node or standard) or 2 (ha) based on the deployment type.
+# traefik_min_replicas = null # Minimum number of Traefik replicas. If not specified, it will be set to 1 (single-node) or 3 (standard/ha) based on the deployment type.
+# traefik_max_replicas = null # Maximum number of Traefik replicas. If not specified, it will be set to 10 (single-node) or 25 (standard/ha) based on the deployment type.

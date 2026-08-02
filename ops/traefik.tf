@@ -1,3 +1,8 @@
+locals {
+  traefik_min_replicas = var.traefik_min_replicas != null ? var.traefik_min_replicas : var.deployment_type == "single-node" ? 1 : 3
+  traefik_max_replicas = var.traefik_max_replicas != null ? var.traefik_max_replicas : var.deployment_type == "single-node" ? 10 : 25
+}
+
 resource "kubernetes_service" "traefik_dashboard" {
   metadata {
     name      = "traefik-dashboard"
@@ -101,8 +106,6 @@ resource "kubernetes_service" "traefik_metrics" {
   }
 }
 
-
-
 resource "kubernetes_config_map_v1" "ctfd_filebeat_config" {
   metadata {
     name      = "ctfd-filebeat-config"
@@ -164,8 +167,8 @@ resource "kubernetes_manifest" "traefik-additional-config" {
       valuesContent = <<-EOF
         autoscaling:
           enabled: true
-          minReplicas: 3
-          maxReplicas: 50
+          minReplicas: ${local.traefik_min_replicas}
+          maxReplicas: ${local.traefik_max_replicas}
         resources:
           requests:
             cpu: "500m"

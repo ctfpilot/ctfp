@@ -70,6 +70,7 @@ CLUSTER_TFVARS = [
 ]
 OPS_TFVARS = [
     # Generic information
+    "deployment_type",
     "email", 
     "discord_webhook_url",
     
@@ -112,9 +113,22 @@ OPS_TFVARS = [
     "mariadb_operator_version",
     "kube_prometheus_stack_version",
     "redis_operator_version",
+    
+    # Replicas
+    "argocd_redis_ha",
+    "argocd_controller_replicas",
+    "argocd_server_replicas",
+    "argocd_repo_server_replicas",
+    "argocd_application_set_replicas",
+    "errors_replicas",
+    "default_web_replicas",
+    "prometheus_replicas",
+    "traefik_min_replicas",
+    "traefik_max_replicas",
 ]
 PLATFORM_TFVARS = [
     # Generic information
+    "deployment_type",
     "cluster_dns_management", 
     "cluster_dns_platform",
     
@@ -125,6 +139,7 @@ PLATFORM_TFVARS = [
     
     # Traefik configuration
     "traefik_redis_password",
+    "traefik_redis_cluster_size",
 
     # Filebeat configuration
     "filebeat_elasticsearch_host",
@@ -139,6 +154,7 @@ PLATFORM_TFVARS = [
     "db_user",
     "db_password",
     "db_timezone",
+    "db_anti_affinity",
     # DB backup configuration
     "s3_bucket",
     "s3_region",
@@ -147,6 +163,7 @@ PLATFORM_TFVARS = [
     "s3_secret_key",
     # Redis configuration
     "ctfd_redis_password",
+    "ctfd_redis_replicas",
     
     # CTFd Manager configuration
     "ctfd_manager_password",
@@ -206,6 +223,7 @@ PLATFORM_TFVARS = [
 ]
 CHALLENGES_TFVARS = [
     # Generic information
+    "deployment_type",
     "cluster_dns_management",
     "cluster_dns_ctf",
     

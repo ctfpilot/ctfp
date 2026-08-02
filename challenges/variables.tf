@@ -1,6 +1,16 @@
 # ------------------------
 # Variables
 # ------------------------
+variable "deployment_type" {
+  description = "Deployment type represents the type of deployment to be used for the platform. It defines how many replicas of each service is deployed. It does not affect node deployment."
+  type        = string
+  default     = "standard"
+
+  validation {
+    condition     = contains(["standard", "single-node", "ha"], var.deployment_type)
+    error_message = "Invalid deployment type. Valid options are: 'standard', 'single-node', 'ha'."
+  }
+}
 
 variable "kubeconfig" {
   type        = string
