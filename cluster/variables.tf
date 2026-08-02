@@ -245,7 +245,7 @@ variable "traefik_additional_ports" {
     internalPort = number
     externalPort = number
   }))
-  description = "List of additional ports to open on the load balancer. Each port is defined by a name, an internal port, and an external port. The name is used as `entryPoints` in IngressRouteTCP resources. External ports is exposed in the load balancer, while internal port being exposed port on the Traefik pods."
+  description = "List of additional ports to open on the load balancer. Each port is defined by a name, an internal port, and an external port. The name is used as `entryPoints` in IngressRouteTCP resources. The external port is exposed on the load balancer, while the internal port is exposed by the Traefik pods."
   default     = []
 
   validation {
@@ -269,6 +269,6 @@ locals {
 
 variable "traefik_trusted_ips" {
   type        = list(string)
-  description = "List of additional Trusted IPs to pass to Traefik as CIDR notation. Loadbalancer IPs are automatically added to this list. If you want to add additional trusted IPs, enter them here as a list of strings."
+  description = "List of additional trusted IPs to pass to Traefik in CIDR notation. Load balancer IPs are automatically added to this list. Add other trusted IPs here as a list of strings."
   default     = []
 }
