@@ -116,6 +116,7 @@ resource "kubernetes_config_map_v1" "ctfd_filebeat_config" {
     "filebeat.yml" = <<-EOF
       filebeat.inputs:
       - type: filestream
+        id: traefik-access-logs
         paths:
           - /var/log/traefik/*.log
         processors:
@@ -180,19 +181,18 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - key: "cluster.ctfpilot.com/node"
             value: "scaler"
             effect: "PreferNoSchedule"
-        log:
-          access:
-            enabled: true
-            format: json
-            filePath: "/var/log/traefik/access.log"
-            bufferingSize: 1000
-            fields:
-              headers:
-                defaultmode: keep
-                names:
-                  Accept: drop
-                  Connection: drop
-                  Authorization: redact
+        accessLog:
+          enabled: true
+          format: json
+          filePath: "/var/log/traefik/access.log"
+          bufferingSize: 1000
+          fields:
+            headers:
+              defaultmode: keep
+              names:
+                Accept: drop
+                Connection: drop
+                Authorization: redact
         env:
         - name: TZ
           value: "Europe/Copenhagen"
@@ -201,8 +201,6 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - name: fix-permissions
             image: busybox:latest
             command: ["sh", "-c", "mkdir -p /usr/share/filebeat/data"]
-            securityContext:
-              fsGroup: 1000
             volumeMounts:
             - name: filebeat-data
               mountPath: /usr/share/filebeat/data

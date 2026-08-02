@@ -238,3 +238,37 @@ variable "scale_max" {
     error_message = "Scale max must be at least 0."
   }
 }
+
+variable "traefik_additional_ports" {
+  type = list(object({
+    name         = string
+    internalPort = number
+    externalPort = number
+  }))
+  description = "List of additional ports to open on the load balancer. Each port is defined by a name, an internal port, and an external port. The name is used as `entryPoints` in IngressRouteTCP resources. The external port is exposed on the load balancer, while the internal port is exposed by the Traefik pods."
+  default     = []
+
+  validation {
+     condition = alltrue([
+       for p in var.traefik_additional_ports :
+       length(trim(p.name)) > 0 &&
+       p.internalPort >= 1 && p.internalPort <= 65535 &&
+       p.externalPort >= 1 && p.externalPort <= 65535
+     ])
+     error_message = "Each traefik_additional_ports entry must have a non-empty name and internalPort/externalPort between 1 and 65535."
+   }
+}
+
+locals {
+  traefik_additional_ports_list = [for p in var.traefik_additional_ports : {
+    name        = p.name
+    port        = p.internalPort
+    exposedPort = p.externalPort
+  }]
+}
+
+variable "traefik_trusted_ips" {
+  type        = list(string)
+  description = "List of additional trusted IPs to pass to Traefik in CIDR notation. Load balancer IPs are automatically added to this list. Add other trusted IPs here as a list of strings."
+  default     = []
+}
