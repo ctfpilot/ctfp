@@ -247,6 +247,16 @@ variable "traefik_additional_ports" {
   }))
   description = "List of additional ports to open on the load balancer. Each port is defined by a name, an internal port, and an external port. The name is used as `entryPoints` in IngressRouteTCP resources. External ports is exposed in the load balancer, while internal port being exposed port on the Traefik pods."
   default     = []
+
+  validation {
+     condition = alltrue([
+       for p in var.traefik_additional_ports :
+       length(trim(p.name)) > 0 &&
+       p.internalPort >= 1 && p.internalPort <= 65535 &&
+       p.externalPort >= 1 && p.externalPort <= 65535
+     ])
+     error_message = "Each traefik_additional_ports entry must have a non-empty name and internalPort/externalPort between 1 and 65535."
+   }
 }
 
 locals {
