@@ -1,15 +1,11 @@
-locals {
-  ctfd_manager_gh_branch = var.ctfd_manager_github_branch == "" ? local.env_branch : var.ctfd_manager_github_branch
-}
-
 resource "kubernetes_namespace_v1" "challenge-config" {
   metadata {
-    name = "challenge-config"
+    name = var.ctf_manager_namespace
   }
 }
 
 module "ctfd-manager-pull-secret" {
-  source = "../tf-modules/pull-secret"
+  source = "../pull-secret"
 
   namespace     = kubernetes_namespace_v1.challenge-config.metadata.0.name
   ghcr_username = var.ghcr_username
@@ -274,7 +270,7 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
 
           env {
             name  = "NAMESPACE"
-            value = "challenge-config"
+            value = var.ctf_manager_namespace
           }
 
           env {
@@ -284,7 +280,7 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
 
           env {
             name  = "GITHUB_BRANCH"
-            value = local.ctfd_manager_gh_branch
+            value = var.ctfd_manager_github_branch
           }
 
           env {
@@ -319,7 +315,7 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
 
           env {
             name  = "CTFD_URL"
-            value = "https://${var.cluster_dns_platform}"
+            value = "https://${var.ctf_url}"
           }
 
           port {
@@ -409,11 +405,11 @@ resource "kubernetes_service_v1" "ctfd-manager" {
 }
 
 module "ctfd-manager-ingress" {
-  source = "../tf-modules/kubernetes/ingress"
+  source = "../kubernetes/ingress"
 
   namespace    = kubernetes_namespace_v1.challenge-config.metadata.0.name
   service_name = kubernetes_service_v1.ctfd-manager.metadata.0.name
-  hostname     = "ctfd-manager.${var.cluster_dns_management}"
+  hostname     = var.ctf_manager_url
 
   depends_on = [
     kubernetes_namespace_v1.challenge-config,

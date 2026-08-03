@@ -2,7 +2,7 @@
 # Required
 # ----------
 
-variable "user_name" {
+variable "username" {
   type        = string
   description = "The name of the user to create"
 }
@@ -34,7 +34,7 @@ variable "password" {
 
 resource "kubernetes_secret" "database_user_password" {
   metadata {
-    name      = "user-${var.user_name}"
+    name      = "user-${var.username}"
     namespace = var.namespace
   }
 
@@ -45,7 +45,7 @@ resource "kubernetes_secret" "database_user_password" {
 
 resource "null_resource" "replace-trigger" {
   triggers = {
-    "user_name"                  = var.user_name
+    "user_name"                  = var.username
     "namespace"                  = var.namespace
     "maria_db_cluster"           = var.mariadb_cluster
     "maria_db_cluster_namespace" = var.mariadb_cluster_namespace
@@ -58,7 +58,7 @@ resource "kubernetes_manifest" "database_user" {
     apiVersion = "k8s.mariadb.com/v1alpha1"
     kind       = "User"
     metadata = {
-      name      = "${var.user_name}"
+      name      = "${var.username}"
       namespace = var.namespace
     }
     spec = {

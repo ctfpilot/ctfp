@@ -9,7 +9,7 @@ resource "kubernetes_secret_v1" "ctfd_exporter" {
   }
 
   data = {
-    CTFD_URL  = "http://ctfd.${kubernetes_namespace_v1.ctfd.metadata[0].name}.svc.cluster.local"
+    CTFD_URL  = "http://${local.ctfd_name}.${kubernetes_namespace_v1.ctfd.metadata[0].name}.svc.cluster.local"
     POLL_RATE = "30"
   }
 
