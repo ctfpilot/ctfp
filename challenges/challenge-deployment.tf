@@ -33,10 +33,6 @@ module "challege_deployment" {
   kubectf_namespace_shared      = module.kube_ctf.namespace_standard_challenges
   kubectf_namespace_instanced   = module.kube_ctf.namespace_instanced_challenges
 
-  # TODO: ctf-challenges deploys both config and challenges for all ctfs.
-  # I need to figure out, if kube-ctf can handle multiple CTFd's deploying instances, or it will cause problems.
-  # The issue here, is that the current solution tries to deploy kubectf template double in the same namespace.
-
   depends_on = [
     module.kube_ctf
   ]
