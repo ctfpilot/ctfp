@@ -1,18 +1,32 @@
+locals {
+  ctfs_mapped = {
+    for ctf in var.ctfs :
+    ctf.slug => merge(
+      ctf,
+      {
+        config_only = ctf.slug != var.ctfs[0].slug
+      }
+    )
+  }
+}
+
 module "challege_deployment" {
   source = "./ctf-challenges"
 
-  for_each = {}
+  for_each = toset(keys(local.ctfs_mapped))
 
+  ctf                           = local.ctfs_mapped[each.key].slug
+  config_only                   = !local.ctfs_mapped[each.key].config_only
   cluster_dns_ctf               = var.cluster_dns_ctf
   ghcr_username                 = var.ghcr_username
   git_token                     = var.git_token
   challenges_repository         = var.challenges_repository
   challenges_branch             = var.challenges_branch
-  config_namespace              = ""
+  config_namespace              = "challenge-config-${local.ctfs_mapped[each.key].slug}"
   argocd_namespace              = var.argocd_namespace
+  argocd_project_config_name    = "${local.argocd_project_config}-${local.ctfs_mapped[each.key].slug}"
   argocd_project_instanced_name = local.argocd_project_instanced
   argocd_project_shared_name    = local.argocd_project_shared
-  argocd_project_static_name    = local.argocd_project_static
   challenges_static             = var.challenges_static
   challenges_shared             = var.challenges_shared
   challenges_instanced          = var.challenges_instanced

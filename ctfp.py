@@ -222,6 +222,7 @@ CHALLENGES_TFVARS = [
     # CTF configuration
     "kubectf_auth_secret",
     "kubectf_container_secret",
+    "ctfs",
     
     # Challenges configuration
     "chall_whitelist_ips",

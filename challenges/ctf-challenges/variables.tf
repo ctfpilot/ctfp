@@ -1,3 +1,16 @@
+variable "ctf" {
+  description = "The CTF to deploy"
+  type        = string
+  nullable    = false
+}
+
+variable "config_only" {
+  description = "Should challenges only be deployed with config"
+  type        = bool
+  default     = false
+  nullable    = false
+}
+
 variable "cluster_dns_ctf" {
   type        = string
   description = "The domain name to use for the DNS records for the CTF challenges part of the cluster. Must be the TLD or subdomain of `cloudflare_dns_ctf`"
@@ -51,7 +64,7 @@ variable "argocd_project_instanced_name" {
   nullable    = false
 }
 
-variable "argocd_project_static_name" {
+variable "argocd_project_config_name" {
   description = "The name of the ArgoCD project for static challenges"
   default     = "static-challenges"
   nullable    = false

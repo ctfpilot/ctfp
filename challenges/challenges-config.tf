@@ -8,9 +8,9 @@ locals {
   challenge_repo_url = var.challenges_repository
   branch             = local.challenges_branch
 
-  argocd_project_instanced = "instanced-challenges"
-  argocd_project_shared    = "shared-challenges"
-  argocd_project_static    = "static-challenges"
+  argocd_project_config    = "challenges-config"
+  argocd_project_shared    = "challenges-shared"
+  argocd_project_instanced = "challenges-instanced"
 
   config_namespace = "challenge-config"
 }
