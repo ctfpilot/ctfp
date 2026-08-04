@@ -42,6 +42,7 @@ variable "ctfs" {
 
     plugins = object({                       # Plugins configuration for the CTF. This is used to configure the plugins for the CTF platform.
       kubectf_auth_secret = optional(string) # Secret for the kubectf_auth plugin. Defaults to `kubectf_auth_secret` if not provided.
+      kubectf_host        = optional(string) # Host for the kubectf plugin. Defaults to `kubectf_host` if not provided.
       first_blood_url     = optional(string) # URL for the first_blood plugin. Defaults to `ctfd_plugin_first_blood_url` if not provided.
       first_blood_message = optional(string) # Message for the first_blood plugin. Defaults to `ctfd_plugin_first_blood_message` if not provided.
       first_blood_limit   = optional(number) # Limit for the first_blood plugin. Defaults to `ctfd_plugin_first_blood_limit` if not provided.

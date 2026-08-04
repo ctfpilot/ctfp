@@ -49,6 +49,7 @@ filebeat_elasticsearch_password = "<password>" # The password for Elasticsearch 
 # The following is the configuration for the instanced challenge management system.
 # They should be unique and strong passwords.
 kubectf_auth_secret = "<kubectf-auth-secret>" # The secret to use for the authSecret in the CTF configuration
+# kubectf_host      = "<kubectf-host>"        # The host to use for the CTF configuration. It is recommended to not configure this, unless you use a remote kubeCTF instance. If not configured, it will default to "chall-manager.<cluster_dns_management>"
 
 # ------------------------
 # DB configuration
@@ -122,6 +123,7 @@ ctfs = [
 
     plugins = {                                             # Plugins configuration for the CTF. This is used to configure the plugins for the CTF platform.
       kubectf_auth_secret = "<plugins_kubectf_auth_secret>" # Secret for the kubectf_auth plugin. Defaults to `kubectf_auth_secret` if not provided.
+      # kubectf_host        = "<plugins_kubectf_host>"        # Host for the kubectf plugin. Defaults to `kubectf_host` if not provided.
       first_blood_url     = "<plugins_first_blood_url>"     # URL for the first_blood plugin. Defaults to `ctfd_plugin_first_blood_url` if not provided.
       first_blood_message = "<plugins_first_blood_message>" # Message for the first_blood plugin. Defaults to `ctfd_plugin_first_blood_message` if not provided.
       first_blood_limit   = "<plugins_first_blood_limit>"   # Limit for the first_blood plugin. Defaults to `ctfd_plugin_first_blood_limit` if not provided.
@@ -135,9 +137,9 @@ ctfs = [
       k8s_deployment_branch     = "<ctfd_k8s_deployment_branch>"     # Git branch for CTFd deployment files. Defaults to `ctfd_k8s_deployment_branch` if not provided
     }
 
-    db = {                                 # Database configuration for the CTF. This is used to configure the MariaDB database for the CTFd instance.
-      user          = "<db_user>"          # Database user
-      password      = "<db_password>"      # Database user password
+    db = {                       # Database configuration for the CTF. This is used to configure the MariaDB database for the CTFd instance.
+      user     = "<db_user>"     # Database user
+      password = "<db_password>" # Database user password
     }
 
     redis = {                       # Redis configuration for the CTF. This is used to configure the Redis instance for the CTFd instance.

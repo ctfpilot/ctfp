@@ -150,6 +150,7 @@ PLATFORM_TFVARS = [
     
     # CTF configuration
     "kubectf_auth_secret",
+    "kubectf_host",
     "ctfs",
     
     # DB configuration
@@ -222,6 +223,7 @@ CHALLENGES_TFVARS = [
     # CTF configuration
     "kubectf_auth_secret",
     "kubectf_container_secret",
+    # "kubectf_host",
     "ctfs",
     
     # Challenges configuration

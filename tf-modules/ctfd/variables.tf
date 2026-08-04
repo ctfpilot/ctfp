@@ -235,6 +235,11 @@ variable "kubectf_auth_secret" {
   sensitive   = true
 }
 
+variable "kubectf_host" {
+  type        = string
+  nullable    = false
+  description = "The host to use for the CTF configuration"
+}
 
 variable "ctfd_plugin_first_blood_url" {
   description = "CTFd Plugin configuration: First blood (ctfd-discord-webhook-plugin). Webhook url configuration (url)."

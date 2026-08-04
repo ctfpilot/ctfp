@@ -72,7 +72,7 @@ resource "kubernetes_secret_v1" "kube-ctf" {
   }
 
   data = {
-    "host"   = "https://${var.ctf_manager_url}"
+    "host"   = "https://${var.kubectf_host}"
     "secret" = var.kubectf_auth_secret
   }
 

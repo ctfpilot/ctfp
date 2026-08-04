@@ -49,6 +49,7 @@ module "ctfd_instance" {
 
   # CTF Plugins configuration
   kubectf_auth_secret             = local.ctfs_map[each.key].plugins.kubectf_auth_secret != null ? local.ctfs_map[each.key].plugins.kubectf_auth_secret : var.kubectf_auth_secret
+  kubectf_host                    = local.ctfs_map[each.key].plugins.kubectf_host != null ? local.ctfs_map[each.key].plugins.kubectf_host : var.kubectf_host != null ? var.kubectf_host : nonsensitive("chall-manager.${var.cluster_dns_management}")
   ctfd_plugin_first_blood_url     = local.ctfs_map[each.key].plugins.first_blood_url != null ? local.ctfs_map[each.key].plugins.first_blood_url : var.ctfd_plugin_first_blood_url
   ctfd_plugin_first_blood_message = nonsensitive(local.ctfs_map[each.key].plugins.first_blood_message != null ? local.ctfs_map[each.key].plugins.first_blood_message : var.ctfd_plugin_first_blood_message)
   ctfd_plugin_first_blood_limit   = nonsensitive(local.ctfs_map[each.key].plugins.first_blood_limit != null ? local.ctfs_map[each.key].plugins.first_blood_limit : var.ctfd_plugin_first_blood_limit)
@@ -69,7 +70,7 @@ module "ctfd_instance" {
 
   # CTFd Manager
   ctf_manager_namespace      = nonsensitive("challenge-config-${local.ctfs_map[each.key].slug}")
-  ctf_manager_url            = nonsensitive("manager.${local.ctfs_map[each.key].slug}.${var.cluster_dns_management}")
+  ctf_manager_url            = nonsensitive("ctfd-manager.${local.ctfs_map[each.key].slug}.${var.cluster_dns_management}")
   ctfd_manager_password      = var.ctfd_manager_password
   ctfd_manager_github_repo   = var.ctfd_manager_github_repo
   ctfd_manager_github_branch = var.ctfd_manager_github_branch

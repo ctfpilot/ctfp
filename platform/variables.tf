@@ -118,8 +118,15 @@ variable "ctf_mail_from" {
 variable "kubectf_auth_secret" {
   type        = string
   nullable    = false
-  description = "The secret to use for the authSecret in the CTF configuration"
+  description = "The secret to use for the authSecret in the kubeCTF configuration"
   sensitive   = true
+}
+
+variable "kubectf_host" {
+  type        = string
+  nullable    = true
+  description = "The host to use for the kubeCTF configuration"
+  default     = null
 }
 
 variable "db_root_password" {
