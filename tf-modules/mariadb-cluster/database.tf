@@ -56,8 +56,8 @@ resource "kubernetes_manifest" "mariadb-cluster" {
       galera = {
         enabled = true
         primary = {
-          podIndex          = 0
-          automaticFailover = true
+          podIndex     = 0
+          autoFailover = true
         }
 
         sst                = "mariabackup"
@@ -175,7 +175,7 @@ resource "kubernetes_manifest" "mariadb-cluster" {
       }
 
       affinity = {
-        antiAffinityEnabled = true
+        antiAffinityEnabled = var.anti_affinity
       }
 
       tolerations = [
@@ -210,7 +210,10 @@ resource "kubernetes_manifest" "mariadb-cluster" {
 		    wsrep_retry_autocommit=5
       EOF
 
-      timeZone = "+2:00"
+      # Immutable after creation - the MariaDB operator's admission webhook rejects
+      # changes to this field on an existing cluster. A new value only takes effect
+      # when the MariaDB resource is first created.
+      timeZone = var.timezone
 
       resources = {
         requests = {

@@ -7,6 +7,10 @@ resource "kubernetes_namespace" "errors" {
   }
 }
 
+locals {
+  errors_replicas = var.errors_replicas != null ? var.errors_replicas : (var.deployment_type == "single-node" ? 1 : var.deployment_type == "standard" ? 2 : 3)
+}
+
 module "errors-pull-secret" {
   source = "../tf-modules/pull-secret"
 
@@ -30,7 +34,7 @@ resource "kubernetes_deployment_v1" "errors" {
   }
 
   spec {
-    replicas = 2
+    replicas = local.errors_replicas
 
     selector {
       match_labels = {
@@ -53,6 +57,18 @@ resource "kubernetes_deployment_v1" "errors" {
           name = var.ghcr_token != "" ? module.errors-pull-secret.pull-secret : ""
         }
 
+        topology_spread_constraint {
+          max_skew           = 1
+          topology_key       = "kubernetes.io/hostname"
+          when_unsatisfiable = "ScheduleAnyway"
+
+          label_selector {
+            match_labels = {
+              role = "errors"
+            }
+          }
+        }
+
         container {
           name              = "errors"
           image             = var.image_error_fallback
@@ -69,7 +85,7 @@ resource "kubernetes_deployment_v1" "errors" {
             }
             requests = {
               cpu    = "10m"
-              memory = "50Mi"
+              memory = "32Mi"
             }
           }
 

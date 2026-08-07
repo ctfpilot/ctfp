@@ -32,6 +32,7 @@ This platform deploys real-world infrastructure and will incur costs when deploy
     - [Pre-requisites](#pre-requisites)
     - [Environments](#environments)
     - [Configuring the platform](#configuring-the-platform)
+      - [Deployment types](#deployment-types)
     - [CLI Tool](#cli-tool)
       - [Commands](#commands)
         - [`init` - Initialize Platform Configuration](#init---initialize-platform-configuration)
@@ -249,6 +250,17 @@ If the platform is manually changed outside of the CLI tool, the changes will be
 Each component is not fully configurable, and may in certain situations require advanced configuration. These configurations are not included in the main configuration file.
 These options are either intended to be static, or require manual configuration through the individual Terraform components.  
 Changing these options may lead to instability or data loss, and should be done with caution.
+
+#### Deployment types
+
+CTFp supports three different deployment types, which can be configured in the `automated.<env>.tfvars` file:
+
+- **Standard**: Standard deployment with core services being deployed with 2 or more replicas, while some services are deployed with 1 replica. This is the recommended deployment type for production (minimum 2 control plane nodes, 2 agent nodes, 1 challs node).
+- **High Availability (HA)**: High availability deployment with all services being deployed with 2 or more replicas, and HA enabled where possible. This is the recommended deployment type for large-scale events that require high availability and redundancy. Requires a minimum of 3 control plane nodes, 3 agent nodes and 1 challs node.
+- **Single node**: Single node deployment with all services being deployed with 1 replica, and HA being disabled where possible, this is the recommended deployment type for small clusters (1 control plane node, 1 agent node, 1 challs node). This is not recommended for production.
+
+These deployment types are designed to provide flexibility in terms of scalability, redundancy, and resource usage.  
+It does not define the number of nodes in the cluster, but rather the number of replicas of each service being deployed within the platform, as well as outline a number of nodes that is recommended for the specific deployment type.
 
 ### CLI Tool
 
@@ -970,7 +982,7 @@ The following diagrams provide an overview of CTFp's cluster and challenge netwo
 
 ![CTFp Cluster Networking Overview](./docs/attachments/architecture/cluster-network-architecture.svg)
 
-CTFp requires three domains, as it configures different services under different domains:
+CTFp supports up to three top-level domains (TLD), as it allows configuring different services under different domains:
 
 - **Management domain**: Used for accessing the management services, such as ArgoCD, Grafana, and Prometheus.  
   This domain should only be distributed to administrators.
@@ -979,7 +991,8 @@ CTFp requires three domains, as it configures different services under different
 - **CTF domain**: Used for accessing the challenges.  
   This domain is also distributed to participants for accessing the challenges.
 
-The platform does not require you to allocate the full top-level domain (TLD) for CTFp, as subdomains for each of the three domains can be configured.
+The platform does not require you to allocate the full TLDs for CTFp, as subdomains for each of the three domains can be configured.  
+If running one or two TLDs, you must configure the subdomains correctly, so that they don't overlap across the three domains.
 
 Management and Platform domains are configured to be proxied through Cloudflare, to take advantage of their CDN and DDoS protection services.  
 CTF domain is not proxied, as challenges often require direct access to the challenge instances.
@@ -989,6 +1002,11 @@ Domain management is built into the system, and DNS entries are therefore automa
 Hetzner Cloud's Load Balancers are used to distribute incoming traffic to the Traefik ingress controllers deployed on each node in the cluster.  
 Within the cluster, Traefik handles routing of incoming requests to the appropriate services based on the configured ingress rules.  
 Network is shared between nodes using Hetzner Cloud's private networking, ensuring efficient and secure communication between cluster components.
+
+> [!TIP]
+> It is recommended to run the platform with three domains, to separate the management, platform, and challenge traffic, and limit any risk that may be present when running challenges on the same TLD as the platform or management services.
+> 
+> For small clusters and development clusters, the three top-level domains can be combined into a single domain, as long as the subdomains are configured correctly, such that they don't overlap across the three domains.
 
 #### Challenge networking
 

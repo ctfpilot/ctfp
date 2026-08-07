@@ -4,6 +4,14 @@ resource "kubernetes_namespace_v1" "argocd" {
   }
 }
 
+locals {
+  argocd_redis_ha_enabled      = var.argocd_redis_ha != null ? var.argocd_redis_ha : var.deployment_type == "ha"
+  argocd_controller_replicas     = var.argocd_controller_replicas != null ? var.argocd_controller_replicas : 1
+  argocd_server_replicas         = var.argocd_server_replicas != null ? var.argocd_server_replicas : (var.deployment_type == "single-node" ? 1 : 2)
+  argocd_repoServer_replicas     = var.argocd_repo_server_replicas != null ? var.argocd_repo_server_replicas : (var.deployment_type == "single-node" ? 1 : 2)
+  argocd_application_set_replicas = var.argocd_application_set_replicas != null ? var.argocd_application_set_replicas : (var.deployment_type == "single-node" ? 1 : 2)
+}
+
 resource "helm_release" "argocd" {
   namespace        = kubernetes_namespace_v1.argocd.metadata.0.name
   create_namespace = false
@@ -19,20 +27,20 @@ resource "helm_release" "argocd" {
   # else apply the default values from the chart
   values = [
     yamlencode({
-      # "redis-ha" = {
-      #   enabled = true
-      # },
+      "redis-ha" = {
+        enabled = local.argocd_redis_ha_enabled
+      },
       controller = {
-        replicas : 1
+        replicas : local.argocd_controller_replicas
       },
       server = {
-        replicas : 2
+        replicas : local.argocd_server_replicas
       },
       repoServer = {
-        replicas : 2
+        replicas : local.argocd_repoServer_replicas
       },
       applicationSet = {
-        replicas : 2
+        replicas : local.argocd_application_set_replicas
       }
     }),
   ]

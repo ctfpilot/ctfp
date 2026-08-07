@@ -63,7 +63,7 @@ module "argocd-challenge-config" {
   argocd_labels = {
     "part-of"   = "ctfpilot"
     "component" = "challenge-config"
-    "version"   = var.revision
+    "version"   = replace(var.revision, "/", "-")
     "category"  = var.category
     "instance"  = var.identifier
   }

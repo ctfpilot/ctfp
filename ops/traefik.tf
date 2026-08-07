@@ -1,3 +1,8 @@
+locals {
+  traefik_min_replicas = var.traefik_min_replicas != null ? var.traefik_min_replicas : var.deployment_type == "single-node" ? 1 : 3
+  traefik_max_replicas = var.traefik_max_replicas != null ? var.traefik_max_replicas : var.deployment_type == "single-node" ? 10 : 25
+}
+
 resource "kubernetes_service" "traefik_dashboard" {
   metadata {
     name      = "traefik-dashboard"
@@ -101,8 +106,6 @@ resource "kubernetes_service" "traefik_metrics" {
   }
 }
 
-
-
 resource "kubernetes_config_map_v1" "ctfd_filebeat_config" {
   metadata {
     name      = "ctfd-filebeat-config"
@@ -113,6 +116,7 @@ resource "kubernetes_config_map_v1" "ctfd_filebeat_config" {
     "filebeat.yml" = <<-EOF
       filebeat.inputs:
       - type: filestream
+        id: traefik-access-logs
         paths:
           - /var/log/traefik/*.log
         processors:
@@ -164,8 +168,8 @@ resource "kubernetes_manifest" "traefik-additional-config" {
       valuesContent = <<-EOF
         autoscaling:
           enabled: true
-          minReplicas: 3
-          maxReplicas: 50
+          minReplicas: ${local.traefik_min_replicas}
+          maxReplicas: ${local.traefik_max_replicas}
         resources:
           requests:
             cpu: "500m"
@@ -177,19 +181,18 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - key: "cluster.ctfpilot.com/node"
             value: "scaler"
             effect: "PreferNoSchedule"
-        logs:
-          access:
-            enabled: true
-            format: json
-            filePath: "/var/log/traefik/access.log"
-            bufferingSize: 1000
-            fields:
-              headers:
-                defaultmode: keep
-                names:
-                  Accept: drop
-                  Connection: drop
-                  Authorization: redact
+        accessLog:
+          enabled: true
+          format: json
+          filePath: "/var/log/traefik/access.log"
+          bufferingSize: 1000
+          fields:
+            headers:
+              defaultmode: keep
+              names:
+                Accept: drop
+                Connection: drop
+                Authorization: redact
         env:
         - name: TZ
           value: "Europe/Copenhagen"
@@ -198,8 +201,6 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - name: fix-permissions
             image: busybox:latest
             command: ["sh", "-c", "mkdir -p /usr/share/filebeat/data"]
-            securityContext:
-              fsGroup: 1000
             volumeMounts:
             - name: filebeat-data
               mountPath: /usr/share/filebeat/data
@@ -236,6 +237,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           redis:
             cluster: true
             endpoints: redis-cluster-leaders:6379
+            password: ${var.traefik_redis_password}
       EOF
     }
   }
