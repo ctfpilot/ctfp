@@ -251,7 +251,7 @@ variable "traefik_additional_ports" {
   validation {
      condition = alltrue([
        for p in var.traefik_additional_ports :
-       length(trim(p.name)) > 0 &&
+       length(trim(p.name, " ")) > 0 &&
        p.internalPort >= 1 && p.internalPort <= 65535 &&
        p.externalPort >= 1 && p.externalPort <= 65535
      ])
