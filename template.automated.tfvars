@@ -170,6 +170,11 @@ git_token     = "<gh-git-token>"  # GitHub repo token. Only let this token have 
 # ----------------------
 # The following is the configuration for the instanced challenge management system.
 # They should be unique and strong passwords.
+flight_ops_repo_url     = "<url>" # URL of the Git repository containing the flight-ops configuration
+# ground_control_repo_path = "<path>" # Path to the ground-control configuration in the flight-ops repository
+# dispatcher_repo_path     = "<path>" # Path to the dispatcher configuration in the flight-ops repository
+flight_ops_repo_revision = "<branch>" # Branch of the Git repository to use for the flight-ops configuration. Leave empty for environment based branch (environment == prod ? main : develop)
+dispatcher_redis_password = "<password>" # Password for the Redis instance used by the dispatcher
 kubectf_auth_secret      = "<kubectf-auth-secret>"      # The secret to use for the authSecret in the CTF configuration
 kubectf_container_secret = "<kubectf-container-secret>" # The secret to use for the containerSecret in the CTF configuration
 # kubectf_host           = "<kubectf-host>"           # The host to use for the CTF configuration. It is recommended to not configure this, unless you use a remote kubeCTF instance. If not configured, it will default to "chall-manager.<cluster_dns_management>"

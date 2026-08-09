@@ -64,6 +64,36 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "flight_ops_repo_url" {
+  description = "The URL of the repository where the flight-ops manifests are stored"
+  type        = string
+  nullable    = false
+}
+
+variable "ground_control_repo_path" {
+  description = "The path within the repository where the ground-control manifests are stored"
+  type        = string
+  default     = "dist/chart/"
+}
+
+variable "dispatcher_repo_path" {
+  description = "The path within the repository where the dispatcher manifests are stored"
+  type        = string
+  default     = "dist/dispatcher/chart/"
+}
+
+variable "flight_ops_repo_revision" {
+  type        = string
+  description = "The revision of the flight-ops system to use. Leave empty for environment based branch (environment == prod ? main : develop)"
+  default     = ""
+}
+
+variable "dispatcher_redis_password" {
+  description = "Password for the Redis instance used by the dispatcher"
+  type        = string
+  sensitive   = true
+}
+
 variable "kubectf_auth_secret" {
   type        = string
   nullable    = false

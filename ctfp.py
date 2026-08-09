@@ -221,6 +221,11 @@ CHALLENGES_TFVARS = [
     "git_token",
     
     # CTF configuration
+    "flight_ops_repo_url",
+    "ground_control_repo_path",
+    "dispatcher_repo_path",
+    "flight_ops_repo_revision",
+    "dispatcher_redis_password",
     "kubectf_auth_secret",
     "kubectf_container_secret",
     # "kubectf_host",

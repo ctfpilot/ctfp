@@ -33,6 +33,11 @@ git_token     = "<token>"    # GitHub repo token. Only let this token have read 
 # ----------------------
 # CTF configuration
 # ----------------------
+flight_ops_repo_url     = "<url>" # URL of the Git repository containing the flight-ops configuration
+# ground_control_repo_path = "<path>" # Path to the ground-control configuration in the flight-ops repository
+# dispatcher_repo_path     = "<path>" # Path to the dispatcher configuration in the flight-ops repository
+flight_ops_repo_revision = "<branch>" # Branch of the Git repository to use for the flight-ops configuration. Leave empty for environment based branch (environment == prod ? main : develop)
+dispatcher_redis_password = "<password>" # Password for the Redis instance used by the dispatcher
 kubectf_auth_secret      = "<secret>" # The secret to use for the authSecret in the CTF configuration
 kubectf_container_secret = "<secret>" # The secret to use for the containerSecret in the CTF configuration
 

@@ -73,7 +73,7 @@ module "ctfd_instance" {
   ctf_manager_url            = nonsensitive("ctfd-manager.${local.ctfs_map[each.key].slug}.${var.cluster_dns_management}")
   ctfd_manager_password      = var.ctfd_manager_password
   ctfd_manager_github_repo   = var.ctfd_manager_github_repo
-  ctfd_manager_github_branch = var.ctfd_manager_github_branch
+  ctfd_manager_github_branch = var.ctfd_manager_github_branch != "" ? var.ctfd_manager_github_branch : (var.environment == "prod" ? "main" : "develop")
   image_ctfd_manager         = var.image_ctfd_manager
 
   # Pages configuration
