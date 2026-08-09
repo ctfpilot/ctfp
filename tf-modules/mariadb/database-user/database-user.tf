@@ -22,6 +22,11 @@ variable "mariadb_cluster_namespace" {
   description = "The namespace of the MariaDB cluster to connect to"
 }
 
+variable "username" {
+  type        = string
+  description = "The username for the user"
+}
+
 variable "password" {
   type        = string
   description = "The password for the user"
@@ -70,7 +75,7 @@ module "database" {
 module "user" {
   source = "../user"
 
-  user_name                 = var.db_name
+  username                  = var.username
   password                  = var.password
   mariadb_cluster           = var.mariadb_cluster
   mariadb_cluster_namespace = var.mariadb_cluster_namespace
@@ -95,9 +100,9 @@ resource "kubernetes_manifest" "connection" {
         name      = var.mariadb_cluster
         namespace = var.mariadb_cluster_namespace
       }
-      username = var.db_name
+      username = var.username
       passwordSecretKeyRef = {
-        name = "user-${var.db_name}"
+        name = "user-${var.username}"
         key  = "password"
       }
       database   = var.db_name
@@ -129,7 +134,7 @@ resource "kubernetes_manifest" "grant" {
     apiVersion = "k8s.mariadb.com/v1alpha1"
     kind       = "Grant"
     metadata = {
-      name      = "${var.db_name}"
+      name      = "grant-${var.username}-${var.db_name}"
       namespace = var.namespace
     }
     spec = {
@@ -142,7 +147,7 @@ resource "kubernetes_manifest" "grant" {
       ]
       database        = var.db_name
       table           = "*"
-      username        = var.db_name
+      username        = var.username
       grantOption     = true
       host            = "%"
       cleanupPolicy   = "Delete"

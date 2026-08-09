@@ -1,9 +1,3 @@
-variable "config_only" {
-  description = "Should challenges only be deployed with config"
-  type        = bool
-  default     = false
-}
-
 variable "revision" {
   description = "The revision of the repository to use"
   default     = "main"
@@ -32,11 +26,6 @@ variable "path_config" {
 
 variable "argocd_project" {
   description = "The ArgoCD project to use"
-  nullable    = false
-}
-
-variable "argocd_config_project" {
-  description = "The ArgoCD project to use for config only challenges"
   nullable    = false
 }
 
@@ -71,17 +60,10 @@ variable "helm" {
   default     = null
 }
 
-variable "config_helm_only" {
-  description = "Helm chart configuration for config only challenges"
-  type        = bool
-  default     = false
-}
-
 module "argocd-challenge" {
   source = "../challenge"
 
   for_each = toset(var.challenges)
-  enabled  = !var.config_only
 
   identifier = each.value
 
@@ -93,23 +75,5 @@ module "argocd-challenge" {
   challenge_namespace  = var.challenge_namespace
   application_name     = var.application_name
   path                 = var.path
-  helm                 = var.config_helm_only ? null : var.helm
-}
-
-module "argocd-challenge-config" {
-  source = "../config"
-
-  for_each = toset(var.challenges)
-
-  identifier = each.value
-
-  revision             = var.revision
-  category             = var.category
-  argocd_project       = var.argocd_config_project
-  argocd_namespace     = var.argocd_namespace
-  application_repo_url = var.application_repo_url
-  config_namespace     = var.config_namespace
-  application_name     = var.application_name
-  path                 = var.path_config
   helm                 = var.helm
 }

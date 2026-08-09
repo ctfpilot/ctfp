@@ -4,10 +4,10 @@ resource "null_resource" "wait_for_url" {
     interpreter = ["bash", "-c"]
     command     = <<EOT
       for i in {1..50}; do
-        echo "Checking if ${var.cluster_dns_platform} is reachable (attempt $i)..."
-        if curl --silent --head --fail https://${var.cluster_dns_platform}/setup; then
+        echo "Checking if ${var.ctf_url} is reachable (attempt $i)..."
+        if curl --silent --head --fail https://${var.ctf_url}/setup; then
           echo "CTFd is reachable!"
-          if curl --silent --head --fail https://ctfd-manager.${var.cluster_dns_management}/api/status; then
+          if curl --silent --head --fail https://${var.ctf_manager_url}/api/status; then
             echo "Manager is reachable!"
             exit 0
           fi
@@ -55,15 +55,15 @@ locals {
     registration_code       = var.ctf_registration_code
     ctf_logo = {
       name = "logo.png"
-      data = base64encode(filebase64("${path.module}/${var.ctf_logo_path}"))
+      data = var.ctf_logo_path != null ? base64encode(filebase64("${var.ctf_logo_path}")) : null
     }
   }
-} 
+}
 
 # Write payload to local file
 resource "local_file" "ctfd_config" {
   content  = jsonencode(local.configure_ctfd_payload)
-  filename = "${path.module}/ctfd_config.json"
+  filename = "${path.module}/ctfd_config_${var.ctf_slug}.json"
 
   depends_on = [
     null_resource.wait_for_url,
@@ -77,7 +77,7 @@ resource "null_resource" "configure-ctfd" {
     null_resource.wait_for_url,
     module.ctfd-ingress,
     module.ctfd-manager-ingress,
-	local_file.ctfd_config,
+    local_file.ctfd_config,
   ]
 
   provisioner "local-exec" {
@@ -86,9 +86,9 @@ resource "null_resource" "configure-ctfd" {
       curl -sSL -X POST \
         -H "Authorization: Bearer ${var.ctfd_manager_password}" \
         -H "Content-Type: application/json" \
-        --data-binary "@${path.module}/ctfd_config.json" \
-        "https://ctfd-manager.${var.cluster_dns_management}/api/ctfd/setup"
-      rm "${path.module}/ctfd_config.json"
+        --data-binary "@${path.module}/ctfd_config_${var.ctf_slug}.json" \
+        "https://${var.ctf_manager_url}/api/ctfd/setup"
+      rm "${path.module}/ctfd_config_${var.ctf_slug}.json"
     EOT
     interpreter = ["bash", "-c"]
     # on_failure  = continue

@@ -1,30 +1,22 @@
 locals {
-  ctfd_k8s_deployment_branch = var.ctfd_k8s_deployment_branch == "" ? local.env_branch : var.ctfd_k8s_deployment_branch
+  ctfd_name = "ctfd-${var.ctf_slug}"
 }
-
 
 resource "kubernetes_namespace_v1" "ctfd" {
   metadata {
-    name = "ctfd"
+    name = local.ctfd_name
   }
 }
-
-resource "kubernetes_namespace_v1" "db" {
-  metadata {
-    name = "db"
-  }
-}
-
 
 module "ctfd-repo-access" {
-  source = "../tf-modules/private-repo"
+  source = "../private-repo"
 
-  name             = "ctfd"
+  name             = local.ctfd_name
   argocd_namespace = var.argocd_namespace
   ghcr_username    = var.ghcr_username
   git_token        = var.git_token
   git_repo         = var.ctfd_k8s_deployment_repository
-  argocd_project   = "ctfd"
+  argocd_project   = local.ctfd_name
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -32,7 +24,7 @@ module "ctfd-repo-access" {
 }
 
 module "ctfd-pull-secret" {
-  source = "../tf-modules/pull-secret"
+  source = "../pull-secret"
 
   namespace     = kubernetes_namespace_v1.ctfd.metadata.0.name
   ghcr_username = var.ghcr_username
@@ -44,57 +36,12 @@ module "ctfd-pull-secret" {
   ]
 }
 
-locals {
-  db_name                     = "ctfd-db"
-  db_anti_affinity            = var.db_anti_affinity != null ? var.db_anti_affinity : (var.deployment_type != "single-node" ? true : false)
-  ctfd_redis_replication_size = var.ctfd_redis_replicas != null ? var.ctfd_redis_replicas : (var.deployment_type != "single-node" ? 3 : 1)
-}
-
-module "db-cluster" {
-  source = "../tf-modules/mariadb-cluster"
-
-  namespace     = kubernetes_namespace_v1.db.metadata.0.name
-  cluster_name  = local.db_name
-  root_password = var.db_root_password
-
-  s3_bucket     = var.s3_bucket
-  s3_region     = var.s3_region
-  s3_endpoint   = var.s3_endpoint
-  s3_access_key = var.s3_access_key
-  s3_secret_key = var.s3_secret_key
-
-  mariadb_version = var.mariadb_version
-  timezone        = var.db_timezone
-
-  anti_affinity = local.db_anti_affinity
-
-  depends_on = [
-    kubernetes_namespace_v1.ctfd
-  ]
-}
-
-module "database" {
-  source = "../tf-modules/database/database-user"
-
-  db_name                   = var.db_user
-  password                  = var.db_password
-  mariadb_cluster           = local.db_name
-  mariadb_cluster_namespace = kubernetes_namespace_v1.db.metadata.0.name
-  namespace                 = kubernetes_namespace_v1.ctfd.metadata.0.name
-  db_connection_secret_name = "${local.db_name}-connection"
-  db_connection_format      = "mysql+pymysql://{{ .Username }}:{{ .Password }}@{{ .Host }}:{{ .Port }}/{{ .Database }}{{ .Params }}"
-
-  depends_on = [
-    module.db-cluster
-  ]
-}
-
 module "redis" {
-  source = "../tf-modules/redis/replication"
+  source = "../redis/replication"
 
   namespace        = kubernetes_namespace_v1.ctfd.metadata.0.name
   redis_password   = var.ctfd_redis_password
-  replication_size = local.ctfd_redis_replication_size
+  replication_size = var.ctfd_redis_replicas
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -125,7 +72,7 @@ resource "kubernetes_secret_v1" "kube-ctf" {
   }
 
   data = {
-    "host"   = "https://manager.${var.cluster_dns_management}"
+    "host"   = "https://${var.kubectf_host}"
     "secret" = var.kubectf_auth_secret
   }
 
@@ -156,7 +103,7 @@ resource "kubernetes_secret_v1" "ctfd-discord-webhook" {
   }
 
   data = {
-    "url"     = var.ctfd_plugin_first_blood_limit_url
+    "url"     = var.ctfd_plugin_first_blood_url
     "limit"   = "1"
     "message" = ":drop_of_blood: First blood for **{challenge}** goes to **{user}**! :drop_of_blood:"
   }
@@ -206,6 +153,7 @@ resource "kubernetes_secret_v1" "ctfd-filebeat-config" {
                 fields:
                   cluster: "${var.cluster_dns_management}"
                   application: "ctfd"
+                  ctfd: "${var.ctf_slug}"
                   file: "submissions.log"
         - type: filestream
           id: logins
@@ -218,6 +166,7 @@ resource "kubernetes_secret_v1" "ctfd-filebeat-config" {
                 fields:
                   cluster: "${var.cluster_dns_management}"
                   application: "ctfd"
+                  ctfd: "${var.ctf_slug}"
                   file: "logins.log"
         - type: filestream
           id: registrations
@@ -230,6 +179,7 @@ resource "kubernetes_secret_v1" "ctfd-filebeat-config" {
                 fields:
                   cluster: "${var.cluster_dns_management}"
                   application: "ctfd"
+                  ctfd: "${var.ctf_slug}"
                   file: "registrations.log"
 
       output.elasticsearch:
@@ -258,10 +208,10 @@ resource "kubernetes_secret_v1" "ctfd-filebeat-config" {
 }
 
 module "argocd-project" {
-  source = "../tf-modules/argocd/project"
+  source = "../argocd/project"
 
   argocd_namespace = var.argocd_namespace
-  project_name     = "ctfd"
+  project_name     = local.ctfd_name
   project_destinations = [
     {
       namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
@@ -275,16 +225,19 @@ module "argocd-project" {
 }
 
 module "argocd-ctfd" {
-  source = "../tf-modules/argocd/application"
+  source = "../argocd/application"
 
   argocd_namespace          = var.argocd_namespace
   application_namespace     = kubernetes_namespace_v1.ctfd.metadata.0.name
-  application_name          = "ctfd"
+  application_name          = local.ctfd_name
   application_repo_url      = var.ctfd_k8s_deployment_repository
   application_repo_path     = var.ctfd_k8s_deployment_path
-  application_repo_revision = local.ctfd_k8s_deployment_branch
-  application_project       = "ctfd"
+  application_repo_revision = var.ctfd_k8s_deployment_branch
+  application_project       = local.ctfd_name
   argocd_finalizers         = []
+  helm = {
+
+  }
 
   depends_on = [
     kubernetes_namespace_v1.ctfd,
@@ -295,16 +248,15 @@ module "argocd-ctfd" {
 }
 
 module "ctfd-ingress" {
-  source = "../tf-modules/kubernetes/ingress"
+  source = "../kubernetes/ingress"
 
   namespace          = kubernetes_namespace_v1.ctfd.metadata.0.name
-  service_name       = "ctfd"
+  service_name       = local.ctfd_name
   ingress_name       = "ctfd-ingress"
-  hostname           = var.cluster_dns_platform
+  hostname           = var.ctf_url
   traefik_middleware = "errors-ctfd@kubernetescrd"
 
   depends_on = [
     kubernetes_namespace_v1.ctfd,
-    kubernetes_manifest.ctfd-errors-middleware
   ]
 }
