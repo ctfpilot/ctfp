@@ -1,5 +1,5 @@
 locals {
-    db_cluster_name = "ctfd-d"
+    db_cluster_name = "ctfd-db"
     db_cluster_namespace = "ctfd-db"
 }
 
@@ -25,5 +25,5 @@ module "db-cluster" {
   mariadb_version = var.mariadb_version
   timezone        = var.db_timezone
 
-  anti_affinity = var.db_anti_affinity
+  anti_affinity = local.db_anti_affinity
 }
