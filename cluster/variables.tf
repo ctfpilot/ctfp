@@ -260,7 +260,12 @@ variable "traefik_additional_ports" {
 }
 
 locals {
-  traefik_additional_ports_list = [for p in var.traefik_additional_ports : {
+  traefik_tcp_challenge_ports = {
+    name         = "tcp-challenges"
+    internalPort = 1337
+    externalPort = 1337
+  }
+  traefik_additional_ports_list = [for p in concat(var.traefik_additional_ports, [local.traefik_tcp_challenge_ports]) : {
     name        = p.name
     port        = p.internalPort
     exposedPort = p.externalPort
