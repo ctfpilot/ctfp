@@ -63,7 +63,7 @@ module "argocd-challenge" {
   application_namespace     = var.challenge_namespace
   application_name          = var.application_name != null ? var.application_name : "${var.category}-${var.identifier}"
   application_repo_url      = var.application_repo_url
-  application_repo_path     = var.path != null ? var.path : "challenges/${var.category}/${var.identifier}/flight-ops"
+  application_repo_path     = var.path != null ? var.path : "challenges/${var.category}/${var.identifier}/k8s/challenge"
   application_repo_revision = var.revision
   application_project       = var.argocd_project
   helm                      = var.helm
