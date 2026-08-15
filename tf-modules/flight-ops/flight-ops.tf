@@ -90,7 +90,7 @@ module "flight-ops-dispatcher" {
     values = yamlencode({
       dispatcher = {
         maxConcurrentFlights = var.max_instances
-        flightDomain         = var.challenge_dns
+        flightDomain         = "challs.${var.challenge_dns}"
         serverSecret = {
           existingSecret = kubernetes_secret_v1.dispatcher_secret.metadata[0].name
           key            = "server-secret"
