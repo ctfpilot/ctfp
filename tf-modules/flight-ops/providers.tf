@@ -68,7 +68,7 @@ variable "max_instances" {
 }
 
 variable "challenge_dns" {
-  description = "DNS name for the challenges, may be the same as the challenges as subdomains will be used (challanges.<challenge_dns>)"
+  description = "DNS name for the challenges, may be the same as the challenges as subdomains will be used (challs.<challenge_dns>)"
   type        = string
 }
 
