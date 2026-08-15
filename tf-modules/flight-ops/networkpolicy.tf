@@ -16,25 +16,25 @@ resource "kubernetes_network_policy" "block-internal-traffic" {
     }
 
     policy_types = [
-      "Ingress",
+      # "Ingress",
       "Egress",
     ]
 
-    ingress {
-      from {
-        namespace_selector {
-          match_labels = {
-            name = "traefik"
-          }
-        }
+    # ingress {
+    #   from {
+    #     namespace_selector {
+    #       match_labels = {
+    #         name = "traefik"
+    #       }
+    #     }
 
-        pod_selector {
-          match_labels = {
-            "app.kubernetes.io/name" = "traefik"
-          }
-        }
-      }
-    }
+    #     pod_selector {
+    #       match_labels = {
+    #         "app.kubernetes.io/name" = "traefik"
+    #       }
+    #     }
+    #   }
+    # }
 
     egress {
       to {
