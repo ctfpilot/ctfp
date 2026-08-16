@@ -91,7 +91,7 @@ resource "kubernetes_secret_v1" "flight-ops" {
     "host"     = "https://${var.kubectf_host}"
     "secret"   = var.kubectf_auth_secret
     "issuer"   = "ctfd-${var.ctf_slug}"
-    "terminal" = "ctfd-${var.ctf_slug}"
+    "terminal" = "${var.ctf_slug}"
     "audience" = "ground-control-dispatcher"
   }
 
