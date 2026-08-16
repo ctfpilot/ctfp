@@ -21,7 +21,7 @@ module "challege_deployment" {
   ghcr_username                 = var.ghcr_username
   git_token                     = var.git_token
   challenges_repository         = var.challenges_repository
-  challenges_branch             = var.challenges_branch
+  challenges_branch             = var.challenges_branch == "" ? local.env_branch : var.challenges_branch
   config_namespace              = "challenge-config-${local.ctfs_mapped[each.key].slug}"
   argocd_namespace              = var.argocd_namespace
   argocd_project_config_name    = "${local.argocd_project_config}-${local.ctfs_mapped[each.key].slug}"

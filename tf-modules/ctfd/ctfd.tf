@@ -124,7 +124,7 @@ resource "kubernetes_secret_v1" "ctfd-discord-webhook" {
   data = {
     "url"     = var.ctfd_plugin_first_blood_url
     "limit"   = "1"
-    "message" = ":drop_of_blood: First blood for **{challenge}** goes to **{user}**! :drop_of_blood:"
+    "message" = var.ctfd_plugin_first_blood_message
   }
 
   depends_on = [

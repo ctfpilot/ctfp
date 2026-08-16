@@ -2,6 +2,7 @@ locals {
   ctfs_map = {
     for item in var.ctfs : item.slug => item
   }
+  uses_root_dns = anytrue([for ctf in var.ctfs : ctf.subdomain == ""])
 }
 
 module "ctfd_instance" {
@@ -73,7 +74,7 @@ module "ctfd_instance" {
   ctf_manager_url            = nonsensitive("ctfd-manager.${local.ctfs_map[each.key].slug}.${var.cluster_dns_management}")
   ctfd_manager_password      = var.ctfd_manager_password
   ctfd_manager_github_repo   = var.ctfd_manager_github_repo
-  ctfd_manager_github_branch = var.ctfd_manager_github_branch != "" ? var.ctfd_manager_github_branch : (var.environment == "prod" ? "main" : "develop")
+  ctfd_manager_github_branch = var.ctfd_manager_github_branch == "" ? local.env_branch : var.ctfd_manager_github_branch
   image_ctfd_manager         = var.image_ctfd_manager
 
   # Pages configuration
@@ -98,5 +99,85 @@ module "ctfd_instance" {
 
   depends_on = [
     module.db-cluster
+  ]
+}
+
+// Forward the root DNS to the first CTF if no CTFs are using the root DNS.
+resource "kubernetes_manifest" "ctf_dns_forwarding" {
+  count = local.uses_root_dns ? 0 : 1
+
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "Middleware"
+    metadata = {
+      name      = "ctf-dns-forwarding"
+      namespace = "errors"
+    }
+    spec = {
+      redirectRegex = {
+        # Matches the entire incoming host and path
+        regex       = "^https?://[^/]+/(.*)"
+        # Uses $1 to preserve any requested subpath on the target URL
+        replacement = "https://${var.ctfs[0].subdomain}.${var.cluster_dns_platform}/$1"
+        permanent   = false
+      }
+    }
+  }
+}
+
+resource "kubernetes_ingress_v1" "ctf_dns_forwarding_ingress" {
+  count = local.uses_root_dns ? 0 : 1
+
+  metadata {
+      name      = "ctf-dns-forwarding-ingress"
+      namespace = "errors"
+
+    annotations = {
+        "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
+        "traefik.ingress.kubernetes.io/router.tls"         = "true"
+        "traefik.ingress.kubernetes.io/router.middlewares" = "errors-ctf-dns-forwarding@kubernetescrd"
+        "cert-manager.io/cluster-issuer"                   = "cert-manager-global"
+    }
+  }
+
+  spec {
+    ingress_class_name = "traefik"
+    default_backend {
+      service {
+        name = "errors"
+        port {
+          number = 80
+        }
+      }
+    }
+
+    rule {
+      host = var.cluster_dns_platform
+      http {
+        path {
+          path = "/"
+          backend {
+            service {
+              name = "errors"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+
+    tls {
+      hosts = [
+        "${var.cluster_dns_platform}"
+      ]
+
+      secret_name = "${var.cluster_dns_platform}-cert"
+    }
+  }
+
+  depends_on = [
+    kubernetes_manifest.ctf_dns_forwarding
   ]
 }
