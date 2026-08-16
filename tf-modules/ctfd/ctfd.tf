@@ -81,6 +81,25 @@ resource "kubernetes_secret_v1" "kube-ctf" {
   ]
 }
 
+resource "kubernetes_secret_v1" "flight-ops" {
+  metadata {
+    name      = "flight-ops-config"
+    namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+  }
+
+  data = {
+    "host"     = "https://${var.kubectf_host}"
+    "secret"   = var.kubectf_auth_secret
+    "issuer"   = "ctfd-${var.ctf_slug}"
+    "terminal" = "${var.ctf_slug}"
+    "audience" = "ground-control-dispatcher"
+  }
+
+  depends_on = [
+    kubernetes_namespace_v1.ctfd
+  ]
+}
+
 resource "kubernetes_secret_v1" "ctfd" {
   metadata {
     name      = "ctfd-secret"

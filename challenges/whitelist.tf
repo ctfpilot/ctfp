@@ -4,7 +4,7 @@ resource "kubernetes_manifest" "ip_whitelist_web" {
     kind       = "Middleware"
     metadata = {
       name      = "challenge-ipwhitelist-web"
-      namespace = "ctfpilot-challenges"
+      namespace = "flights"
     }
     spec = {
       ipAllowList = {
@@ -20,7 +20,7 @@ resource "kubernetes_manifest" "ip_whitelist_instanced_web" {
     kind       = "Middleware"
     metadata = {
       name      = "challenge-ipwhitelist-web"
-      namespace = "ctfpilot-challenges-instanced"
+      namespace = "flights-instanced"
     }
     spec = {
       ipAllowList = {
@@ -36,7 +36,7 @@ resource "kubernetes_manifest" "ip_whitelist_tcp" {
     kind       = "MiddlewareTCP"
     metadata = {
       name      = "challenge-ipwhitelist-tcp"
-      namespace = "ctfpilot-challenges"
+      namespace = "flights"
     }
     spec = {
       ipAllowList = {
@@ -52,7 +52,7 @@ resource "kubernetes_manifest" "ip_whitelist_instanced_tcp" {
     kind       = "MiddlewareTCP"
     metadata = {
       name      = "challenge-ipwhitelist-tcp"
-      namespace = "ctfpilot-challenges-instanced"
+      namespace = "flights-instanced"
     }
     spec = {
       ipAllowList = {

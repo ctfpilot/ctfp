@@ -318,6 +318,11 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
             value = "https://${var.ctf_url}"
           }
 
+          env {
+            name = "INSTANCED_CHALLENGE_TYPE"
+            value = "flightops"
+          }
+
           port {
             container_port = 8080
           }
