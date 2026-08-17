@@ -188,7 +188,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           bufferingSize: 1000
           fields:
             headers:
-              defaultmode: keep
+              defaultMode: keep
               names:
                 Accept: drop
                 Connection: drop
