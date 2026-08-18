@@ -128,75 +128,77 @@ locals {
   challenges_host = "challs.${var.challenge_dns}"
 }
 
-resource "kubernetes_ingress_v1" "landing" {
+resource "kubernetes_manifest" "landing" {
   for_each = local.challenge_namespaces
-  metadata {
-    name      = "landing"
-    namespace = each.value
 
-    labels = {
-      system = "flight-ops"
-      org    = var.org_name
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "IngressRoute"
 
-      role = "landing"
+    metadata = {
+      name      = "landing"
+      namespace = each.value
 
-      "app.kubernetes.io/name"      = "flight-ops-landing-ingress"
-      "app.kubernetes.io/instance"  = "kubectf"
-      "app.kubernetes.io/component" = "isolated-landing"
-    }
+      labels = {
+        system = "flight-ops"
+        org    = var.org_name
 
-    annotations = {
-      "cert-manager.io/cluster-issuer"                   = var.cert_manager
-      "traefik.ingress.kubernetes.io/router.priority"    = "10"
-      "traefik.ingress.kubernetes.io/router.middlewares" = "errors-errors@kubernetescrd"
-    }
-  }
+        role = "landing"
 
-  spec {
-    tls {
-      hosts = [
-        "${local.challenges_host}",
-        "*.${local.challenges_host}"
-      ]
+        "app.kubernetes.io/name"      = "flight-ops-landing-ingress"
+        "app.kubernetes.io/instance"  = "kubectf"
+        "app.kubernetes.io/component" = "isolated-landing"
+      }
 
-      secret_name = "kubectf-cert-challs"
-    }
-
-    rule {
-      host = local.challenges_host
-
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "landing"
-              port {
-                number = 80
-              }
-            }
-          }
-        }
+      annotations = {
+        "cert-manager.io/cluster-issuer" = var.cert_manager
       }
     }
 
-    rule {
-      host = "*.${local.challenges_host}"
+    spec = {
+      entryPoints = ["web", "websecure"]
 
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = "landing"
-              port {
-                number = 80
-              }
+      routes = [
+        {
+          match    = "Host(`${local.challenges_host}`)"
+          priority = 10
+
+          middlewares = [
+            {
+              name      = "errors"
+              namespace = "errors"
             }
-          }
+          ]
+
+          services = [
+            {
+              name = "landing"
+              port = 80
+            }
+          ]
+        },
+        {
+          match    = "HostRegexp(`^.+\\.${local.challenges_host}$`)"
+          priority = 10
+
+          middlewares = [
+            {
+              name      = "errors"
+              namespace = "errors"
+            }
+          ]
+
+          services = [
+            {
+              name = "landing"
+              port = 80
+            }
+          ]
         }
+      ]
+
+      tls = {
+        secretName = "kubectf-cert-challs"
       }
     }
   }
