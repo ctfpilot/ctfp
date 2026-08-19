@@ -202,7 +202,7 @@ resource "kubernetes_config_map_v1" "mapping-map" {
     "categories" = jsonencode({
       "web"        = "Web"
       "forensics"  = "Forensics"
-      "rev"        = "Reverse Engineering"
+      "rev"        = "Rev"
       "crypto"     = "Crypto"
       "pwn"        = "Pwn"
       "boot2root"  = "Boot2Root"
@@ -222,7 +222,7 @@ resource "kubernetes_config_map_v1" "mapping-map" {
       "insane"      = "Insane"
     }),
     "difficulty-categories" = jsonencode({
-      "beginner" = "Beginner"
+      "beginner" = "Onboarding"
     })
   }
 
