@@ -381,6 +381,24 @@ variable "image_ctfd_manager" {
   default     = "ghcr.io/ctfpilot/ctfd-manager:1.0.1"
 }
 
+variable "challenges_default_points" {
+  type        = number
+  description = "Challenge default points, provided to CTFd manager."
+  nullable    = false
+}
+
+variable "challenges_default_min_points" {
+  type        = number
+  description = "Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges."
+  nullable    = false
+}
+
+variable "challenges_default_decay" {
+  type        = number
+  description = "Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges."
+  nullable    = false
+}
+
 # -------------------------
 # Pages
 # -------------------------

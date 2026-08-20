@@ -39,11 +39,6 @@ variable "challenge_namespace" {
   nullable    = false
 }
 
-variable "config_namespace" {
-  description = "The namespace where the challenge config will be deployed"
-  nullable    = false
-}
-
 variable "application_name" {
   description = "The name of the application"
   default     = null

@@ -170,7 +170,10 @@ PLATFORM_TFVARS = [
     "ctfd_manager_password",
     "ctfd_manager_github_repo",
     "ctfd_manager_github_branch",
-    
+    "challenges_default_points",
+    "challenges_default_min_points",
+    "challenges_default_decay",
+
     # Fallback mail configuration
     "ctf_mail_server",
     "ctf_mail_port",

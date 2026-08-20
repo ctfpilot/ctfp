@@ -1,7 +1,13 @@
 variable "ctfs" {
   type = list(object({
     slug      = string # Slug for the CTF event. This will be used in internal namings and must be unique. It should be a lowercase string with no spaces or special characters.
-    subdomain = string # A subdomain to the `cluster_dns_platform`, or empty string if you want to use the `cluster_dns_platform` directly. This will be used to generate the CTF URL.
+    subdomain = string # A subdomain to the `cluster_dns_platform`, or empty string if you want to use the `cluster_dns_platform` directly. This will be used to generate the CTF URL.    
+
+    challenges = object({
+      static    = optional(map(list(string))) # List of static challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_static` configuration.
+      shared    = optional(map(list(string))) # List of shared challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_shared` configuration.
+      instanced = optional(map(list(string))) # List of instanced challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_instanced` configuration.
+    })
   }))
 
   validation {

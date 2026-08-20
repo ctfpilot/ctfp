@@ -151,6 +151,14 @@ ctfs = [
       repository = "<pages_repository>" # Repository URL for pages. Defaults to `pages_repository` if not provided.
       branch     = "<pages_branch>"     # Git branch for pages. Defaults to `pages_branch` if not provided.
     }
+
+    challenges = {
+      config = {
+        # default_points     = 1000 # Challenge default points, provided to CTFd manager. Optional, defaults to `challenges_default_points` if not provided.
+        # default_min_points = 1000 # Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional, defaults to `challenges_default_min_points` if not provided.
+        # default_decay      = 75 # Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional, defaults to `challenges_default_decay` if not provided.
+      }
+    }
   }
 ]
 
@@ -182,6 +190,13 @@ pages_branch     = ""             # Git branch for pages. Leave empty for enviro
 ctfd_k8s_deployment_repository = "https://github.com/ctfpilot/ctfd" # Repository URL for CTFd deployment files
 ctfd_k8s_deployment_path       = "k8s"                              # Path for CTFd deployment files within the git repository
 ctfd_k8s_deployment_branch     = ""                                 # Git branch for CTFd deployment files. Leave empty for environment based branch (environment == prod ? main : develop)
+
+# ------------------------
+# Challenges configuration
+# ------------------------
+challenges_default_points     = 1000 # Challenge default points, provided to CTFd manager. Optional
+challenges_default_min_points = 100  # Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional
+challenges_default_decay      = 50   # Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional
 
 # ----------------------
 # Docker images

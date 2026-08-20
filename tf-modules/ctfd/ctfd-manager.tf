@@ -202,7 +202,7 @@ resource "kubernetes_config_map_v1" "mapping-map" {
     "categories" = jsonencode({
       "web"        = "Web"
       "forensics"  = "Forensics"
-      "rev"        = "Rev"
+      "rev"        = "Reversing"
       "crypto"     = "Crypto"
       "pwn"        = "Pwn"
       "boot2root"  = "Boot2Root"
@@ -321,6 +321,21 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
           env {
             name = "INSTANCED_CHALLENGE_TYPE"
             value = "flightops"
+          }
+
+          env {
+            name = "CHALLENGE_DEFAULT_POINTS"
+            value = "${var.challenges_default_points}"
+          }
+
+          env {
+            name = "CHALLENGE_DEFAULT_MIN_POINTS"
+            value = "${var.challenges_default_min_points}"
+          }
+
+          env {
+            name = "CHALLENGE_DEFAULT_DECAY"
+            value = "${var.challenges_default_decay}"
           }
 
           port {

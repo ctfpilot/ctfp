@@ -170,13 +170,13 @@ git_token     = "<gh-git-token>"  # GitHub repo token. Only let this token have 
 # ----------------------
 # The following is the configuration for the instanced challenge management system.
 # They should be unique and strong passwords.
-flight_ops_repo_url     = "<url>" # URL of the Git repository containing the flight-ops configuration
-# ground_control_repo_path = "<path>" # Path to the ground-control configuration in the flight-ops repository
-# dispatcher_repo_path     = "<path>" # Path to the dispatcher configuration in the flight-ops repository
-flight_ops_repo_revision = "<branch>" # Branch of the Git repository to use for the flight-ops configuration. Leave empty for environment based branch (environment == prod ? main : develop)
-dispatcher_redis_password = "<password>" # Password for the Redis instance used by the dispatcher
-kubectf_auth_secret      = "<kubectf-auth-secret>"      # The secret to use for the authSecret in the CTF configuration
-kubectf_container_secret = "<kubectf-container-secret>" # The secret to use for the containerSecret in the CTF configuration
+flight_ops_repo_url = "<url>" # URL of the Git repository containing the flight-ops configuration
+# ground_control_repo_path  = "<path>"                     # Path to the ground-control configuration in the flight-ops repository
+# dispatcher_repo_path      = "<path>"                     # Path to the dispatcher configuration in the flight-ops repository
+flight_ops_repo_revision  = "<branch>"                   # Branch of the Git repository to use for the flight-ops configuration. Leave empty for environment based branch (environment == prod ? main : develop)
+dispatcher_redis_password = "<password>"                 # Password for the Redis instance used by the dispatcher
+kubectf_auth_secret       = "<kubectf-auth-secret>"      # The secret to use for the authSecret in the CTF configuration
+kubectf_container_secret  = "<kubectf-container-secret>" # The secret to use for the containerSecret in the CTF configuration
 # kubectf_host           = "<kubectf-host>"           # The host to use for the CTF configuration. It is recommended to not configure this, unless you use a remote kubeCTF instance. If not configured, it will default to "chall-manager.<cluster_dns_management>"
 
 # ------------------------
@@ -279,6 +279,23 @@ ctfs = [
       repository = "<pages_repository>" # Repository URL for pages. Defaults to `pages_repository` if not provided.
       branch     = "<pages_branch>"     # Git branch for pages. Defaults to `pages_branch` if not provided.
     }
+
+    challenges = {
+      config = {
+        # default_points     = 1000 # Challenge default points, provided to CTFd manager. Optional, defaults to `challenges_default_points` if not provided.
+        # default_min_points = 1000 # Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional, defaults to `challenges_default_min_points` if not provided.
+        # default_decay      = 75 # Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional, defaults to `challenges_default_decay` if not provided.
+      }
+      static = {
+        "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+      } # List of static challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_static` configuration.
+      shared = {
+        "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+      } # List of shared challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_shared` configuration.
+      instanced = {
+        "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+      } # List of instanced challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_instanced` configuration.
+    }
   }
 ]
 
@@ -314,6 +331,10 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 # ------------------------
 # Challenges configuration
 # ------------------------
+challenges_default_points     = 1000 # Challenge default points, provided to CTFd manager. Optional
+challenges_default_min_points = 100  # Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional
+challenges_default_decay      = 50   # Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges. Optional
+
 chall_whitelist_ips = ["<ip1>", "<ip2>"] # List of IPs to whitelist for challenge access
 
 challenges_static = {

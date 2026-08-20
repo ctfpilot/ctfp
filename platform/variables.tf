@@ -175,6 +175,27 @@ variable "ctfd_manager_password" {
   nullable    = false
 }
 
+variable "challenges_default_points" {
+  type        = number
+  description = "Challenge default points, provided to CTFd manager."
+  default     = 1000
+  nullable    = false
+}
+
+variable "challenges_default_min_points" {
+  type        = number
+  description = "Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges."
+  default     = 100
+  nullable    = false
+}
+
+variable "challenges_default_decay" {
+  type        = number
+  description = "Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges."
+  default     = 50
+  nullable    = false
+}
+
 variable "db_s3_bucket" {
   description = "S3 bucket name for backups"
   type        = string

@@ -70,6 +70,17 @@ variable "ctfs" {
       repository = optional(string) # Repository URL for pages. Defaults to `pages_repository` if not provided.
       branch     = optional(string) # Git branch for pages. Defaults to `pages_branch` if not provided.
     })
+
+    challenges = object({
+      config = object({
+        default_points     = optional(number) # Default points for challenges. Defaults to `challenges_default_points` if not provided.
+        default_min_points = optional(number) # Default minimum points for challenges. Defaults to `challenges_default_min_points` if not provided.
+        default_decay      = optional(number) # Default decay for challenges. Defaults to `challenges_default_decay` if not provided.
+      })
+      static    = optional(map(list(string))) # List of static challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_static` configuration.
+      shared    = optional(map(list(string))) # List of shared challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_shared` configuration.
+      instanced = optional(map(list(string))) # List of instanced challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_instanced` configuration.
+    })
   }))
 
   default = []

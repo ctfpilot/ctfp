@@ -52,18 +52,6 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
-variable "argocd_project_shared_name" {
-  description = "The name of the ArgoCD project for shared challenges"
-  default     = "shared-challenges"
-  nullable    = false
-}
-
-variable "argocd_project_instanced_name" {
-  description = "The name of the ArgoCD project for instanced challenges"
-  default     = "instanced-challenges"
-  nullable    = false
-}
-
 variable "argocd_project_config_name" {
   description = "The name of the ArgoCD project for static challenges"
   default     = "static-challenges"
@@ -86,16 +74,4 @@ variable "challenges_instanced" {
   type        = map(list(string))
   description = "List of instanced challenges to deploy. In the format { \"<category>\" = [\"<challenge_slug1>\", \"<challenge_slug2>\"] }"
   default     = {}
-}
-
-variable "kubectf_namespace_shared" {
-  description = "The namespace for shared challenges for kubectf."
-  type        = string
-  nullable    = false
-}
-
-variable "kubectf_namespace_instanced" {
-  description = "The namespace for instanced challenges for kubectf."
-  type        = string
-  nullable    = false
 }

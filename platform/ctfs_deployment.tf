@@ -70,12 +70,15 @@ module "ctfd_instance" {
   ctfd_k8s_deployment_branch     = nonsensitive(local.ctfs_map[each.key].ctfd.k8s_deployment_branch != null ? local.ctfs_map[each.key].ctfd.k8s_deployment_branch : local.ctfd_k8s_deployment_branch)
 
   # CTFd Manager
-  ctf_manager_namespace      = nonsensitive("challenge-config-${local.ctfs_map[each.key].slug}")
-  ctf_manager_url            = nonsensitive("ctfd-manager.${local.ctfs_map[each.key].slug}.${var.cluster_dns_management}")
-  ctfd_manager_password      = var.ctfd_manager_password
-  ctfd_manager_github_repo   = var.ctfd_manager_github_repo
-  ctfd_manager_github_branch = var.ctfd_manager_github_branch == "" ? local.env_branch : var.ctfd_manager_github_branch
-  image_ctfd_manager         = var.image_ctfd_manager
+  ctf_manager_namespace         = nonsensitive("challenge-config-${local.ctfs_map[each.key].slug}")
+  ctf_manager_url               = nonsensitive("ctfd-manager.${local.ctfs_map[each.key].slug}.${var.cluster_dns_management}")
+  ctfd_manager_password         = var.ctfd_manager_password
+  ctfd_manager_github_repo      = var.ctfd_manager_github_repo
+  ctfd_manager_github_branch    = var.ctfd_manager_github_branch == "" ? local.env_branch : var.ctfd_manager_github_branch
+  image_ctfd_manager            = var.image_ctfd_manager
+  challenges_default_decay      = nonsensitive(local.ctfs_map[each.key].challenges.config.default_decay != null ? local.ctfs_map[each.key].challenges.config.default_decay : var.challenges_default_decay)
+  challenges_default_points     = nonsensitive(local.ctfs_map[each.key].challenges.config.default_points != null ? local.ctfs_map[each.key].challenges.config.default_points : var.challenges_default_points)
+  challenges_default_min_points = nonsensitive(local.ctfs_map[each.key].challenges.config.default_min_points != null ? local.ctfs_map[each.key].challenges.config.default_min_points : var.challenges_default_min_points)
 
   # Pages configuration
   pages            = nonsensitive(local.ctfs_map[each.key].pages.pages)
@@ -116,7 +119,7 @@ resource "kubernetes_manifest" "ctf_dns_forwarding" {
     spec = {
       redirectRegex = {
         # Matches the entire incoming host and path
-        regex       = "^https?://[^/]+/(.*)"
+        regex = "^https?://[^/]+/(.*)"
         # Uses $1 to preserve any requested subpath on the target URL
         replacement = "https://${var.ctfs[0].subdomain}.${var.cluster_dns_platform}/$1"
         permanent   = false
@@ -129,14 +132,14 @@ resource "kubernetes_ingress_v1" "ctf_dns_forwarding_ingress" {
   count = local.uses_root_dns ? 0 : 1
 
   metadata {
-      name      = "ctf-dns-forwarding-ingress"
-      namespace = "errors"
+    name      = "ctf-dns-forwarding-ingress"
+    namespace = "errors"
 
     annotations = {
-        "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
-        "traefik.ingress.kubernetes.io/router.tls"         = "true"
-        "traefik.ingress.kubernetes.io/router.middlewares" = "errors-ctf-dns-forwarding@kubernetescrd"
-        "cert-manager.io/cluster-issuer"                   = "cert-manager-global"
+      "traefik.ingress.kubernetes.io/router.entrypoints" = "web,websecure"
+      "traefik.ingress.kubernetes.io/router.tls"         = "true"
+      "traefik.ingress.kubernetes.io/router.middlewares" = "errors-ctf-dns-forwarding@kubernetescrd"
+      "cert-manager.io/cluster-issuer"                   = "cert-manager-global"
     }
   }
 
