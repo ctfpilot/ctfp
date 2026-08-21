@@ -17,7 +17,7 @@ spec:
         cpu: 25m
         memory: 32Mi
       limits:
-        cpu: 100m
+        cpu: 200m
         memory: 128Mi
     failoverTimeout: 5000
     downAfterMilliseconds: 2000
@@ -55,7 +55,7 @@ spec:
         cpu: 50m
         memory: 64Mi
       limits:
-        cpu: 500m
+        cpu: 600m
         memory: 1Gi
     updateStrategy:
       type: RollingUpdate
