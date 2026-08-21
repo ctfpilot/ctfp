@@ -19,6 +19,9 @@ resource "helm_release" "descheduler" {
         enabled   = true
         namespace = "prometheus"
       }
+      deschedulerPolicy = {
+        nodeSelector = "node-type=agent"
+      }
     })
   ]
 }
