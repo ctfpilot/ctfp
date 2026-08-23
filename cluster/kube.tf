@@ -581,7 +581,7 @@ module "kube-hetzner" {
   # They are the options that go into the additionalArguments section of the Traefik helm values file.
   # We already add "providers.kubernetesingress.ingressendpoint.publishedservice" by default so that Traefik works automatically with services such as External-DNS and ArgoCD.
   # Example:
-  traefik_additional_options = ["--api", "--api.dashboard=true", "--api.insecure=true"] # ["--log.level=DEBUG", "--tracing=true"]
+  traefik_additional_options = ["--api", "--api.dashboard=true", "--api.insecure=true", "--providers.kubernetesingress.throttleduration=2s", "--providers.kubernetesgateway.throttleduration=2s", "--providers.kubernetescrd.throttleduration=2s"] # ["--log.level=DEBUG", "--tracing=true"]
 
   # By default traefik image tag is an empty string which uses latest image tag.
   # The default is "".
