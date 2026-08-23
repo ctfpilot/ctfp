@@ -89,7 +89,7 @@ module "flight-ops-dispatcher" {
   helm = {
     values = yamlencode({
       dispatcher = {
-        replicas = 4
+        replicas = 20
         maxConcurrentFlights = var.max_instances
         flightDomain         = "challs.${var.challenge_dns}"
         serverSecret = {
