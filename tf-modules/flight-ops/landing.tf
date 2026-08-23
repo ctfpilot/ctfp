@@ -149,10 +149,6 @@ resource "kubernetes_manifest" "landing" {
         "app.kubernetes.io/instance"  = "kubectf"
         "app.kubernetes.io/component" = "isolated-landing"
       }
-
-      annotations = {
-        "cert-manager.io/cluster-issuer" = var.cert_manager
-      }
     }
 
     spec = {
@@ -206,6 +202,32 @@ resource "kubernetes_manifest" "landing" {
   depends_on = [
     kubernetes_service_v1.landing
   ]
+}
+
+resource "kubernetes_manifest" "landing_certificate" {
+  for_each = local.challenge_namespaces
+
+  manifest = {
+    apiVersion = "cert-manager.io/v1"
+    kind       = "Certificate"
+
+    metadata = {
+      name      = "landing-cert"
+      namespace = each.value
+    }
+
+    spec = {
+      secretName = "kubectf-cert-challs"
+      issuerRef = {
+        name = var.cert_manager
+        kind = "ClusterIssuer" # Or "Issuer" depending on your setup
+      }
+      dnsNames = [
+        local.challenges_host,
+        "*.${local.challenges_host}" # Ensure your issuer supports wildcard domains via DNS-01 if using regex
+      ]
+    }
+  }
 }
 
 output "challenge_host" {
