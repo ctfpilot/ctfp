@@ -69,7 +69,7 @@ resource "cloudflare_record" "domain_name_ctf" {
   content = module.kube-hetzner.ingress_public_ipv4
   type    = "A"
   ttl     = 1
-  proxied = local.ctf_dns_should_proxy
+  proxied = false
 
   depends_on = [
     data.cloudflare_zones.domain_name_zone_ctf,
@@ -83,7 +83,7 @@ resource "cloudflare_record" "wildcard_domain_name_ctf" {
   content = module.kube-hetzner.ingress_public_ipv4
   type    = "A"
   ttl     = 1
-  proxied = local.ctf_dns_wildcard_should_proxy
+  proxied = false
 
   depends_on = [
     data.cloudflare_zones.domain_name_zone_ctf,
