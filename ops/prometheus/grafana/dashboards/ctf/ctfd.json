@@ -1564,7 +1564,7 @@
                     "spec": {
                       "editorMode": "code",
                       "exemplar": false,
-                      "expr": "count(kube_deployment_labels{namespace=~\"flights|flights-instances\", label_challenges_ctfpilot_com_name!=\"\"})",
+                      "expr": "count(kube_deployment_labels{namespace=~\"flights|flights-instanced\", label_challenges_ctfpilot_com_name!=\"\"})",
                       "instant": false,
                       "legendFormat": "__auto",
                       "range": true
@@ -2008,7 +2008,7 @@
   "preload": false,
   "tags": [],
   "timeSettings": {
-    "autoRefresh": "1m",
+    "autoRefresh": "30s",
     "autoRefreshIntervals": [
       "5s",
       "10s",
@@ -2088,7 +2088,9 @@
       "spec": {
         "allowCustomValue": true,
         "current": {
-          "text": "All",
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]

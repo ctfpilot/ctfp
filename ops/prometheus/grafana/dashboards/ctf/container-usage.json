@@ -106,7 +106,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(kube_deployment_labels{namespace=~\"$namespaces\", label_ctfpilot_com_name!=\"\"})",
+          "expr": "count(kube_deployment_labels{namespace=~\"$namespaces\", label_challenges_ctfpilot_com_name!=\"\"})",
           "instant": false,
           "legendFormat": "Deployments",
           "range": true,
@@ -987,12 +987,12 @@
         "current": {
           "selected": false,
           "text": [
-            "ctfpilot-challenges",
-            "ctfpilot-challenges-instanced"
+            "flights",
+            "flights-instanced"
           ],
           "value": [
-            "ctfpilot-challenges",
-            "ctfpilot-challenges-instanced"
+            "flights",
+            "flights-instanced"
           ]
         },
         "datasource": {

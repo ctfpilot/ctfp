@@ -88,7 +88,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count(kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"})",
+          "expr": "count(kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"})",
           "instant": true,
           "legendFormat": "Total Instances",
           "refId": "A"
@@ -151,7 +151,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "count by (label_ctfpilot_com_name) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"})",
+          "expr": "count by (label_challenges_ctfpilot_com_name) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"})",
           "format": "table",
           "instant": true,
           "legendFormat": "",
@@ -170,7 +170,7 @@
             "indexByName": {},
             "renameByName": {
               "Value": "Count",
-              "label_ctfpilot_com_name": "Challenge Name"
+              "label_challenges_ctfpilot_com_name": "Challenge Name"
             }
           }
         }
@@ -235,7 +235,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "count by (label_ctfpilot_com_type) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"})",
+          "expr": "count by (label_challenges_ctfpilot_com_type) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"})",
           "format": "table",
           "instant": true,
           "legendFormat": "",
@@ -254,8 +254,8 @@
             "indexByName": {},
             "renameByName": {
               "Value": "Count",
-              "label_ctfpilot_com_name": "Challenge Name",
-              "label_ctfpilot_com_type": "Challenge Type"
+              "label_challenges_ctfpilot_com_name": "Challenge Name",
+              "label_challenges_ctfpilot_com_type": "Challenge Type"
             }
           }
         }
@@ -320,7 +320,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "count by (label_instanced_challenges_ctfpilot_com_owner) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"})",
+          "expr": "count by (label_flight_ctfpilot_com_owner) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"})",
           "format": "table",
           "instant": true,
           "legendFormat": "",
@@ -339,8 +339,8 @@
             "indexByName": {},
             "renameByName": {
               "Value": "Count",
-              "label_instanced_challenges_ctfpilot_com_owner": "Challenge Owner",
-              "label_ctfpilot_com_name": "Challenge Name"
+              "label_flight_ctfpilot_com_owner": "Challenge Owner",
+              "label_challenges_ctfpilot_com_name": "Challenge Name"
             }
           }
         }
@@ -420,7 +420,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (deployment) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_instanced_challenges_ctfpilot_com_deployment!=\"\"})",
+          "expr": "count by (label_flight_ctfpilot_com_id) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_flight_ctfpilot_com_id!=\"\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -442,7 +442,7 @@
             "renameByName": {
               "Value": "Count",
               "deployment": "Challenge Deployment",
-              "label_instanced_challenges_ctfpilot_com_deployment": "Deployment ID"
+              "label_flight_ctfpilot_com_id": "Deployment ID"
             }
           }
         }
@@ -597,7 +597,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "count(kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"})",
+          "expr": "count(kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"})",
           "legendFormat": "Total Instances",
           "range": true,
           "refId": "A"
@@ -608,7 +608,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "count(kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"}) by (label_ctfpilot_com_name)",
+          "expr": "count(kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"}) by (label_challenges_ctfpilot_com_name)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -703,8 +703,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count by (label_ctfpilot_com_name) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"})",
-          "legendFormat": "{{label_ctfpilot_com_name}}",
+          "expr": "count by (label_challenges_ctfpilot_com_name) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"})",
+          "legendFormat": "{{label_challenges_ctfpilot_com_name}}",
           "refId": "A"
         }
       ],
@@ -795,8 +795,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count by (label_instanced_challenges_ctfpilot_com_owner) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_instanced_challenges_ctfpilot_com_owner!=\"\"})",
-          "legendFormat": "{{label_instanced_challenges_ctfpilot_com_owner}}",
+          "expr": "count by (label_flight_ctfpilot_com_owner) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_flight_ctfpilot_com_owner!=\"\"})",
+          "legendFormat": "{{label_flight_ctfpilot_com_owner}}",
           "refId": "A"
         }
       ],
@@ -886,8 +886,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count by (label_ctfpilot_com_type) (kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_type!=\"\"})",
-          "legendFormat": "{{label_ctfpilot_com_type}}",
+          "expr": "count by (label_challenges_ctfpilot_com_type) (kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_type!=\"\"})",
+          "legendFormat": "{{label_challenges_ctfpilot_com_type}}",
           "refId": "A"
         }
       ],
@@ -1073,7 +1073,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(container_cpu_usage_seconds_total{namespace=~\"ctfpilot-challenges|ctfpilot-challenges-instanced\"}[$__rate_interval]))",
+          "expr": "sum (rate(container_cpu_usage_seconds_total{namespace=~\"flights|flights-instanced\"}[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Total CPU",
@@ -1087,7 +1087,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(namespace) (rate(container_cpu_usage_seconds_total{namespace=~\"ctfpilot-challenges|ctfpilot-challenges-instanced\"}[$__rate_interval]))",
+          "expr": "sum by(namespace) (rate(container_cpu_usage_seconds_total{namespace=~\"flights|flights-instanced\"}[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{label_challenges_ctfpilot_com_type}}",
           "range": true,
@@ -1183,7 +1183,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(container_memory_usage_bytes{namespace=~\"ctfpilot-challenges|ctfpilot-challenges-instanced\"}[$__rate_interval])) / 1000000000",
+          "expr": "sum(rate(container_memory_usage_bytes{namespace=~\"flights|flights-instanced\"}[$__rate_interval])) / 1000000000",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1201,7 +1201,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(namespace) (rate(container_memory_usage_bytes{namespace=~\"ctfpilot-challenges|ctfpilot-challenges-instanced\"}[$__rate_interval])) / 1000000000",
+          "expr": "sum by(namespace) (rate(container_memory_usage_bytes{namespace=~\"flights|flights-instanced\"}[$__rate_interval])) / 1000000000",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -1413,7 +1413,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"}) by (label_ctfpilot_com_name)",
+          "expr": "count(kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"}) by (label_challenges_ctfpilot_com_name)",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",
@@ -1483,7 +1483,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(kube_deployment_labels{namespace=~\"ctfpilot-challenges-instanced|ctfpilot-challenges\", label_ctfpilot_com_name!=\"\"}) by (label_ctfpilot_com_type)",
+          "expr": "count(kube_deployment_labels{namespace=~\"flights-instanced|flights\", label_challenges_ctfpilot_com_name!=\"\"}) by (label_challenges_ctfpilot_com_type)",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",
