@@ -1,6 +1,6 @@
 locals {
   traefik_min_replicas = var.traefik_min_replicas != null ? var.traefik_min_replicas : var.deployment_type == "single-node" ? 1 : 3
-  traefik_max_replicas = var.traefik_max_replicas != null ? var.traefik_max_replicas : var.deployment_type == "single-node" ? 10 : 25
+  traefik_max_replicas = var.traefik_max_replicas != null ? var.traefik_max_replicas : var.deployment_type == "single-node" ? 10 : 100
 }
 
 resource "kubernetes_service" "traefik_dashboard" {
@@ -173,7 +173,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
         resources:
           requests:
             cpu: "500m"
-            memory: "100Mi"
+            memory: "256Mi"
           limits:
             cpu: "2000m"
             memory: "1Gi"
@@ -185,7 +185,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           enabled: true
           format: json
           filePath: "/var/log/traefik/access.log"
-          bufferingSize: 1000
+          bufferingSize: 10000
           fields:
             headers:
               defaultMode: keep
@@ -218,7 +218,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
               mountPath: /usr/share/filebeat/data
             resources:
               requests:
-                cpu: "10m"
+                cpu: "20m"
                 memory: "56M"
               limits:
                 cpu: "100m"
