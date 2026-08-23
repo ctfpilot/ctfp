@@ -146,7 +146,6 @@ resource "kubernetes_ingress_v1" "challenge-manager" {
     annotations = {
       "cert-manager.io/cluster-issuer"                   = var.cert_manager
       "traefik.ingress.kubernetes.io/router.priority"    = "10"
-      "traefik.ingress.kubernetes.io/router.middlewares" = "errors-errors@kubernetescrd"
     }
   }
 
