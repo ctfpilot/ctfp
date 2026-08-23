@@ -90,6 +90,14 @@ grafana:
         gnetId: 6417
         revision: 1
         datasource: Prometheus
+      kubernetes-volumes:
+        gnetId: 13646
+        revision: 2
+        datasource: Prometheus
+      kubernetes-capacity:
+        gnetId: 5228
+        revision: 6
+        datasource: Prometheus
 
 prometheus:
   prometheusSpec:
