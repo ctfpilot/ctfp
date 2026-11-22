@@ -222,7 +222,7 @@ resource "kubernetes_config_map_v1" "mapping-map" {
       "insane"      = "Insane"
     }),
     "difficulty-categories" = jsonencode({
-      "beginner" = "Onboarding"
+      "beginner" = "Beginner"
     })
   }
 
