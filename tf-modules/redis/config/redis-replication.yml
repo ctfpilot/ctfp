@@ -14,7 +14,7 @@ spec:
     imagePullPolicy: IfNotPresent
     resources:
       requests:
-        cpu: 25m
+        cpu: 10m
         memory: 32Mi
       limits:
         cpu: 100m
@@ -52,11 +52,11 @@ spec:
     imagePullPolicy: IfNotPresent
     resources:
       requests:
-        cpu: 50m
-        memory: 64Mi
+        cpu: 150m
+        memory: 356Mi
       limits:
-        cpu: 500m
-        memory: 1Gi
+        cpu: 400m
+        memory: 600Mi
     updateStrategy:
       type: RollingUpdate
     redisSecret:
@@ -69,10 +69,10 @@ spec:
     resources:
       requests:
         cpu: 10m
-        memory: 64Mi
+        memory: 16Mi
       limits:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 50m
+        memory: 64Mi
   env:
     - name: REDIS_EXPORTER_INCL_SYSTEM_METRICS
       value: "true"

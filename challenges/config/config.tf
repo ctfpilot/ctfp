@@ -1,3 +1,9 @@
+variable "ctf" {
+  description = "The CTF to deploy"
+  type        = string
+  nullable    = false
+}
+
 variable "revision" {
   description = "The revision of the repository to use"
   default     = "main"
@@ -53,7 +59,7 @@ module "argocd-challenge-config" {
 
   argocd_namespace          = var.argocd_namespace
   application_namespace     = var.config_namespace
-  application_name          = var.application_name != null ? "${var.application_name}-config" : "${var.category}-${var.identifier}-config"
+  application_name          = var.application_name != null ? "${var.application_name}-config" : "ctf-${var.ctf}-${var.category}-${var.identifier}-config"
   application_repo_url      = var.application_repo_url
   application_repo_path     = var.path != null ? var.path : "challenges/${var.category}/${var.identifier}/k8s/config"
   application_repo_revision = var.revision

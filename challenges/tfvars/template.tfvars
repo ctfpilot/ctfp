@@ -33,8 +33,33 @@ git_token     = "<token>"    # GitHub repo token. Only let this token have read 
 # ----------------------
 # CTF configuration
 # ----------------------
+flight_ops_repo_url     = "<url>" # URL of the Git repository containing the flight-ops configuration
+# ground_control_repo_path = "<path>" # Path to the ground-control configuration in the flight-ops repository
+# dispatcher_repo_path     = "<path>" # Path to the dispatcher configuration in the flight-ops repository
+flight_ops_repo_revision = "<branch>" # Branch of the Git repository to use for the flight-ops configuration. Leave empty for environment based branch (environment == prod ? main : develop)
+dispatcher_redis_password = "<password>" # Password for the Redis instance used by the dispatcher
 kubectf_auth_secret      = "<secret>" # The secret to use for the authSecret in the CTF configuration
 kubectf_container_secret = "<secret>" # The secret to use for the containerSecret in the CTF configuration
+
+# One or more CTFs can be defined here. Each CTF is defined as a map with the following keys:
+ctfs = [
+  {
+    slug                    = "<slug>"        # Slug for the CTF event. This will be used in internal namings and must be unique. It should be a lowercase string with no spaces or special characters.
+    subdomain               = "<subdomain>"   # A subdomain to the `cluster_dns_platform`, or empty string if you want to use the `cluster_dns_platform` directly. This will be used to generate the CTF URL.
+    
+    challenges = {
+      static = {
+        "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+      } # List of static challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_static` configuration.
+      shared = {
+        "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+      } # List of shared challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_shared` configuration.
+      instanced = {
+        "<category>" = ["<challenge_slug1>", "<challenge_slug2>"],
+      } # List of instanced challenges to deploy. Needs to be the slugs of the challenges. Adds to the global `challenges_instanced` configuration.
+    }
+  }
+]
 
 # ------------------------
 # Challenges configuration

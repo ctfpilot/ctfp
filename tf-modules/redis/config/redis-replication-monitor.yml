@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: redis-monitoring-replication
+  name: redis-monitoring-replication-${namespace}
   namespace: prometheus
   labels:
     release: prometheus

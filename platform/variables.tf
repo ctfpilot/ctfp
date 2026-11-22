@@ -82,11 +82,51 @@ variable "argocd_namespace" {
   default     = "argocd"
 }
 
+variable "ctf_mail_server" {
+  description = "Mail server for CTFd"
+  type        = string
+}
+
+variable "ctf_mail_port" {
+  description = "Mail server port"
+  type        = number
+  default     = 465
+}
+
+variable "ctf_mail_username" {
+  description = "Mail server username"
+  type        = string
+}
+
+variable "ctf_mail_password" {
+  description = "Mail server password"
+  type        = string
+  sensitive   = true
+}
+
+variable "ctf_mail_tls" {
+  description = "Whether to use TLS for the mail server"
+  type        = bool
+  default     = true
+}
+
+variable "ctf_mail_from" {
+  description = "From address for the mail server"
+  type        = string
+}
+
 variable "kubectf_auth_secret" {
   type        = string
   nullable    = false
-  description = "The secret to use for the authSecret in the CTF configuration"
+  description = "The secret to use for the authSecret in the kubeCTF configuration"
   sensitive   = true
+}
+
+variable "kubectf_host" {
+  type        = string
+  nullable    = true
+  description = "The host to use for the kubeCTF configuration"
+  default     = null
 }
 
 variable "db_root_password" {
@@ -94,21 +134,11 @@ variable "db_root_password" {
   description = "Root password for the MariaDB cluster"
   sensitive   = true
   nullable    = false
-}
 
-variable "db_user" {
-  type        = string
-  description = "Database user"
-  default     = "ctfd"
-  nullable    = false
-}
-
-variable "db_password" {
-  type        = string
-  description = "Database password"
-  sensitive   = true
-  default     = "password"
-  nullable    = false
+  validation {
+    condition     = length(var.db_root_password) > 0
+    error_message = "The 'db_root_password' variable must be a non-empty string."
+  }
 }
 
 variable "db_timezone" {
@@ -130,25 +160,11 @@ variable "db_anti_affinity" {
   default     = null
 }
 
-variable "ctfd_redis_password" {
-  type        = string
-  description = "Password for the CTFd Redis instance"
-  sensitive   = true
-  nullable    = false
-}
-
 variable "ctfd_redis_replicas" {
   type        = number
   description = "Number of Redis replicas for CTFd. Defaults to 3 for standard and HA, and 1 for single-node deployment types."
   nullable    = true
   default     = null
-}
-
-variable "ctfd_secret_key" {
-  type        = string
-  description = "Secret key for CTFd"
-  sensitive   = true
-  nullable    = false
 }
 
 variable "ctfd_manager_password" {
@@ -159,31 +175,52 @@ variable "ctfd_manager_password" {
   nullable    = false
 }
 
-variable "s3_bucket" {
+variable "challenges_default_points" {
+  type        = number
+  description = "Challenge default points, provided to CTFd manager."
+  default     = 1000
+  nullable    = false
+}
+
+variable "challenges_default_min_points" {
+  type        = number
+  description = "Challenge default minimum points, provided to CTFd manager. Only applicable for dynamic scored challenges."
+  default     = 100
+  nullable    = false
+}
+
+variable "challenges_default_decay" {
+  type        = number
+  description = "Challenge default decay, provided to CTFd manager. Only applicable for dynamic scored challenges."
+  default     = 50
+  nullable    = false
+}
+
+variable "db_s3_bucket" {
   description = "S3 bucket name for backups"
   type        = string
   nullable    = false
 }
 
-variable "s3_region" {
+variable "db_s3_region" {
   description = "S3 region for backups"
   type        = string
   nullable    = false
 }
 
-variable "s3_endpoint" {
+variable "db_s3_endpoint" {
   description = "S3 endpoint for backups"
   type        = string
   nullable    = false
 }
 
-variable "s3_access_key" {
+variable "db_s3_access_key" {
   description = "Access key for S3 for backups"
   type        = string
   nullable    = false
 }
 
-variable "s3_secret_key" {
+variable "db_s3_secret_key" {
   description = "Secret key for S3 for backups"
   type        = string
   nullable    = false
@@ -218,13 +255,6 @@ variable "ctf_s3_secret_key" {
   nullable    = false
 }
 
-variable "ctf_s3_prefix" {
-  description = "S3 prefix for CTFd files, e.g., 'ctfd/dev/'"
-  type        = string
-  default     = "ctfd/"
-  nullable    = false
-}
-
 variable "ctfd_k8s_deployment_repository" {
   type        = string
   description = "Repository URL for CTFd deployment files. Example: https://github.com/ctfpilot/ctfd"
@@ -243,10 +273,9 @@ variable "ctfd_k8s_deployment_branch" {
   default     = ""
 }
 
-variable "ctfd_plugin_first_blood_limit_url" {
+variable "ctfd_plugin_first_blood_url" {
   description = "CTFd Plugin configuration: First blood (ctfd-discord-webhook-plugin). Webhook url configuration (url)."
   type        = string
-  nullable    = false
 }
 
 variable "ctfd_plugin_first_blood_limit" {
@@ -271,12 +300,6 @@ variable "ctfd_manager_github_branch" {
   type        = string
   description = "Github branch used in the CTFd Manager. Leave empty for environment based branch (environment == prod ? main : develop). Env variable GITHUB_BRANCH. See https://github.com/ctfpilot/ctfd-manager"
   default     = ""
-}
-
-variable "pages" {
-  type        = list(string)
-  description = "List of pages to deploy to CTFd. Needs to be the slugs available in the `pages` directory in the `pages_repository`"
-  default     = []
 }
 
 variable "pages_repository" {
@@ -333,4 +356,13 @@ variable "traefik_redis_cluster_size" {
   description = "Number of Redis cluster nodes for Traefik. Defaults to 3 for standard and HA, and 1 for single-node deployment types."
   nullable    = true
   default     = null
+}
+
+locals {
+  ctfd_k8s_deployment_branch = var.ctfd_k8s_deployment_branch == "" ? local.env_branch : var.ctfd_k8s_deployment_branch
+
+  db_anti_affinity            = var.db_anti_affinity != null ? var.db_anti_affinity : (var.deployment_type != "single-node" ? true : false)
+  ctfd_redis_replication_size = var.ctfd_redis_replicas != null ? var.ctfd_redis_replicas : (var.deployment_type != "single-node" ? 3 : 1)
+
+  pages_branch = var.pages_branch == "" ? local.env_branch : var.pages_branch
 }

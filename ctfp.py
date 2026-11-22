@@ -150,66 +150,55 @@ PLATFORM_TFVARS = [
     
     # CTF configuration
     "kubectf_auth_secret",
+    "kubectf_host",
+    "ctfs",
     
     # DB configuration
     "db_root_password",
-    "db_user",
-    "db_password",
     "db_timezone",
     "db_anti_affinity",
     # DB backup configuration
-    "s3_bucket",
-    "s3_region",
-    "s3_endpoint",
-    "s3_access_key",
-    "s3_secret_key",
+    "db_s3_bucket",
+    "db_s3_region",
+    "db_s3_endpoint",
+    "db_s3_access_key",
+    "db_s3_secret_key",
     # Redis configuration
-    "ctfd_redis_password",
     "ctfd_redis_replicas",
     
     # CTFd Manager configuration
     "ctfd_manager_password",
     "ctfd_manager_github_repo",
     "ctfd_manager_github_branch",
-    
-    # CTFd configuration
-    "ctfd_secret_key",
-    "ctf_name",
-    "ctf_description",
-    "ctf_start_time",
-    "ctf_end_time",
-    "ctf_user_mode",
-    "ctf_challenge_visibility",
-    "ctf_account_visibility",
-    "ctf_score_visibility",
-    "ctf_registration_visibility",
-    "ctf_verify_emails",
-    "ctf_team_size",
-    "ctf_brackets",
-    "ctf_theme",
-    "ctf_admin_name",
-    "ctf_admin_email",
-    "ctf_admin_password",
-    "ctf_registration_code",
+    "challenges_default_points",
+    "challenges_default_min_points",
+    "challenges_default_decay",
+
+    # Fallback mail configuration
     "ctf_mail_server",
     "ctf_mail_port",
     "ctf_mail_username",
     "ctf_mail_password",
     "ctf_mail_tls",
     "ctf_mail_from",
-    "ctf_logo_path",
+    
+    # CTFd S3 Configuration
     "ctf_s3_bucket",
     "ctf_s3_region",
     "ctf_s3_endpoint",
     "ctf_s3_access_key",
     "ctf_s3_secret_key",
-    "ctf_s3_prefix",
-    "ctfd_plugin_first_blood_limit_url",
+    
+    # Fallback CTFd Plugin Configuration
+    "ctfd_plugin_first_blood_url",
     "ctfd_plugin_first_blood_limit",
     "ctfd_plugin_first_blood_message",
-    "pages",
+    
+    # Fallback pages Configuration
     "pages_repository",
     "pages_branch",
+    
+    # Fallback CTFd Deployment Configuration
     "ctfd_k8s_deployment_repository",
     "ctfd_k8s_deployment_path",
     "ctfd_k8s_deployment_branch",
@@ -235,8 +224,15 @@ CHALLENGES_TFVARS = [
     "git_token",
     
     # CTF configuration
+    "flight_ops_repo_url",
+    "ground_control_repo_path",
+    "dispatcher_repo_path",
+    "flight_ops_repo_revision",
+    "dispatcher_redis_password",
     "kubectf_auth_secret",
     "kubectf_container_secret",
+    # "kubectf_host",
+    "ctfs",
     
     # Challenges configuration
     "chall_whitelist_ips",

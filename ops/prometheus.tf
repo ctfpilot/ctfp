@@ -15,7 +15,7 @@ resource "kubernetes_config_map" "grafana-dashboards-k8s" {
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
     labels = {
-      grafana_dashboard = 1
+      grafana_dashboard = "1"
     }
 
     annotations = {
@@ -34,7 +34,7 @@ resource "kubernetes_config_map" "grafana-dashboards-redis" {
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
     labels = {
-      grafana_dashboard = 1
+      grafana_dashboard = "1"
     }
 
     annotations = {
@@ -53,7 +53,7 @@ resource "kubernetes_config_map" "grafana-dashboards-traefik" {
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
     labels = {
-      grafana_dashboard = 1
+      grafana_dashboard = "1"
     }
 
     annotations = {
@@ -72,7 +72,7 @@ resource "kubernetes_config_map" "grafana-dashboards-ctf" {
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
     labels = {
-      grafana_dashboard = 1
+      grafana_dashboard = "1"
     }
 
     annotations = {

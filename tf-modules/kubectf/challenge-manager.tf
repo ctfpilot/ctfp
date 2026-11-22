@@ -124,7 +124,7 @@ resource "kubernetes_service_account_v1" "challenge-manager" {
 }
 
 locals {
-  management_dns = "manager.${var.management_dns}"
+  management_dns = "chall-manager.${var.management_dns}"
 }
 
 resource "kubernetes_deployment_v1" "challenge-manager" {
