@@ -10,6 +10,8 @@ resource "kubernetes_config_map_v1" "kube-janitor" {
       "app.kubernetes.io/name"      = "kube-ctf-kube-janitor-config"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "kube-janitor"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -50,6 +52,8 @@ resource "kubernetes_deployment_v1" "kube-janitor" {
       "app.kubernetes.io/name"      = "kube-ctf-kube-janitor"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "kube-janitor"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -65,8 +69,12 @@ resource "kubernetes_deployment_v1" "kube-janitor" {
     template {
       metadata {
         labels = {
-          application = "kube-janitor"
-          version     = "v23.7.0"
+          application                   = "kube-janitor"
+          version                       = "v23.7.0"
+          "app.kubernetes.io/name"      = "kube-ctf-kube-janitor"
+          "app.kubernetes.io/component" = "kube-janitor"
+          "app.kubernetes.io/part-of"   = "ctfpilot"
+          "ctfpilot.com/component"      = "challenges"
         }
       }
 
@@ -136,6 +144,8 @@ resource "kubernetes_service_account_v1" "kube-janitor" {
       "app.kubernetes.io/name"      = "kube-ctf-kube-janitor"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "kube-janitor"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -147,6 +157,13 @@ resource "kubernetes_service_account_v1" "kube-janitor" {
 resource "kubernetes_cluster_role" "kube-janitor" {
   metadata {
     name = "kubectf-kube-janitor"
+
+    labels = {
+      "app.kubernetes.io/name"      = "kube-ctf-kube-janitor"
+      "app.kubernetes.io/component" = "challenges"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
+    }
   }
 
   rule {
@@ -166,6 +183,13 @@ resource "kubernetes_role_binding_v1" "kube-janitor" {
   metadata {
     name      = "kube-janitor"
     namespace = local.instanced_challenge_namespace
+
+    labels = {
+      "app.kubernetes.io/name"      = "kube-ctf-kube-janitor"
+      "app.kubernetes.io/component" = "challenges"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
+    }
   }
 
   role_ref {

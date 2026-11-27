@@ -61,6 +61,11 @@ module "argocd-challenge-config" {
   helm                      = var.helm
 
   argocd_labels = {
+    "app.kubernetes.io/name"      = "challenge-config"
+    "app.kubernetes.io/component" = "challenges"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "challenges"
+
     "part-of"   = "ctfpilot"
     "component" = "challenge-config"
     "version"   = replace(var.revision, "/", "-")

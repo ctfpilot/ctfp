@@ -1,7 +1,14 @@
+variable "labels" {
+  description = "Additional labels for the Kubernetes resource"
+  type        = map(string)
+  default     = {}
+}
+
 resource "kubernetes_secret" "pull-secret" {
   metadata {
     name      = "dockerconfigjson-github-com"
     namespace = var.namespace
+    labels    = var.labels
   }
 
   type = "kubernetes.io/dockerconfigjson"
