@@ -1,4 +1,13 @@
 locals {
+  ctfd_labels = {
+    "app.kubernetes.io/name"      = "ctfd"
+    "app.kubernetes.io/component" = "platform"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "platform"
+  }
+}
+
+locals {
   ctfd_k8s_deployment_branch = var.ctfd_k8s_deployment_branch == "" ? local.env_branch : var.ctfd_k8s_deployment_branch
 }
 
@@ -7,11 +16,19 @@ resource "kubernetes_namespace_v1" "ctfd" {
   metadata {
     name = "ctfd"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
+  }
 }
 
 resource "kubernetes_namespace_v1" "db" {
   metadata {
     name = "db"
+  }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
   }
 }
 
@@ -26,6 +43,8 @@ module "ctfd-repo-access" {
   git_repo         = var.ctfd_k8s_deployment_repository
   argocd_project   = "ctfd"
 
+  labels = local.ctfd_labels
+
   depends_on = [
     kubernetes_namespace_v1.ctfd
   ]
@@ -38,6 +57,7 @@ module "ctfd-pull-secret" {
   ghcr_username = var.ghcr_username
   ghcr_token    = var.ghcr_token
 
+  labels = local.ctfd_labels
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -45,7 +65,9 @@ module "ctfd-pull-secret" {
 }
 
 locals {
-  db_name = "ctfd-db"
+  db_name                     = "ctfd-db"
+  db_anti_affinity            = var.db_anti_affinity != null ? var.db_anti_affinity : (var.deployment_type != "single-node" ? true : false)
+  ctfd_redis_replication_size = var.ctfd_redis_replicas != null ? var.ctfd_redis_replicas : (var.deployment_type != "single-node" ? 3 : 1)
 }
 
 module "db-cluster" {
@@ -62,6 +84,9 @@ module "db-cluster" {
   s3_secret_key = var.s3_secret_key
 
   mariadb_version = var.mariadb_version
+  timezone        = var.db_timezone
+
+  anti_affinity = local.db_anti_affinity
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -84,15 +109,12 @@ module "database" {
   ]
 }
 
-locals {
-  redis_password = ""
-}
-
 module "redis" {
-  source = "../tf-modules/redis"
+  source = "../tf-modules/redis/replication"
 
-  namespace      = kubernetes_namespace_v1.ctfd.metadata.0.name
-  redis_password = local.redis_password
+  namespace        = kubernetes_namespace_v1.ctfd.metadata.0.name
+  redis_password   = var.ctfd_redis_password
+  replication_size = local.ctfd_redis_replication_size
 
   depends_on = [
     kubernetes_namespace_v1.ctfd
@@ -103,12 +125,14 @@ resource "kubernetes_secret_v1" "ctfd-redis-connection" {
   metadata {
     name      = "ctfd-redis-connection"
     namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+
+    labels = local.ctfd_labels
   }
 
   data = {
-    "url"             = ""
-    "cluster_enabled" = "1"
-    "cluster"         = "redis-cluster-leader:6379,redis-cluster-leader-additional:6379,redis-cluster-master:6379"
+    "url"             = "redis://:${var.ctfd_redis_password}@redis-replication-master.${kubernetes_namespace_v1.ctfd.metadata.0.name}.svc.cluster.local:6379/0"
+    "cluster_enabled" = "0"
+    "cluster"         = null
   }
 
   depends_on = [
@@ -120,6 +144,8 @@ resource "kubernetes_secret_v1" "kube-ctf" {
   metadata {
     name      = "kube-ctf-config"
     namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+
+    labels = local.ctfd_labels
   }
 
   data = {
@@ -136,6 +162,8 @@ resource "kubernetes_secret_v1" "ctfd" {
   metadata {
     name      = "ctfd-secret"
     namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+
+    labels = local.ctfd_labels
   }
 
   data = {
@@ -151,6 +179,8 @@ resource "kubernetes_secret_v1" "ctfd-discord-webhook" {
   metadata {
     name      = "ctfd-discord-webhook"
     namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+
+    labels = local.ctfd_labels
   }
 
   data = {
@@ -168,6 +198,8 @@ resource "kubernetes_secret_v1" "ctfd-s3-credentials" {
   metadata {
     name      = "ctfd-s3-credentials"
     namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+
+    labels = local.ctfd_labels
   }
 
   data = {
@@ -188,6 +220,8 @@ resource "kubernetes_secret_v1" "ctfd-filebeat-config" {
   metadata {
     name      = "ctfd-filebeat-config"
     namespace = kubernetes_namespace_v1.ctfd.metadata.0.name
+
+    labels = local.ctfd_labels
   }
 
   data = {
@@ -267,6 +301,8 @@ module "argocd-project" {
     }
   ]
 
+  labels = local.ctfd_labels
+
   depends_on = [
     kubernetes_namespace_v1.ctfd
   ]
@@ -283,6 +319,7 @@ module "argocd-ctfd" {
   application_repo_revision = local.ctfd_k8s_deployment_branch
   application_project       = "ctfd"
   argocd_finalizers         = []
+  argocd_labels             = local.ctfd_labels
 
   depends_on = [
     kubernetes_namespace_v1.ctfd,
@@ -300,6 +337,8 @@ module "ctfd-ingress" {
   ingress_name       = "ctfd-ingress"
   hostname           = var.cluster_dns_platform
   traefik_middleware = "errors-ctfd@kubernetescrd"
+
+  labels = local.ctfd_labels
 
   depends_on = [
     kubernetes_namespace_v1.ctfd,

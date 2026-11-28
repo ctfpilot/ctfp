@@ -1,10 +1,21 @@
 resource "kubernetes_namespace" "errors" {
   metadata {
     name = "errors"
-    labels = {
+    labels = merge(local.errors_labels, {
       role = "errors"
-    }
+    })
   }
+}
+
+locals {
+  errors_labels = {
+    "app.kubernetes.io/name"      = "errors"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+
+  errors_replicas = var.errors_replicas != null ? var.errors_replicas : (var.deployment_type == "single-node" ? 1 : var.deployment_type == "standard" ? 2 : 3)
 }
 
 module "errors-pull-secret" {
@@ -13,6 +24,8 @@ module "errors-pull-secret" {
   namespace     = kubernetes_namespace.errors.metadata[0].name
   ghcr_token    = var.ghcr_token
   ghcr_username = var.ghcr_username
+
+  labels = local.errors_labels
 
   depends_on = [
     kubernetes_namespace.errors
@@ -24,13 +37,13 @@ resource "kubernetes_deployment_v1" "errors" {
     name      = "errors"
     namespace = "errors"
 
-    labels = {
+    labels = merge(local.errors_labels, {
       role = "errors"
-    }
+    })
   }
 
   spec {
-    replicas = 2
+    replicas = local.errors_replicas
 
     selector {
       match_labels = {
@@ -40,9 +53,9 @@ resource "kubernetes_deployment_v1" "errors" {
 
     template {
       metadata {
-        labels = {
+        labels = merge(local.errors_labels, {
           role = "errors"
-        }
+        })
       }
 
       spec {
@@ -51,6 +64,18 @@ resource "kubernetes_deployment_v1" "errors" {
 
         image_pull_secrets {
           name = var.ghcr_token != "" ? module.errors-pull-secret.pull-secret : ""
+        }
+
+        topology_spread_constraint {
+          max_skew           = 1
+          topology_key       = "kubernetes.io/hostname"
+          when_unsatisfiable = "ScheduleAnyway"
+
+          label_selector {
+            match_labels = {
+              role = "errors"
+            }
+          }
         }
 
         container {
@@ -69,7 +94,7 @@ resource "kubernetes_deployment_v1" "errors" {
             }
             requests = {
               cpu    = "10m"
-              memory = "50Mi"
+              memory = "32Mi"
             }
           }
 
@@ -98,9 +123,9 @@ resource "kubernetes_service_v1" "errors" {
     name      = "errors"
     namespace = "errors"
 
-    labels = {
+    labels = merge(local.errors_labels, {
       role = "errors"
-    }
+    })
   }
 
   spec {
@@ -126,6 +151,8 @@ resource "kubernetes_manifest" "traefik-errors-middleware" {
     metadata = {
       name      = "errors"
       namespace = "errors"
+
+      labels = local.errors_labels
     }
     spec = {
       errors = {
@@ -136,8 +163,8 @@ resource "kubernetes_manifest" "traefik-errors-middleware" {
         ]
         query = "/{status}.html"
         service = {
-          name      = "errors"
-          port      = 80
+          name = "errors"
+          port = 80
         }
       }
     }

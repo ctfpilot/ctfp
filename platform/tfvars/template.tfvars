@@ -1,4 +1,17 @@
 # ------------------------
+# Deployment type
+# ------------------------
+# Deployment type represents the type of deployment to be used for the platform.
+# It defines how many replicas of each service is deployed. It does not affect node deployment.
+# You may overwrite the number of replicas for each service at the bottom of this file, but it is not recommended to do so unless you know what you are doing.
+#
+# Options:
+# - "standard": Standard deployment with core services being deployed with 2 or more replicas, while some services are deployed with 1 replica. This is the recommended deployment type for production (minimum 2 control plane nodes, 2 agent nodes, 1 challs node).
+# - "single-node": Single node deployment with all services being deployed with 1 replica, and HA being disabled where possible, this is the recommended deployment type for small clusters (1 control plane node, 1 agent node, 1 challs node). This is not recommended for production.
+# - "ha": High availability deployment with all services being deployed with 2 or more replicas, and HA enabled where possible. This is the recommended deployment type for large-scale events that require high availability and redundancy. Requires a minimum of 3 control plane nodes, 3 agent nodes and 1 challs node.
+deployment_type = "standard" # Deployment type for the cluster. Options: "standard", "single-node", "ha"
+
+# ------------------------
 # Kubernetes variables
 # ------------------------
 kubeconfig = "AA==" # Base64 encoded kubeconfig file
@@ -18,6 +31,12 @@ ghcr_token    = "<token>"    # GitHub Container Registry token. This token is us
 git_token     = "<token>"    # GitHub repo token. Only let this token have read access to the needed repositories.
 
 # ----------------------
+# Management configuration
+# ----------------------
+traefik_redis_password = "<password>" # Password for the Traefik Redis backend
+# traefik_redis_cluster_size = null   # Number of Redis cluster nodes for Traefik. Defaults to 3 for standard and HA, and 1 for single-node deployment types.
+
+# ----------------------
 # Filebeat configuration
 # ----------------------
 filebeat_elasticsearch_host     = "<host>"     # The hostname of the Elasticsearch instance for Filebeat to send logs to. Must be a https 443 endpoint.
@@ -32,9 +51,11 @@ kubectf_auth_secret = "<secret>" # The secret to use for the authSecret in the C
 # ------------------------
 # DB configuration
 # ------------------------
-db_root_password = "<password>" # Root password for the MariaDB cluster
-db_user          = "ctfd"       # Database user
-db_password      = "password"   # Database password
+db_root_password = "<db-root-password>" # Root password for the MariaDB cluster
+db_user          = "<db-user>"          # Database user
+db_password      = "<db-password>"      # Database password
+# db_timezone      = "UTC"              # Timezone for the MariaDB cluster (e.g. "+2:00" or "UTC") and the backup cron schedule. DB timezone is immutable after cluster creation; backup schedule timezone can be changed anytime. Default is "UTC".
+# db_anti_affinity = null               # Whether to enable anti-affinity for the MariaDB cluster pods. Defaults to true for standard and HA, and false for single-node deployment types. More information at https://github.com/mariadb-operator/mariadb-operator/blob/main/docs/high_availability.md#pod-anti-affinity.
 
 # S3 backup
 s3_bucket     = "<bucket>"     # S3 bucket name for backups
@@ -42,6 +63,10 @@ s3_region     = "<region>"     # S3 region for backups
 s3_endpoint   = "<endpoint>"   # S3 endpoint for backups
 s3_access_key = "<access_key>" # Access key for S3 for backups
 s3_secret_key = "<secret_key>" # Secret key for S3 for backups
+
+# Redis
+ctfd_redis_password = "<password>" # Password for the CTFd Redis instance
+# ctfd_redis_replicas = null       # Number of Redis replicas for CTFd. Defaults to 3 for standard and HA, and 1 for single-node deployment types.
 
 # ------------------------
 # CTFd Manager configuration
@@ -111,7 +136,7 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 
 # image_ctfd_manager   = "ghcr.io/ctfpilot/ctfd-manager:1.0.1"     # Docker image for the CTFd Manager deployment
 # image_error_fallback = "ghcr.io/ctfpilot/error-fallback:1.2.1"   # Docker image for the error fallback deployment
-# image_filebeat       = "docker.elastic.co/beats/filebeat:8.19.0" # Docker image for Filebeat
+# image_filebeat       = "docker.elastic.co/beats/filebeat:8.19.19" # Docker image for Filebeat
 # image_ctfd_exporter  = "ghcr.io/the0mikkel/ctfd-exporter:1.1.1"  # Docker image for the CTFd Exporter
 
 # ----------------------
@@ -120,4 +145,4 @@ ctfd_k8s_deployment_branch     = ""                                 # Git branch
 # Values are maintained in the variables.tf file.
 # You can override these values by uncommenting and setting your own versions here.
 
-# mariadb_version = "25.8.1" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator
+# mariadb_version = "26.6.0" # The version of MariaDB deploy. More information at https://github.com/mariadb-operator/mariadb-operator

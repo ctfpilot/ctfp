@@ -64,12 +64,15 @@ CLUSTER_TFVARS = [
     "challs_count",
     "scale_max",
     "load_balancer_type",
+    "traefik_additional_ports",
+    "traefik_trusted_ips",
     
     # Versions
     "kube_hetzner_version",
 ]
 OPS_TFVARS = [
     # Generic information
+    "deployment_type",
     "email", 
     "discord_webhook_url",
     
@@ -79,6 +82,9 @@ OPS_TFVARS = [
     "cloudflare_dns_platform",
     "cloudflare_dns_ctf", 
     "cluster_dns_management", 
+    
+    # Traefik configuration
+    "traefik_redis_password",
     
     # Filebeat configuration
     "filebeat_elasticsearch_host",
@@ -109,9 +115,22 @@ OPS_TFVARS = [
     "mariadb_operator_version",
     "kube_prometheus_stack_version",
     "redis_operator_version",
+    
+    # Replicas
+    "argocd_redis_ha",
+    "argocd_controller_replicas",
+    "argocd_server_replicas",
+    "argocd_repo_server_replicas",
+    "argocd_application_set_replicas",
+    "errors_replicas",
+    "default_web_replicas",
+    "prometheus_replicas",
+    "traefik_min_replicas",
+    "traefik_max_replicas",
 ]
 PLATFORM_TFVARS = [
     # Generic information
+    "deployment_type",
     "cluster_dns_management", 
     "cluster_dns_platform",
     
@@ -119,6 +138,10 @@ PLATFORM_TFVARS = [
     "ghcr_username",
     "ghcr_token",
     "git_token",
+    
+    # Traefik configuration
+    "traefik_redis_password",
+    "traefik_redis_cluster_size",
 
     # Filebeat configuration
     "filebeat_elasticsearch_host",
@@ -132,12 +155,17 @@ PLATFORM_TFVARS = [
     "db_root_password",
     "db_user",
     "db_password",
+    "db_timezone",
+    "db_anti_affinity",
     # DB backup configuration
     "s3_bucket",
     "s3_region",
     "s3_endpoint",
     "s3_access_key",
     "s3_secret_key",
+    # Redis configuration
+    "ctfd_redis_password",
+    "ctfd_redis_replicas",
     
     # CTFd Manager configuration
     "ctfd_manager_password",
@@ -197,6 +225,7 @@ PLATFORM_TFVARS = [
 ]
 CHALLENGES_TFVARS = [
     # Generic information
+    "deployment_type",
     "cluster_dns_management",
     "cluster_dns_ctf",
     
@@ -349,15 +378,16 @@ class GenerateImages(Command):
     name = "generate-images"
     help = "Generate server images"
     description = "Generate server images"
+    version = "v2.21.0"
     
     def register_subcommand(self):
-        # No arguments to register
+        self.subparser.add_argument("--version", type=str, default=self.version, help="Version of the create.sh script to use (default: v2.21.0)")
         return
     
     def run(self, args):
         Logger.info("Generating server images")
         try:
-            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/master/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"")
+            rc = run(f"cd \"{PATH}/cluster\" && tmp_script=$(mktemp) && curl -sSL -o \"${{tmp_script}}\" https://raw.githubusercontent.com/kube-hetzner/terraform-hcloud-kube-hetzner/refs/tags/{self.version}/scripts/create.sh && chmod +x \"${{tmp_script}}\" && \"${{tmp_script}}\" && rm \"${{tmp_script}}\"")
             if rc != 0:
                 raise Exception
         except Exception:

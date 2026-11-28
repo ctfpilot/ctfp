@@ -101,6 +101,8 @@ prometheus:
       matchLabels: null
     scrapeConfigSelector:
       matchLabels: null
+    replicas: ${prometheus_replicas}
+    podAntiAffinity: "hard"
 
 kube-state-metrics:
   enabled: true
@@ -112,6 +114,8 @@ kube-state-metrics:
     - ingresses=[ctfpilot.com/component,instanced.challenges.ctfpilot.com/deployment,instanced.challenges.ctfpilot.com/owner,challenges.ctfpilot.com/type,challenges.ctfpilot.com/name,challenges.ctfpilot.com/version,challenges.ctfpilot.com/configmap,challenges.ctfpilot.com/category,challenges.ctfpilot.com/enabled,challenges.ctfpilot.com/version]
 
 alertmanager:
+  alertmanagerSpec:
+    replicas: ${prometheus_replicas}
   config:
     route:
       group_by: ["alertname"]

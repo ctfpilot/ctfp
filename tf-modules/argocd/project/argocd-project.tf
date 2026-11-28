@@ -25,6 +25,12 @@ variable "project_destinations" {
   }]
 }
 
+variable "labels" {
+  description = "Additional labels for the Kubernetes resource"
+  type        = map(string)
+  default     = {}
+}
+
 resource "kubernetes_manifest" "project" {
   manifest = {
     apiVersion = "argoproj.io/v1alpha1"
@@ -32,6 +38,7 @@ resource "kubernetes_manifest" "project" {
     metadata = {
       name      = var.project_name
       namespace = var.argocd_namespace
+      labels    = var.labels
     }
     spec = {
       destinations = var.project_destinations

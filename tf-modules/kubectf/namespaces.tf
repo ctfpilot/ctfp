@@ -8,6 +8,8 @@ resource "kubernetes_namespace" "generic" {
       "app.kubernetes.io/name"      = "kube-ctf"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "generic"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 }
@@ -22,6 +24,8 @@ resource "kubernetes_namespace" "management" {
       "app.kubernetes.io/name"      = "kube-ctf"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "admin"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 }
@@ -40,6 +44,8 @@ resource "kubernetes_namespace" "standard-challenges" {
       "app.kubernetes.io/name"      = "kube-ctf"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "challenges"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 }
@@ -58,6 +64,8 @@ resource "kubernetes_namespace" "instanced-challenges" {
       "app.kubernetes.io/name"      = "kube-ctf"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "challenges-instanced"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 }
@@ -92,6 +100,13 @@ module "pull-secret" {
   namespace     = each.key
   ghcr_username = var.ghcr_username
   ghcr_token    = var.ghcr_token
+
+  labels = {
+    "app.kubernetes.io/name"      = "kube-ctf"
+    "app.kubernetes.io/component" = "challenges"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "challenges"
+  }
 
   depends_on = [
     kubernetes_namespace.management,

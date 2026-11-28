@@ -1,10 +1,16 @@
+variable "labels" {
+  description = "Additional labels for the Kubernetes resource"
+  type        = map(string)
+  default     = {}
+}
+
 resource "kubernetes_secret" "private_repo" {
   metadata {
     name      = "${var.name}-private-repo-access"
     namespace = var.argocd_namespace
-    labels = {
+    labels = merge(var.labels, {
       "argocd.argoproj.io/secret-type" = "repository"
-    }
+    })
   }
 
   data = {

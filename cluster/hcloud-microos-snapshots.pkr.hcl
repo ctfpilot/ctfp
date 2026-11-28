@@ -79,8 +79,8 @@ locals {
 source "hcloud" "microos-x86-snapshot" {
   image       = "ubuntu-22.04"
   rescue      = "linux64"
-  location    = "fsn1"
-  server_type = "cpx11" # disk size of >= 40GiB is needed to install the MicroOS image
+  location    = "nbg1"
+  server_type = "cpx12" # disk size of >= 40GiB is needed to install the MicroOS image
   snapshot_labels = {
     microos-snapshot = "yes"
     creator          = "kube-hetzner"
@@ -90,20 +90,20 @@ source "hcloud" "microos-x86-snapshot" {
   token         = var.hcloud_token
 }
 
-# Source for the MicroOS ARM snapshot
-source "hcloud" "microos-arm-snapshot" {
-  image       = "ubuntu-22.04"
-  rescue      = "linux64"
-  location    = "fsn1"
-  server_type = "cax11" # disk size of >= 40GiB is needed to install the MicroOS image
-  snapshot_labels = {
-    microos-snapshot = "yes"
-    creator          = "kube-hetzner"
-  }
-  snapshot_name = "OpenSUSE MicroOS ARM by Kube-Hetzner"
-  ssh_username  = "root"
-  token         = var.hcloud_token
-}
+# # Source for the MicroOS ARM snapshot
+# source "hcloud" "microos-arm-snapshot" {
+#   image       = "ubuntu-22.04"
+#   rescue      = "linux64"
+#   location    = "nbg1"
+#   server_type = "cax11" # disk size of >= 40GiB is needed to install the MicroOS image
+#   snapshot_labels = {
+#     microos-snapshot = "yes"
+#     creator          = "kube-hetzner"
+#   }
+#   snapshot_name = "OpenSUSE MicroOS ARM by Kube-Hetzner"
+#   ssh_username  = "root"
+#   token         = var.hcloud_token
+# }
 
 # Build the MicroOS x86 snapshot
 build {
@@ -135,30 +135,30 @@ build {
 }
 
 # Build the MicroOS ARM snapshot
-build {
-  sources = ["source.hcloud.microos-arm-snapshot"]
+# build {
+#   sources = ["source.hcloud.microos-arm-snapshot"]
 
-  # Download the MicroOS ARM image
-  provisioner "shell" {
-    inline = ["${local.download_image}${var.opensuse_microos_arm_mirror_link}"]
-  }
+#   # Download the MicroOS ARM image
+#   provisioner "shell" {
+#     inline = ["${local.download_image}${var.opensuse_microos_arm_mirror_link}"]
+#   }
 
-  # Write the MicroOS ARM image to disk
-  provisioner "shell" {
-    inline            = [local.write_image]
-    expect_disconnect = true
-  }
+#   # Write the MicroOS ARM image to disk
+#   provisioner "shell" {
+#     inline            = [local.write_image]
+#     expect_disconnect = true
+#   }
 
-  # Ensure connection to MicroOS ARM and do house-keeping
-  provisioner "shell" {
-    pause_before      = "5s"
-    inline            = [local.install_packages]
-    expect_disconnect = true
-  }
+#   # Ensure connection to MicroOS ARM and do house-keeping
+#   provisioner "shell" {
+#     pause_before      = "5s"
+#     inline            = [local.install_packages]
+#     expect_disconnect = true
+#   }
 
-  # Ensure connection to MicroOS ARM and do house-keeping
-  provisioner "shell" {
-    pause_before = "5s"
-    inline       = [local.clean_up]
-  }
-}
+#   # Ensure connection to MicroOS ARM and do house-keeping
+#   provisioner "shell" {
+#     pause_before = "5s"
+#     inline       = [local.clean_up]
+#   }
+# }

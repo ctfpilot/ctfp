@@ -76,6 +76,13 @@ resource "kubernetes_manifest" "database" {
     metadata = {
       name      = "${var.db_name}"
       namespace = var.namespace
+
+      labels = {
+        "app.kubernetes.io/name"      = "mariadb"
+        "app.kubernetes.io/component" = "platform"
+        "app.kubernetes.io/part-of"   = "ctfpilot"
+        "ctfpilot.com/component"      = "platform"
+      }
     }
     spec = {
       name = var.db_name

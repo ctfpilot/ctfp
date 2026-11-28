@@ -4,6 +4,13 @@ resource "kubernetes_manifest" "crd" {
     kind       = "CustomResourceDefinition"
     metadata = {
       name = "instanced-challenges.kube-ctf.${var.org_name}"
+
+      labels = {
+        "app.kubernetes.io/name"      = "kube-ctf"
+        "app.kubernetes.io/component" = "challenges"
+        "app.kubernetes.io/part-of"   = "ctfpilot"
+        "ctfpilot.com/component"      = "challenges"
+      }
     }
     spec = {
       group = "kube-ctf.${var.org_name}"

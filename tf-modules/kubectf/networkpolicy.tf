@@ -6,8 +6,12 @@ resource "kubernetes_network_policy" "block-internal-traffic" {
     namespace = each.value
 
     labels = {
-      system = "kube-ctf"
-      org    = var.org_name
+      system                        = "kube-ctf"
+      org                           = var.org_name
+      "app.kubernetes.io/name"      = "kube-ctf"
+      "app.kubernetes.io/component" = "challenges"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -16,7 +20,7 @@ resource "kubernetes_network_policy" "block-internal-traffic" {
     }
 
     policy_types = [
-    #   "Ingress",
+      #   "Ingress",
       "Egress",
     ]
 

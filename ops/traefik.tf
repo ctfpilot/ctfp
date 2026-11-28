@@ -1,11 +1,20 @@
+locals {
+  traefik_min_replicas = var.traefik_min_replicas != null ? var.traefik_min_replicas : var.deployment_type == "single-node" ? 1 : 3
+  traefik_max_replicas = var.traefik_max_replicas != null ? var.traefik_max_replicas : var.deployment_type == "single-node" ? 10 : 25
+}
+
 resource "kubernetes_service" "traefik_dashboard" {
   metadata {
     name      = "traefik-dashboard"
     namespace = var.traefik_namespace
     labels = {
-      app     = "traefik"
-      release = "traefik"
-      role    = "dashboard"
+      app                           = "traefik"
+      release                       = "traefik"
+      role                          = "dashboard"
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
     }
   }
 
@@ -26,6 +35,13 @@ resource "kubernetes_ingress_v1" "traefik-dashboard-ingress" {
   metadata {
     name      = "traefik-dashboard-ingress"
     namespace = var.traefik_namespace
+
+    labels = {
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
+    }
 
     # Basic auth
     annotations = {
@@ -82,9 +98,13 @@ resource "kubernetes_service" "traefik_metrics" {
     name      = "traefik-metrics"
     namespace = var.traefik_namespace
     labels = {
-      app     = "traefik"
-      role    = "metrics"
-      release = "prometheus"
+      app                           = "traefik"
+      role                          = "metrics"
+      release                       = "prometheus"
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
     }
   }
 
@@ -101,18 +121,24 @@ resource "kubernetes_service" "traefik_metrics" {
   }
 }
 
-
-
 resource "kubernetes_config_map_v1" "ctfd_filebeat_config" {
   metadata {
     name      = "ctfd-filebeat-config"
     namespace = var.traefik_namespace
+
+    labels = {
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
+    }
   }
 
   data = {
     "filebeat.yml" = <<-EOF
       filebeat.inputs:
       - type: filestream
+        id: traefik-access-logs
         paths:
           - /var/log/traefik/*.log
         processors:
@@ -156,6 +182,13 @@ resource "kubernetes_manifest" "traefik-additional-config" {
     metadata = {
       name      = "traefik"
       namespace = "kube-system"
+
+      labels = {
+        "app.kubernetes.io/name"      = "traefik"
+        "app.kubernetes.io/component" = "ops"
+        "app.kubernetes.io/part-of"   = "ctfpilot"
+        "ctfpilot.com/component"      = "ops"
+      }
     }
 
     # This amends the Helm chart for the traefik ingress controller which is included with k3s.
@@ -164,8 +197,8 @@ resource "kubernetes_manifest" "traefik-additional-config" {
       valuesContent = <<-EOF
         autoscaling:
           enabled: true
-          minReplicas: 3
-          maxReplicas: 50
+          minReplicas: ${local.traefik_min_replicas}
+          maxReplicas: ${local.traefik_max_replicas}
         resources:
           requests:
             cpu: "500m"
@@ -177,19 +210,18 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - key: "cluster.ctfpilot.com/node"
             value: "scaler"
             effect: "PreferNoSchedule"
-        logs:
-          access:
-            enabled: true
-            format: json
-            filePath: "/var/log/traefik/access.log"
-            bufferingSize: 1000
-            fields:
-              headers:
-                defaultmode: keep
-                names:
-                  Accept: drop
-                  Connection: drop
-                  Authorization: redact
+        accessLog:
+          enabled: true
+          format: json
+          filePath: "/var/log/traefik/access.log"
+          bufferingSize: 1000
+          fields:
+            headers:
+              defaultmode: keep
+              names:
+                Accept: drop
+                Connection: drop
+                Authorization: redact
         env:
         - name: TZ
           value: "Europe/Copenhagen"
@@ -198,8 +230,6 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           - name: fix-permissions
             image: busybox:latest
             command: ["sh", "-c", "mkdir -p /usr/share/filebeat/data"]
-            securityContext:
-              fsGroup: 1000
             volumeMounts:
             - name: filebeat-data
               mountPath: /usr/share/filebeat/data
@@ -236,6 +266,7 @@ resource "kubernetes_manifest" "traefik-additional-config" {
           redis:
             cluster: true
             endpoints: redis-cluster-leaders:6379
+            password: ${var.traefik_redis_password}
       EOF
     }
   }

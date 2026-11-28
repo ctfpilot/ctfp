@@ -1,4 +1,17 @@
 # ------------------------
+# Deployment type
+# ------------------------
+# Deployment type represents the type of deployment to be used for the platform.
+# It defines how many replicas of each service is deployed. It does not affect node deployment.
+# You may overwrite the number of replicas for each service at the bottom of this file, but it is not recommended to do so unless you know what you are doing.
+#
+# Options:
+# - "standard": Standard deployment with core services being deployed with 2 or more replicas, while some services are deployed with 1 replica. This is the recommended deployment type for production (minimum 2 control plane nodes, 2 agent nodes, 1 challs node).
+# - "single-node": Single node deployment with all services being deployed with 1 replica, and HA being disabled where possible, this is the recommended deployment type for small clusters (1 control plane node, 1 agent node, 1 challs node). This is not recommended for production.
+# - "ha": High availability deployment with all services being deployed with 2 or more replicas, and HA enabled where possible. This is the recommended deployment type for large-scale events that require high availability and redundancy. Requires a minimum of 3 control plane nodes, 3 agent nodes and 1 challs node.
+deployment_type = "standard" # Deployment type for the cluster. Options: "standard", "single-node", "ha"
+
+# ------------------------
 # Kubernetes variables
 # ------------------------
 kubeconfig = "AA==" # Base64 encoded kubeconfig file
@@ -6,9 +19,9 @@ kubeconfig = "AA==" # Base64 encoded kubeconfig file
 # ------------------------
 # Generic information
 # ------------------------
-environment     = "test"  # Environment name for the CTF
+environment            = "test"  # Environment name for the CTF
 cluster_dns_management = "<dns>" # The specific domain name to use for the DNS records for the management part of the cluster
-cluster_dns_ctf = "<dns>" # The domain name to use for the DNS records for the CTF part of the cluster
+cluster_dns_ctf        = "<dns>" # The domain name to use for the DNS records for the CTF part of the cluster
 
 # ------------------------
 # GitHub variables

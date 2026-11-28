@@ -1,10 +1,28 @@
 locals {
+  ctfd_manager_labels = {
+    "app.kubernetes.io/name"      = "ctfd-manager"
+    "app.kubernetes.io/component" = "platform"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "platform"
+  }
+
+  ctfd_manager_resource_labels = merge(local.ctfd_manager_labels, {
+    system = "ctfpilot"
+    app    = "ctfd-manager"
+  })
+}
+
+locals {
   ctfd_manager_gh_branch = var.ctfd_manager_github_branch == "" ? local.env_branch : var.ctfd_manager_github_branch
 }
 
 resource "kubernetes_namespace_v1" "challenge-config" {
   metadata {
     name = "challenge-config"
+  }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
   }
 }
 
@@ -15,6 +33,7 @@ module "ctfd-manager-pull-secret" {
   ghcr_username = var.ghcr_username
   ghcr_token    = var.ghcr_token
 
+  labels = local.ctfd_manager_labels
 
   depends_on = [
     kubernetes_namespace_v1.challenge-config
@@ -25,6 +44,8 @@ resource "kubernetes_service_account_v1" "ctfd-manager" {
   metadata {
     name      = "ctfd-manager"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
+
+    labels = local.ctfd_manager_labels
   }
 
   depends_on = [
@@ -37,10 +58,7 @@ resource "kubernetes_role_v1" "ctfd-manager" {
     name      = "ctfd-manager"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   rule {
@@ -55,10 +73,7 @@ resource "kubernetes_role_binding_v1" "ctfd-manager" {
     name      = "ctfd-manager"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   role_ref {
@@ -85,10 +100,7 @@ resource "kubernetes_secret_v1" "ctfd-manager-secret" {
     name      = "ctfd-manager-secret"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   data = {
@@ -107,10 +119,7 @@ resource "kubernetes_config_map_v1" "ctfd-access-token" {
     name      = "ctfd-access-token"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   lifecycle {
@@ -129,10 +138,7 @@ resource "kubernetes_config_map_v1" "ctfd-challenges" {
     name      = "ctfd-challenges"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   lifecycle {
@@ -151,10 +157,7 @@ resource "kubernetes_config_map_v1" "ctfd-pages" {
     name      = "ctfd-pages"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   lifecycle {
@@ -174,10 +177,7 @@ resource "kubernetes_config_map_v1" "challenge-configmap-hashset" {
     name      = "challenge-configmap-hashset"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   lifecycle {
@@ -196,10 +196,7 @@ resource "kubernetes_config_map_v1" "mapping-map" {
     name      = "mapping-map"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   data = {
@@ -240,10 +237,7 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
     name      = "ctfd-manager"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   spec {
@@ -257,9 +251,9 @@ resource "kubernetes_deployment_v1" "ctfd-manager" {
 
     template {
       metadata {
-        labels = {
+        labels = merge(local.ctfd_manager_labels, {
           app = "ctfd-manager"
-        }
+        })
       }
 
       spec {
@@ -384,10 +378,7 @@ resource "kubernetes_service_v1" "ctfd-manager" {
     name      = "ctfd-manager"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
-      system = "ctfpilot"
-      app    = "ctfd-manager"
-    }
+    labels = local.ctfd_manager_resource_labels
   }
 
   spec {
@@ -414,6 +405,8 @@ module "ctfd-manager-ingress" {
   namespace    = kubernetes_namespace_v1.challenge-config.metadata.0.name
   service_name = kubernetes_service_v1.ctfd-manager.metadata.0.name
   hostname     = "ctfd-manager.${var.cluster_dns_management}"
+
+  labels = local.ctfd_manager_labels
 
   depends_on = [
     kubernetes_namespace_v1.challenge-config,

@@ -2,6 +2,21 @@ resource "kubernetes_namespace_v1" "prometheus" {
   metadata {
     name = "prometheus"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
+  }
+}
+
+locals {
+  grafana_labels = {
+    "app.kubernetes.io/name"      = "grafana"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+
+  prometheus_replicas = var.prometheus_replicas != null ? var.prometheus_replicas : var.deployment_type == "ha" ? 2 : 1
 }
 
 # --- Grafana Dashboards ConfigMaps ---
@@ -10,9 +25,9 @@ resource "kubernetes_config_map" "grafana-dashboards-k8s" {
     name      = "grafana-dashboards-k8s"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
-    labels = {
+    labels = merge(local.grafana_labels, {
       grafana_dashboard = 1
-    }
+    })
 
     annotations = {
       k8s-sidecar-target-directory = "/tmp/dashboards/k8s"
@@ -29,9 +44,9 @@ resource "kubernetes_config_map" "grafana-dashboards-redis" {
     name      = "grafana-dashboards-redis"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
-    labels = {
+    labels = merge(local.grafana_labels, {
       grafana_dashboard = 1
-    }
+    })
 
     annotations = {
       k8s-sidecar-target-directory = "/tmp/dashboards/redis"
@@ -48,9 +63,9 @@ resource "kubernetes_config_map" "grafana-dashboards-traefik" {
     name      = "grafana-dashboards-traefik"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
-    labels = {
+    labels = merge(local.grafana_labels, {
       grafana_dashboard = 1
-    }
+    })
 
     annotations = {
       k8s-sidecar-target-directory = "/tmp/dashboards/traefik"
@@ -67,9 +82,9 @@ resource "kubernetes_config_map" "grafana-dashboards-ctf" {
     name      = "grafana-dashboards-ctf"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
-    labels = {
+    labels = merge(local.grafana_labels, {
       grafana_dashboard = 1
-    }
+    })
 
     annotations = {
       k8s-sidecar-target-directory = "/tmp/dashboards/ctf"
@@ -87,9 +102,9 @@ resource "kubernetes_secret" "grafana-alerts-contact-rules" {
     name      = "grafana-alerts-contact-rules"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
-    labels = {
+    labels = merge(local.grafana_labels, {
       grafana_alert = "1"
-    }
+    })
   }
 
   data = {
@@ -106,9 +121,9 @@ resource "kubernetes_config_map" "grafana-alerts-notification-rules" {
     name      = "grafana-alerts-notification-rules"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
 
-    labels = {
+    labels = merge(local.grafana_labels, {
       grafana_alert = "1"
-    }
+    })
   }
 
   data = {
@@ -126,9 +141,8 @@ resource "helm_release" "prometheus" {
   namespace        = kubernetes_namespace_v1.prometheus.metadata.0.name
   create_namespace = false
 
-  repository = "https://prometheus-community.github.io/helm-charts"
-  chart      = "kube-prometheus-stack"
-  version    = var.kube_prometheus_stack_version
+  chart   = data.external.labeled_chart["prometheus"].result.path
+  version = var.kube_prometheus_stack_version
 
   # Set password for grafana dashboard
   set_sensitive = [{
@@ -152,6 +166,7 @@ resource "helm_release" "prometheus" {
     templatefile("${path.module}/prometheus/kube_prometheus_custom_values.yaml", {
       cluster_dns_management = var.cluster_dns_management,
       discord_webhook_url    = var.discord_webhook_url,
+      prometheus_replicas    = local.prometheus_replicas
     })
   ]
 
@@ -167,6 +182,8 @@ resource "kubernetes_ingress_v1" "grafana-ingress" {
   metadata {
     name      = "grafana-ingress"
     namespace = kubernetes_namespace_v1.prometheus.metadata.0.name
+
+    labels = local.grafana_labels
 
     annotations = {
       "cert-manager.io/cluster-issuer"                   = module.cert_manager.cluster_issuer_name

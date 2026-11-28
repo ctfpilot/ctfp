@@ -32,13 +32,20 @@ variable "traefik_middleware" {
 
 
 
+variable "labels" {
+  description = "Additional labels for the ingress"
+  type        = map(string)
+  default     = {}
+}
+
 resource "kubernetes_ingress_v1" "ingress" {
   metadata {
     name      = var.ingress_name != null ? var.ingress_name : var.service_name
     namespace = var.namespace
+    labels    = var.labels
 
     annotations = {
-      "cert-manager.io/cluster-issuer" = var.cluster_issuer_name
+      "cert-manager.io/cluster-issuer"                   = var.cluster_issuer_name
       "traefik.ingress.kubernetes.io/router.middlewares" = var.traefik_middleware
     }
   }

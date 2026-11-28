@@ -5,6 +5,8 @@ resource "kubernetes_manifest" "ctfd-errors-middleware" {
     metadata = {
       name      = "ctfd"
       namespace = "errors"
+
+      labels = local.ctfd_labels
     }
     spec = {
       errors = {

@@ -1,4 +1,11 @@
 locals {
+  challenge_argocd_labels = {
+    "app.kubernetes.io/name"      = "argocd"
+    "app.kubernetes.io/component" = "challenges"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "challenges"
+  }
+
   categories_config    = keys(local.static_challenges)
   categories_shared    = keys(local.shared_challenges)
   categories_instanced = keys(local.instanced_challenges)
@@ -15,6 +22,8 @@ module "argocd_project_shared" {
       server    = "*"
     }
   ]
+
+  labels = local.challenge_argocd_labels
 
   depends_on = [
     module.kube_ctf
@@ -33,6 +42,8 @@ module "argocd_project_instanced" {
     }
   ]
 
+  labels = local.challenge_argocd_labels
+
   depends_on = [
     module.kube_ctf
   ]
@@ -50,6 +61,8 @@ module "argocd_project_static" {
     }
   ]
 
+  labels = local.challenge_argocd_labels
+
   depends_on = [
     module.kube_ctf
   ]
@@ -64,6 +77,8 @@ module "repo_access_standard" {
   git_token        = var.git_token
   git_repo         = local.challenge_repo_url
   argocd_project   = local.argocd_project_shared
+
+  labels = local.challenge_argocd_labels
 
   depends_on = [
     module.kube_ctf,
@@ -81,6 +96,8 @@ module "repo_access_isolated" {
   git_repo         = local.challenge_repo_url
   argocd_project   = local.argocd_project_instanced
 
+  labels = local.challenge_argocd_labels
+
   depends_on = [
     module.kube_ctf,
     module.argocd_project_instanced
@@ -96,6 +113,8 @@ module "repo_access_config" {
   git_token        = var.git_token
   git_repo         = local.challenge_repo_url
   argocd_project   = local.argocd_project_static
+
+  labels = local.challenge_argocd_labels
 
   depends_on = [
     module.kube_ctf,

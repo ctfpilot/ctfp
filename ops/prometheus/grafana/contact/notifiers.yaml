@@ -1,5 +1,16 @@
 apiVersion: 1
 contactPoints:
+  - name: "blackhole"
+    org_id: 1
+    receivers:
+      - uid: "blackhole-contact"
+        name: "blackhole"
+        type: "webhook"
+        is_default: false
+        settings:
+          # Invalid URL to prevent sending alerts to any real endpoint
+          url: "http://127.0.0.1:9999/blackhole"
+
   - name: "discord"
     org_id: 1
     receivers:

@@ -1,3 +1,12 @@
+locals {
+  traefik_labels = {
+    "app.kubernetes.io/name"      = "traefik"
+    "app.kubernetes.io/component" = "challenges"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "challenges"
+  }
+}
+
 resource "kubernetes_manifest" "traefik-errors-middleware" {
   manifest = {
     apiVersion = "traefik.io/v1alpha1"
@@ -5,6 +14,8 @@ resource "kubernetes_manifest" "traefik-errors-middleware" {
     metadata = {
       name      = "challenge-errors"
       namespace = local.generic_namespace
+
+      labels = local.traefik_labels
     }
     spec = {
       errors = {
@@ -15,8 +26,8 @@ resource "kubernetes_manifest" "traefik-errors-middleware" {
         ]
         query = "/{status}.html"
         service = {
-          name      = "landing"
-          port      = 80
+          name = "landing"
+          port = 80
         }
       }
     }
@@ -36,6 +47,8 @@ resource "kubernetes_manifest" "traefik-instancing-fallback-middleware" {
     metadata = {
       name      = "instancing-fallback"
       namespace = local.generic_namespace
+
+      labels = local.traefik_labels
     }
     spec = {
       errors = {
@@ -46,8 +59,8 @@ resource "kubernetes_manifest" "traefik-instancing-fallback-middleware" {
         ]
         query = "/{status}.html"
         service = {
-          name      = "landing"
-          port      = 80
+          name = "landing"
+          port = 80
         }
       }
     }

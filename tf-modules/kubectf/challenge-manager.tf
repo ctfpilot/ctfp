@@ -1,7 +1,18 @@
+locals {
+  kube_ctf_challenge_manager_labels = {
+    "app.kubernetes.io/name"      = "kube-ctf-challenge-manager"
+    "app.kubernetes.io/component" = "challenges"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "challenges"
+  }
+}
+
 resource "kubernetes_secret_v1" "challenge-manager" {
   metadata {
     name      = "challenge-manager"
     namespace = local.management_namespace
+
+    labels = local.kube_ctf_challenge_manager_labels
   }
 
   data = {
@@ -17,6 +28,8 @@ resource "kubernetes_secret_v1" "challenge-manager" {
 resource "kubernetes_cluster_role_binding_v1" "challenge-management" {
   metadata {
     name = "kubectf-challenge-manager-read-instanced-challenges"
+
+    labels = local.kube_ctf_challenge_manager_labels
   }
 
   role_ref {
@@ -41,6 +54,8 @@ resource "kubernetes_role_binding_v1" "challenge-management" {
   metadata {
     name      = "challenge-manager"
     namespace = local.instanced_challenge_namespace
+
+    labels = local.kube_ctf_challenge_manager_labels
   }
 
   role_ref {
@@ -63,6 +78,8 @@ resource "kubernetes_role_binding_v1" "challenge-management" {
 resource "kubernetes_cluster_role_v1" "challenge-management" {
   metadata {
     name = "kubectf-read-instanced-challenges"
+
+    labels = local.kube_ctf_challenge_manager_labels
   }
 
   rule {
@@ -76,6 +93,8 @@ resource "kubernetes_role_v1" "challenge-management" {
   metadata {
     name      = "challenge-manager"
     namespace = local.instanced_challenge_namespace
+
+    labels = local.kube_ctf_challenge_manager_labels
   }
 
   rule {
@@ -113,8 +132,12 @@ resource "kubernetes_service_account_v1" "challenge-manager" {
     namespace = local.management_namespace
 
     labels = {
-      system = "kube-ctf"
-      org    = var.org_name
+      system                        = "kube-ctf"
+      org                           = var.org_name
+      "app.kubernetes.io/name"      = "kube-ctf-challenge-manager"
+      "app.kubernetes.io/component" = "challenges"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -141,6 +164,8 @@ resource "kubernetes_deployment_v1" "challenge-manager" {
       "app.kubernetes.io/component" = "challenge-manager"
 
       "kube-ctf.${var.org_name}/service" = "challenge-manager"
+      "app.kubernetes.io/part-of"        = "ctfpilot"
+      "ctfpilot.com/component"           = "challenges"
     }
   }
 
@@ -157,6 +182,10 @@ resource "kubernetes_deployment_v1" "challenge-manager" {
       metadata {
         labels = {
           "kube-ctf.${var.org_name}/service" = "challenge-manager"
+          "app.kubernetes.io/name"           = "kube-ctf-challenge-manager"
+          "app.kubernetes.io/component"      = "challenge-manager"
+          "app.kubernetes.io/part-of"        = "ctfpilot"
+          "ctfpilot.com/component"           = "challenges"
         }
       }
 
@@ -281,6 +310,8 @@ resource "kubernetes_service_v1" "challenge-manager" {
       "app.kubernetes.io/component" = "challenge-manager"
 
       "kube-ctf.${var.org_name}/service" = "challenge-manager"
+      "app.kubernetes.io/part-of"        = "ctfpilot"
+      "ctfpilot.com/component"           = "challenges"
     }
   }
 
@@ -313,6 +344,8 @@ resource "kubernetes_ingress_v1" "challenge-manager" {
       "app.kubernetes.io/component" = "challenge-manager"
 
       "kube-ctf.${var.org_name}/service" = "challenge-manager"
+      "app.kubernetes.io/part-of"        = "ctfpilot"
+      "ctfpilot.com/component"           = "challenges"
     }
 
     annotations = {

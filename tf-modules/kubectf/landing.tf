@@ -21,6 +21,8 @@ resource "kubernetes_deployment_v1" "landing" {
       "app.kubernetes.io/name"      = "kube-ctf-landing-web"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "isolated-landing"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -36,7 +38,11 @@ resource "kubernetes_deployment_v1" "landing" {
     template {
       metadata {
         labels = {
-          role = "landing"
+          role                          = "landing"
+          "app.kubernetes.io/name"      = "kube-ctf-landing-web"
+          "app.kubernetes.io/component" = "isolated-landing"
+          "app.kubernetes.io/part-of"   = "ctfpilot"
+          "ctfpilot.com/component"      = "challenges"
         }
       }
 
@@ -65,7 +71,7 @@ resource "kubernetes_deployment_v1" "landing" {
             }
             requests = {
               cpu    = "10m"
-              memory = "50Mi"
+              memory = "32Mi"
             }
           }
 
@@ -105,6 +111,8 @@ resource "kubernetes_service_v1" "landing" {
       "app.kubernetes.io/name"      = "kube-ctf-landing-service"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "landing"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
   }
 
@@ -143,11 +151,13 @@ resource "kubernetes_ingress_v1" "landing" {
       "app.kubernetes.io/name"      = "kube-ctf-landing-ingress"
       "app.kubernetes.io/instance"  = "kubectf"
       "app.kubernetes.io/component" = "isolated-landing"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "challenges"
     }
 
     annotations = {
-      "cert-manager.io/cluster-issuer"                = var.cert_manager
-      "traefik.ingress.kubernetes.io/router.priority" = "10"
+      "cert-manager.io/cluster-issuer"                   = var.cert_manager
+      "traefik.ingress.kubernetes.io/router.priority"    = "10"
       "traefik.ingress.kubernetes.io/router.middlewares" = "errors-errors@kubernetescrd"
     }
   }

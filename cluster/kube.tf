@@ -72,18 +72,18 @@ module "kube-hetzner" {
       labels = [
         "ressource-type=node",
         "node-type=control-plane",
-        "control-plane=fsn1",
-        "node-pool=control-plane-fsn1",
+        "control-plane=${var.region_1}",
+        "node-pool=control-plane-${var.region_1}",
         "cluster.ctfpilot.com/node=control-plane",
       ],
       taints = [],
       count  = var.control_plane_count_1
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
-      kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+      kubelet_args = ["kube-reserved=cpu=250m,memory=1Gi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "control-planes"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -101,16 +101,16 @@ module "kube-hetzner" {
       labels = [
         "ressource-type=node",
         "node-type=control-plane",
-        "control-plane=nbg1",
-        "node-pool=control-plane-nbg1",
+        "control-plane=${var.region_2}",
+        "node-pool=control-plane-${var.region_2}",
         "cluster.ctfpilot.com/node=control-plane",
       ],
       taints       = [],
       count        = var.control_plane_count_2
-      kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+      kubelet_args = ["kube-reserved=cpu=250m,memory=1Gi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "control-planes"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -122,16 +122,16 @@ module "kube-hetzner" {
       labels = [
         "ressource-type=node",
         "node-type=control-plane",
-        "control-plane=hel1",
-        "node-pool=control-plane-hel1",
+        "control-plane=${var.region_3}",
+        "node-pool=control-plane-${var.region_3}",
         "cluster.ctfpilot.com/node=control-plane",
       ],
       taints       = [],
       count        = var.control_plane_count_3
-      kubelet_args = ["kube-reserved=cpu=250m,memory=1500Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
+      kubelet_args = ["kube-reserved=cpu=250m,memory=1Gi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "control-planes"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -146,8 +146,8 @@ module "kube-hetzner" {
       labels = [
         "ressource-type=node",
         "node-type=agent",
-        "region=${var.region_2}",
-        "node-pool=agents-${var.region_2}",
+        "region=${var.region_1}",
+        "node-pool=agents-${var.region_1}",
         "cluster.ctfpilot.com/node=agent",
       ],
       taints = [],
@@ -156,14 +156,14 @@ module "kube-hetzner" {
         "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=400m,memory=750Mi",
         "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=1m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "agents"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -185,15 +185,15 @@ module "kube-hetzner" {
         "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=400m,memory=750Mi",
         "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=1m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
       # swap_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # zram_size   = "2G" # remember to add the suffix, examples: 512M, 1G
       # kubelet_args = ["kube-reserved=cpu=50m,memory=300Mi,ephemeral-storage=1Gi", "system-reserved=cpu=250m,memory=300Mi"]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "agents"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -205,8 +205,8 @@ module "kube-hetzner" {
       labels = [
         "ressource-type=node",
         "node-type=agent",
-        "region=${var.region_2}",
-        "node-pool=agents-${var.region_2}",
+        "region=${var.region_3}",
+        "node-pool=agents-${var.region_3}",
         "cluster.ctfpilot.com/node=agent",
       ],
       taints = [],
@@ -215,12 +215,12 @@ module "kube-hetzner" {
         "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
         "system-reserved=cpu=400m,memory=750Mi",
         "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=1m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "agents"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -241,15 +241,15 @@ module "kube-hetzner" {
       ]
       count = var.challs_count
       kubelet_args = [
-        "kube-reserved=cpu=150m,memory=750Mi,ephemeral-storage=1Gi",
-        "system-reserved=cpu=300m,memory=750Mi",
-        "eviction-soft=memory.available<2Gi", # Recommend 3Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=10m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
+        "system-reserved=cpu=400m,memory=750Mi",
+        "eviction-soft=memory.available<1Gi",
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
 
       # Fine-grained control over placement groups (nodes in the same group are spread over different physical servers, 10 nodes per placement group max):
-      # placement_group = "default"
+      placement_group = "challs"
 
       # Enable automatic backups via Hetzner (default: false)
       backups = false
@@ -420,11 +420,11 @@ module "kube-hetzner" {
         }
       ]
       kubelet_args = [
-        "kube-reserved=cpu=150m,memory=750Mi,ephemeral-storage=1Gi",
-        "system-reserved=cpu=300m,memory=750Mi",
-        "eviction-soft=memory.available<512Mi", # Recommend 3Gi for larger nodes
-        "eviction-soft-grace-period=memory.available=10m",
-        "eviction-hard=memory.available<500Mi,nodefs.available<5%,imagefs.available<5%",
+        "kube-reserved=cpu=250m,memory=750Mi,ephemeral-storage=1Gi",
+        "system-reserved=cpu=400m,memory=750Mi",
+        "eviction-soft=memory.available<512Mi", # Recommend 1Gi for larger nodes
+        "eviction-soft-grace-period=memory.available=5m",
+        "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%",
       ]
     }
   ]
@@ -604,17 +604,12 @@ module "kube-hetzner" {
   # traefik_resource_limits = false
 
   # If you want to configure additional ports for traefik, enter them here as a list of objects with name, port, and exposedPort properties.
-  # Example:
-  traefik_additional_ports = [
-    # {
-    #   name        = "blockchain",
-    #   port        = 8545,
-    #   exposedPort = 8545
-    # },
-  ]
+  # The provided variable in CTF Pilot tfvars, is not a 1:1 mapping to this field, please see local.traefik_additional_ports_list for more information.
+  traefik_additional_ports = local.traefik_additional_ports_list
 
   # If you want to configure additional trusted IPs for traefik, enter them here as a list of IPs (strings).
   # Example for Cloudflare:
+  traefik_additional_trusted_ips = var.traefik_trusted_ips
   # traefik_additional_trusted_ips = [
   #   "173.245.48.0/20",
   #   "103.21.244.0/22",

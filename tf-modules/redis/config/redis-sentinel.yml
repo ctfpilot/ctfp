@@ -14,7 +14,7 @@ spec:
   redisSentinelConfig:
     redisReplicationName: redis-replication
   kubernetesConfig:
-    image: quay.io/opstree/redis-sentinel:v7.0.15
+    image: quay.io/opstree/redis-sentinel:v7.4.8
     imagePullPolicy: IfNotPresent
     resources:
       requests:
@@ -25,7 +25,7 @@ spec:
         memory: 1Gi
   redisExporter:
     enabled: true
-    image: quay.io/opstree/redis-exporter:v1.48.0
+    image: quay.io/opstree/redis-exporter:v1.84.0
     imagePullPolicy: Always
     resources:
       requests:

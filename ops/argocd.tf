@@ -1,15 +1,35 @@
+locals {
+  argocd_labels = {
+    "app.kubernetes.io/name"      = "argocd"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+}
+
 resource "kubernetes_namespace_v1" "argocd" {
   metadata {
     name = "argocd"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
+  }
+}
+
+locals {
+  argocd_redis_ha_enabled         = var.argocd_redis_ha != null ? var.argocd_redis_ha : var.deployment_type == "ha"
+  argocd_controller_replicas      = var.argocd_controller_replicas != null ? var.argocd_controller_replicas : 1
+  argocd_server_replicas          = var.argocd_server_replicas != null ? var.argocd_server_replicas : (var.deployment_type == "single-node" ? 1 : 2)
+  argocd_repoServer_replicas      = var.argocd_repo_server_replicas != null ? var.argocd_repo_server_replicas : (var.deployment_type == "single-node" ? 1 : 2)
+  argocd_application_set_replicas = var.argocd_application_set_replicas != null ? var.argocd_application_set_replicas : (var.deployment_type == "single-node" ? 1 : 2)
 }
 
 resource "helm_release" "argocd" {
   namespace        = kubernetes_namespace_v1.argocd.metadata.0.name
   create_namespace = false
   name             = "argocd"
-  repository       = "https://argoproj.github.io/argo-helm"
-  chart            = "argo-cd"
+  chart            = data.external.labeled_chart["argocd"].result.path
   version          = var.argocd_version
 
   # Helm chart deployment can sometimes take longer than the default 5 minutes
@@ -19,20 +39,20 @@ resource "helm_release" "argocd" {
   # else apply the default values from the chart
   values = [
     yamlencode({
-      # "redis-ha" = {
-      #   enabled = true
-      # },
+      "redis-ha" = {
+        enabled = local.argocd_redis_ha_enabled
+      },
       controller = {
-        replicas : 1
+        replicas : local.argocd_controller_replicas
       },
       server = {
-        replicas : 2
+        replicas : local.argocd_server_replicas
       },
       repoServer = {
-        replicas : 2
+        replicas : local.argocd_repoServer_replicas
       },
       applicationSet = {
-        replicas : 2
+        replicas : local.argocd_application_set_replicas
       }
     }),
   ]
@@ -66,6 +86,8 @@ resource "kubernetes_ingress_v1" "argocd-ingress" {
   metadata {
     name      = "argocd-ingress"
     namespace = kubernetes_namespace_v1.argocd.metadata.0.name
+
+    labels = local.argocd_labels
 
     annotations = {
       "cert-manager.io/cluster-issuer"                   = module.cert_manager.cluster_issuer_name
