@@ -1,6 +1,21 @@
+locals {
+  cert_manager_labels = {
+    "app.kubernetes.io/name"      = "cert-manager"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+
+  cert_manager_issuer_name = "cert-manager-global"
+}
+
 resource "kubernetes_namespace_v1" "cert_manager" {
   metadata {
     name = "cert-manager"
+  }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
   }
 }
 
@@ -67,15 +82,43 @@ module "cert_manager" {
   source  = "terraform-iaac/cert-manager/kubernetes"
   version = "3.2.1"
 
-  cluster_issuer_email                   = var.email
-  cluster_issuer_name                    = "cert-manager-global"
-  cluster_issuer_private_key_secret_name = "cert-manager-private-key"
-  chart_version                          = var.cert_manager_version
+  cluster_issuer_email = var.email
+  cluster_issuer_name  = local.cert_manager_issuer_name
+  chart_version        = var.cert_manager_version
+
+  # Match the upstream module's ACME settings when supplying issuer metadata.
+  cluster_issuer_yaml = yamlencode({
+    apiVersion = "cert-manager.io/v1"
+    kind       = "ClusterIssuer"
+    metadata = {
+      name   = local.cert_manager_issuer_name
+      labels = local.cert_manager_labels
+    }
+    spec = {
+      acme = {
+        server         = "https://acme-v02.api.letsencrypt.org/directory"
+        preferredChain = "ISRG Root X1"
+        email          = var.email
+        privateKeySecretRef = {
+          name = "cert-manager-private-key"
+        }
+        solvers = [for solver in local.cert_manager_solvers : solver if solver != null]
+      }
+    }
+  })
 
   namespace_name   = kubernetes_namespace_v1.cert_manager.metadata.0.name
   create_namespace = false
 
   additional_set = [
+    {
+      name  = "global.commonLabels.app\\.kubernetes\\.io/part-of"
+      value = "ctfpilot"
+    },
+    {
+      name  = "global.commonLabels.ctfpilot\\.com/component"
+      value = "ops"
+    },
     {
       name  = "replicaCount",
       value = var.deployment_type == "ha" ? 2 : 1
@@ -90,8 +133,6 @@ module "cert_manager" {
     }
   ]
 
-  solvers = [for solver in local.cert_manager_solvers : solver if solver != null]
-
   depends_on = [
     kubernetes_namespace_v1.cert_manager,
     kubernetes_secret.cloudflare_api_key_secret
@@ -103,6 +144,8 @@ resource "kubernetes_secret" "cloudflare_api_key_secret" {
   metadata {
     name      = "cloudflare-api-key-secret"
     namespace = kubernetes_namespace_v1.cert_manager.metadata.0.name
+
+    labels = local.cert_manager_labels
   }
 
   data = {

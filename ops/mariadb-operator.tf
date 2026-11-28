@@ -2,6 +2,10 @@ resource "kubernetes_namespace_v1" "mariadb" {
   metadata {
     name = "mariadb-operator"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
+  }
 }
 
 locals {
@@ -55,11 +59,10 @@ locals {
 
 resource "helm_release" "mariadb-operator-crds" {
   name             = "mariadb-operator-crds"
-  repository       = "https://mariadb-operator.github.io/mariadb-operator"
   namespace        = kubernetes_namespace_v1.mariadb.metadata.0.name
   create_namespace = false
 
-  chart   = "mariadb-operator-crds"
+  chart   = data.external.labeled_chart["mariadb-operator-crds"].result.path
   version = var.mariadb_operator_version
 
   // timeout 10min
@@ -78,11 +81,10 @@ resource "helm_release" "mariadb-operator-crds" {
 
 resource "helm_release" "mariadb-operator" {
   name             = "mariadb-operator"
-  repository       = "https://mariadb-operator.github.io/mariadb-operator"
   namespace        = kubernetes_namespace_v1.mariadb.metadata.0.name
   create_namespace = false
 
-  chart   = "mariadb-operator"
+  chart   = data.external.labeled_chart["mariadb-operator"].result.path
   version = var.mariadb_operator_version
 
   # timeout 10min

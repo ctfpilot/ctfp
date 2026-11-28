@@ -8,9 +8,13 @@ resource "kubernetes_service" "traefik_dashboard" {
     name      = "traefik-dashboard"
     namespace = var.traefik_namespace
     labels = {
-      app     = "traefik"
-      release = "traefik"
-      role    = "dashboard"
+      app                           = "traefik"
+      release                       = "traefik"
+      role                          = "dashboard"
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
     }
   }
 
@@ -31,6 +35,13 @@ resource "kubernetes_ingress_v1" "traefik-dashboard-ingress" {
   metadata {
     name      = "traefik-dashboard-ingress"
     namespace = var.traefik_namespace
+
+    labels = {
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
+    }
 
     # Basic auth
     annotations = {
@@ -87,9 +98,13 @@ resource "kubernetes_service" "traefik_metrics" {
     name      = "traefik-metrics"
     namespace = var.traefik_namespace
     labels = {
-      app     = "traefik"
-      role    = "metrics"
-      release = "prometheus"
+      app                           = "traefik"
+      role                          = "metrics"
+      release                       = "prometheus"
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
     }
   }
 
@@ -110,6 +125,13 @@ resource "kubernetes_config_map_v1" "ctfd_filebeat_config" {
   metadata {
     name      = "ctfd-filebeat-config"
     namespace = var.traefik_namespace
+
+    labels = {
+      "app.kubernetes.io/name"      = "traefik"
+      "app.kubernetes.io/component" = "ops"
+      "app.kubernetes.io/part-of"   = "ctfpilot"
+      "ctfpilot.com/component"      = "ops"
+    }
   }
 
   data = {
@@ -160,6 +182,13 @@ resource "kubernetes_manifest" "traefik-additional-config" {
     metadata = {
       name      = "traefik"
       namespace = "kube-system"
+
+      labels = {
+        "app.kubernetes.io/name"      = "traefik"
+        "app.kubernetes.io/component" = "ops"
+        "app.kubernetes.io/part-of"   = "ctfpilot"
+        "ctfpilot.com/component"      = "ops"
+      }
     }
 
     # This amends the Helm chart for the traefik ingress controller which is included with k3s.

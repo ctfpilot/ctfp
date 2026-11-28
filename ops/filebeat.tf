@@ -1,3 +1,12 @@
+locals {
+  filebeat_labels = {
+    "app.kubernetes.io/name"      = "filebeat"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+}
+
 resource "kubernetes_namespace" "logging-namespace" {
   metadata {
     name = "logging"
@@ -11,6 +20,8 @@ resource "kubernetes_secret" "es_credentials" {
   metadata {
     name      = "es-credentials"
     namespace = kubernetes_namespace.logging-namespace.metadata.0.name
+
+    labels = local.filebeat_labels
   }
   data = {
     "username" = var.filebeat_elasticsearch_username
@@ -23,12 +34,16 @@ resource "kubernetes_service_account" "filebeat_service_account" {
   metadata {
     name      = "filebeat"
     namespace = kubernetes_namespace.logging-namespace.metadata.0.name
+
+    labels = local.filebeat_labels
   }
 }
 
 resource "kubernetes_cluster_role_v1" "filebeat_cluster_role" {
   metadata {
     name = "filebeat"
+
+    labels = local.filebeat_labels
   }
   rule {
     api_groups = [""]
@@ -40,6 +55,8 @@ resource "kubernetes_cluster_role_v1" "filebeat_cluster_role" {
 resource "kubernetes_cluster_role_binding_v1" "filebeat_cluster_role_binding" {
   metadata {
     name = "filebeat"
+
+    labels = local.filebeat_labels
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
@@ -57,6 +74,8 @@ resource "kubernetes_config_map" "filebeat_config" {
   metadata {
     name      = "filebeat-config"
     namespace = kubernetes_namespace.logging-namespace.metadata.0.name
+
+    labels = local.filebeat_labels
   }
   data = {
     "filebeat.yml" = <<-EOF
@@ -99,11 +118,11 @@ resource "kubernetes_daemonset" "filebeat_daemonset" {
   metadata {
     name      = "filebeat"
     namespace = kubernetes_namespace.logging-namespace.metadata.0.name
-    labels = {
+    labels = merge(local.filebeat_labels, {
       k8s-app = "filebeat-logging"
       version = "v1"
       app     = "filebeat"
-    }
+    })
   }
 
   spec {
@@ -117,11 +136,11 @@ resource "kubernetes_daemonset" "filebeat_daemonset" {
 
     template {
       metadata {
-        labels = {
+        labels = merge(local.filebeat_labels, {
           k8s-app = "filebeat-logging"
           version = "v1"
           app     = "filebeat"
-        }
+        })
       }
 
       spec {

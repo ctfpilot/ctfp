@@ -2,6 +2,10 @@ resource "kubernetes_namespace_v1" "descheduler" {
   metadata {
     name = "descheduler"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
+  }
 }
 
 resource "helm_release" "descheduler" {
@@ -15,6 +19,11 @@ resource "helm_release" "descheduler" {
 
   values = [
     yamlencode({
+      commonLabels = {
+        "app.kubernetes.io/component" = "ops"
+        "app.kubernetes.io/part-of"   = "ctfpilot"
+        "ctfpilot.com/component"      = "ops"
+      }
       serviceMonitor = {
         enabled   = true
         namespace = "prometheus"

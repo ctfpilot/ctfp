@@ -7,9 +7,20 @@ resource "kubernetes_namespace" "prod-default-web" {
   metadata {
     name = "prod-default-web"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels]
+  }
 }
 
 locals {
+  prod_default_web_labels = {
+    "app.kubernetes.io/name"      = "prod-default-web"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+
   default_web_replicas = var.default_web_replicas != null ? var.default_web_replicas : (var.deployment_type == "single-node" ? 1 : var.deployment_type == "standard" ? 2 : 3)
 }
 
@@ -19,8 +30,10 @@ resource "kubernetes_ingress_v1" "prod-default-web" {
     name      = "prod-default-web-ingress"
     namespace = kubernetes_namespace.prod-default-web.metadata.0.name
 
+    labels = local.prod_default_web_labels
+
     annotations = {
-      "cert-manager.io/cluster-issuer" = module.cert_manager.cluster_issuer_name
+      "cert-manager.io/cluster-issuer"                   = module.cert_manager.cluster_issuer_name
       "traefik.ingress.kubernetes.io/router.middlewares" = "errors-errors@kubernetescrd"
     }
   }
@@ -73,6 +86,8 @@ resource "kubernetes_service_v1" "prod-default-web" {
   metadata {
     name      = "prod-default-web"
     namespace = kubernetes_namespace.prod-default-web.metadata.0.name
+
+    labels = local.prod_default_web_labels
   }
 
   spec {
@@ -96,6 +111,8 @@ resource "kubernetes_deployment_v1" "prod-default-web" {
   metadata {
     name      = "prod-default-web"
     namespace = kubernetes_namespace.prod-default-web.metadata.0.name
+
+    labels = local.prod_default_web_labels
   }
 
   spec {
@@ -109,9 +126,9 @@ resource "kubernetes_deployment_v1" "prod-default-web" {
 
     template {
       metadata {
-        labels = {
+        labels = merge(local.prod_default_web_labels, {
           app = "prod-default-web"
-        }
+        })
       }
 
       spec {

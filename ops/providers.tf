@@ -8,6 +8,11 @@ terraform {
   backend "s3" {}
 
   required_providers {
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.3"
+    }
+
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = ">= 2.32.0"

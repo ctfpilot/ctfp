@@ -28,6 +28,7 @@ The following software needs to be installed on your local machine:
 
 - [Terraform](https://www.terraform.io/downloads.html) / [OpenTofu](https://opentofu.org)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (For interacting with the Kubernetes cluster)
+- [Helm](https://helm.sh/docs/intro/install/) on your PATH and Python 3 with PyYAML installed from [requirements.txt](../requirements.txt)
 
 The following services are required, in order to deploy the services to the cluster:
 
@@ -57,6 +58,8 @@ Run the following command to apply the ressources to the Kubernetes cluster:
 tofu init -backend-config=../backend/generated/ops.hcl
 tofu apply --var-file tfvars/data.tfvars
 ```
+
+Terraform prepares the configured Helm chart versions with CTFPilot labels in `.terraform/ctfp-charts`. Keep that directory with any saved plan until it is applied. The preparation keeps the upstream release name, chart version, and resource selectors.
 
 ### Destroying the Ops
 

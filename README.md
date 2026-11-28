@@ -190,6 +190,7 @@ In order to even deploy the platform, the following software needs to be install
 - [OpenTofu](https://opentofu.org) (Alternative version of [Terraform](https://www.terraform.io/downloads.html))
 - [Packer](https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli#installing-packer) - For initial generation of server images
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) - For interacting with the Kubernetes cluster
+- [Helm](https://helm.sh/docs/intro/install/) and PyYAML from [requirements.txt](requirements.txt) - For preparing the ops charts
 - [hcloud CLI tool](https://github.com/hetznercloud/cli) - For interacting with the Hetzner Cloud API (Otherwise use the Hetzner web interface)
 - SSH client - For connecting to the servers
 - Python 3 - For running the CTFp CLI tool

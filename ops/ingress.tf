@@ -1,3 +1,12 @@
+locals {
+  traefik_labels = {
+    "app.kubernetes.io/name"      = "traefik"
+    "app.kubernetes.io/component" = "ops"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "ops"
+  }
+}
+
 resource "htpasswd_password" "traefik_basic_auth" {
   password = var.traefik_basic_auth.password
   salt     = random_password.salt.result
@@ -11,6 +20,8 @@ resource "kubernetes_secret" "traefik_basic_auth" {
   metadata {
     name      = "admin-ui-basic-auth"
     namespace = var.traefik_namespace
+
+    labels = local.traefik_labels
   }
 
   data = {
@@ -30,6 +41,8 @@ resource "kubernetes_manifest" "traefik_basic_auth" {
     metadata = {
       name      = kubernetes_secret.traefik_basic_auth.metadata.0.name
       namespace = var.traefik_namespace
+
+      labels = local.traefik_labels
     }
     spec = {
       basicAuth = {
