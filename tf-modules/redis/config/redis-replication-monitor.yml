@@ -4,6 +4,10 @@ metadata:
   name: redis-monitoring-replication
   namespace: prometheus
   labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: platform
+    app.kubernetes.io/part-of: ctfpilot
+    ctfpilot.com/component: platform
     release: prometheus
 spec:
   selector:

@@ -1,3 +1,12 @@
+locals {
+  mariadb_labels = {
+    "app.kubernetes.io/name"      = "mariadb"
+    "app.kubernetes.io/component" = "platform"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "platform"
+  }
+}
+
 # ----------
 # Required
 # ----------
@@ -36,6 +45,8 @@ resource "kubernetes_secret" "database_user_password" {
   metadata {
     name      = "user-${var.user_name}"
     namespace = var.namespace
+
+    labels = local.mariadb_labels
   }
 
   data = {
@@ -60,6 +71,8 @@ resource "kubernetes_manifest" "database_user" {
     metadata = {
       name      = "${var.user_name}"
       namespace = var.namespace
+
+      labels = local.mariadb_labels
     }
     spec = {
       mariaDbRef = {

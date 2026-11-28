@@ -3,6 +3,7 @@ kind: RedisCluster
 metadata:
   name: redis-cluster
   namespace: ${namespace}
+  labels: ${labels}
 spec:
   clusterSize: ${cluster_size}
   podSecurityContext:

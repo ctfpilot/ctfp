@@ -26,6 +26,51 @@ The following services are required, in order to deploy the services to the clus
 
 ## Setup
 
+### Redis label upgrade
+
+Fresh installations can skip this section. Apply ops before upgrading platform. These steps apply to the default Redis Operator v0.25.0. Schedule a maintenance window and verify that Redis is healthy and that you can restore any data you need. The operator copies labels from its custom resources into selectors, including the immutable Sentinel StatefulSet selector. Prepare the existing pods before applying the Terraform changes so the new service selectors can still find them.
+
+Set `CTFP_CONTEXT` to the context for the target cluster and confirm both Redis custom resources and their pods exist. Resolve any intentional pause on either resource before starting. The commands use the namespaces and names from this configuration.
+
+```bash
+(
+  set -eu
+  kubectl --context "${CTFP_CONTEXT:?Set CTFP_CONTEXT}" -n ctfd get redisreplication redis-replication
+  kubectl --context "$CTFP_CONTEXT" -n traefik get rediscluster redis-cluster
+
+  kubectl --context "$CTFP_CONTEXT" -n ctfd annotate redisreplication redis-replication --overwrite \
+    redisreplication.opstreelabs.in/skip-reconcile=true
+  kubectl --context "$CTFP_CONTEXT" -n traefik annotate rediscluster redis-cluster --overwrite \
+    rediscluster.opstreelabs.in/skip-reconcile=true
+
+  kubectl --context "$CTFP_CONTEXT" -n ctfd label pods -l 'app in (redis-replication,redis-replication-s)' --overwrite \
+    app.kubernetes.io/name=redis app.kubernetes.io/component=platform \
+    app.kubernetes.io/part-of=ctfpilot ctfpilot.com/component=platform
+  kubectl --context "$CTFP_CONTEXT" -n traefik label pods -l 'app in (redis-cluster-leader,redis-cluster-follower)' --overwrite \
+    app.kubernetes.io/name=redis app.kubernetes.io/component=platform \
+    app.kubernetes.io/part-of=ctfpilot ctfpilot.com/component=platform
+
+  kubectl --context "$CTFP_CONTEXT" -n ctfd delete statefulset redis-replication-s --cascade=orphan --ignore-not-found
+)
+```
+
+Generate and apply the platform Terraform plan while reconciliation is paused. The plan checks the affected pods and Sentinel selector. If Kubernetes replaces any of those pods after planning, label the replacements and generate a new plan before applying. If the apply fails, inspect which Redis resources were updated and correct the failed plan before resuming reconciliation. After a successful apply, resume reconciliation and check the Sentinel rollout and Redis endpoints.
+
+```bash
+(
+  set -eu
+  : "${CTFP_CONTEXT:?Set CTFP_CONTEXT}"
+  kubectl --context "$CTFP_CONTEXT" -n ctfd annotate redisreplication redis-replication \
+    redisreplication.opstreelabs.in/skip-reconcile-
+  kubectl --context "$CTFP_CONTEXT" -n traefik annotate rediscluster redis-cluster \
+    rediscluster.opstreelabs.in/skip-reconcile-
+  kubectl --context "$CTFP_CONTEXT" -n ctfd wait --for=create statefulset/redis-replication-s --timeout=5m
+  kubectl --context "$CTFP_CONTEXT" -n ctfd rollout status statefulset/redis-replication-s --timeout=5m
+  kubectl --context "$CTFP_CONTEXT" -n ctfd get endpointslices
+  kubectl --context "$CTFP_CONTEXT" -n traefik get endpointslices
+)
+```
+
 Copy the `tfvars/template.tfvars` file to `tfvars/data.tfvars` and edit the file with your own values.  
 The [`tfvars/template.tfvars`](tfvars/template.tfvars) file contains further information on each variable.
 

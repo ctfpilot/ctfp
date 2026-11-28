@@ -6,6 +6,8 @@ resource "kubernetes_manifest" "maxscale" {
     metadata = {
       name      = var.cluster_name
       namespace = var.namespace
+
+      labels = local.mariadb_labels
     }
 
     spec = {
@@ -37,6 +39,8 @@ resource "kubernetes_manifest" "mariadb-cluster" {
     metadata = {
       name      = var.cluster_name
       namespace = var.namespace
+
+      labels = local.mariadb_labels
     }
 
     spec = {

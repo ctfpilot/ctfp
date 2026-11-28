@@ -1,11 +1,20 @@
+locals {
+  ctfd_exporter_labels = {
+    "app.kubernetes.io/name"      = "ctfd-exporter"
+    "app.kubernetes.io/component" = "platform"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "platform"
+  }
+}
+
 resource "kubernetes_secret_v1" "ctfd_exporter" {
   metadata {
     name      = "ctfd-exporter"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
 
-    labels = {
+    labels = merge(local.ctfd_exporter_labels, {
       app = "ctfd-exporter"
-    }
+    })
   }
 
   data = {
@@ -23,9 +32,9 @@ resource "kubernetes_deployment_v1" "ctfd_exporter" {
   metadata {
     name      = "ctfd-exporter"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name # Placed in challenge-config namespace as it has access to CTFd access token
-    labels = {
+    labels = merge(local.ctfd_exporter_labels, {
       app = "ctfd-exporter"
-    }
+    })
   }
 
   spec {
@@ -39,9 +48,9 @@ resource "kubernetes_deployment_v1" "ctfd_exporter" {
 
     template {
       metadata {
-        labels = {
+        labels = merge(local.ctfd_exporter_labels, {
           app = "ctfd-exporter"
-        }
+        })
       }
 
       spec {
@@ -109,10 +118,10 @@ resource "kubernetes_service_v1" "ctfd_exporter" {
   metadata {
     name      = "ctfd-exporter"
     namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
-    labels = {
+    labels = merge(local.ctfd_exporter_labels, {
       app  = "ctfd-exporter"
       role = "metrics"
-    }
+    })
   }
 
   spec {
@@ -141,6 +150,8 @@ resource "kubernetes_manifest" "ctfd_exporter_service_monitor" {
     metadata = {
       name      = "ctfd-exporter"
       namespace = kubernetes_namespace_v1.challenge-config.metadata.0.name
+
+      labels = local.ctfd_exporter_labels
     }
     spec = {
       selector = {

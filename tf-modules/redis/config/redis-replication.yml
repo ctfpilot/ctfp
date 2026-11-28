@@ -3,6 +3,7 @@ kind: RedisReplication
 metadata:
   name: redis-replication
   namespace: ${namespace}
+  labels: ${labels}
 spec:
   clusterSize: ${replication_size}
   podSecurityContext:

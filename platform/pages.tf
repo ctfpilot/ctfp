@@ -1,5 +1,12 @@
 locals {
-  pages = var.pages
+  ctfd_pages_labels = {
+    "app.kubernetes.io/name"      = "ctfd-pages"
+    "app.kubernetes.io/component" = "platform"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "platform"
+  }
+
+  pages        = var.pages
   page_project = "ctfd-pages"
   pages_repo   = var.pages_repository
   pages_branch = var.pages_branch == "" ? local.env_branch : var.pages_branch
@@ -17,9 +24,11 @@ module "argocd_project_pages" {
     }
   ]
 
+  labels = local.ctfd_pages_labels
+
   depends_on = [
     kubernetes_namespace_v1.challenge-config,
-	null_resource.configure-ctfd
+    null_resource.configure-ctfd
   ]
 }
 
@@ -33,10 +42,12 @@ module "repo_access_config" {
   git_repo         = local.pages_repo
   argocd_project   = local.page_project
 
+  labels = local.ctfd_pages_labels
+
   depends_on = [
     kubernetes_namespace_v1.challenge-config,
     module.argocd_project_pages,
-	null_resource.configure-ctfd
+    null_resource.configure-ctfd
   ]
 }
 
@@ -53,16 +64,16 @@ module "argocd-challenge-config" {
   application_repo_revision = local.pages_branch
   application_project       = local.page_project
 
-  argocd_labels = {
+  argocd_labels = merge(local.ctfd_pages_labels, {
     "part-of"   = "ctfpilot"
     "component" = "ctfd-pages"
     # "version"   = local.branch
-  }
+  })
 
   depends_on = [
     kubernetes_namespace_v1.challenge-config,
     module.argocd_project_pages,
     module.repo_access_config,
-	null_resource.configure-ctfd
+    null_resource.configure-ctfd
   ]
 }

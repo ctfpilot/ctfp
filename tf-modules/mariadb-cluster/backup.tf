@@ -2,6 +2,8 @@ resource "kubernetes_secret_v1" "s3_access" {
   metadata {
     name      = "s3-access-${var.cluster_name}"
     namespace = var.namespace
+
+    labels = local.mariadb_labels
   }
 
   data = {
@@ -18,6 +20,8 @@ resource "kubernetes_manifest" "mariadb-cluster-backup" {
     metadata = {
       name      = "db-backup-${var.cluster_name}"
       namespace = var.namespace
+
+      labels = local.mariadb_labels
     }
 
     spec = {

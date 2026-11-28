@@ -5,6 +5,13 @@ resource "kubernetes_manifest" "traefik_servicemonitor" {
     metadata = {
       name      = "traefik"
       namespace = "traefik"
+
+      labels = {
+        "app.kubernetes.io/name"      = "traefik"
+        "app.kubernetes.io/component" = "platform"
+        "app.kubernetes.io/part-of"   = "ctfpilot"
+        "ctfpilot.com/component"      = "platform"
+      }
     }
     spec = {
       selector = {
@@ -35,5 +42,5 @@ module "traefik-redis" {
 
   namespace      = "traefik"
   redis_password = var.traefik_redis_password
-  cluster_size = local.traefik_redis_cluster_size
+  cluster_size   = local.traefik_redis_cluster_size
 }

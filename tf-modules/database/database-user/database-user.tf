@@ -1,3 +1,12 @@
+locals {
+  mariadb_labels = {
+    "app.kubernetes.io/name"      = "mariadb"
+    "app.kubernetes.io/component" = "platform"
+    "app.kubernetes.io/part-of"   = "ctfpilot"
+    "ctfpilot.com/component"      = "platform"
+  }
+}
+
 # ----------
 # Required
 # ----------
@@ -88,6 +97,8 @@ resource "kubernetes_manifest" "connection" {
     metadata = {
       name      = "connection"
       namespace = var.namespace
+
+      labels = local.mariadb_labels
     }
 
     spec = {
@@ -131,6 +142,8 @@ resource "kubernetes_manifest" "grant" {
     metadata = {
       name      = "${var.db_name}"
       namespace = var.namespace
+
+      labels = local.mariadb_labels
     }
     spec = {
       mariaDbRef = {
